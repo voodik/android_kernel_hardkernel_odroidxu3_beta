@@ -1914,7 +1914,7 @@ static int tvaudio_probe(struct i2c_client *client, const struct i2c_device_id *
 		printk("\n");
 	}
 
-	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
+	chip = devm_kzalloc(&client->dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;
 	sd = &chip->sd;
@@ -1934,7 +1934,6 @@ static int tvaudio_probe(struct i2c_client *client, const struct i2c_device_id *
 	}
 	if (desc->name == NULL) {
 		v4l2_dbg(1, debug, sd, "no matching chip description found\n");
-		kfree(chip);
 		return -EIO;
 	}
 	v4l2_info(sd, "%s found @ 0x%x (%s)\n", desc->name, client->addr<<1, client->adapter->name);
@@ -2005,7 +2004,6 @@ static int tvaudio_probe(struct i2c_client *client, const struct i2c_device_id *
 		int err = chip->hdl.error;
 
 		v4l2_ctrl_handler_free(&chip->hdl);
-		kfree(chip);
 		return err;
 	}
 	/* set controls to the default values */
@@ -2047,7 +2045,6 @@ static int tvaudio_remove(struct i2c_client *client)
 
 	v4l2_device_unregister_subdev(sd);
 	v4l2_ctrl_handler_free(&chip->hdl);
-	kfree(chip);
 	return 0;
 }
 
