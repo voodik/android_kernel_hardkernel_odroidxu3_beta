@@ -378,7 +378,7 @@ int regcache_drop_region(struct regmap *map, unsigned int min,
 	if (!map->cache_present && !(map->cache_ops && map->cache_ops->drop))
 		return -EINVAL;
 
-	map->lock(map);
+	map->lock(map->lock_arg);
 
 	trace_regcache_drop_region(map->dev, min, max);
 
@@ -389,7 +389,7 @@ int regcache_drop_region(struct regmap *map, unsigned int min,
 	if (map->cache_ops && map->cache_ops->drop)
 		ret = map->cache_ops->drop(map, min, max);
 
-	map->unlock(map);
+	map->unlock(map->lock_arg);
 
 	return ret;
 }
