@@ -1229,11 +1229,7 @@ static int rtl2831u_get_rc_config(struct dvb_usb_device *d,
 
 	return 0;
 }
-#else
-	#define rtl2831u_get_rc_config NULL
-#endif
 
-#if IS_ENABLED(CONFIG_RC_CORE)
 static int rtl2832u_rc_query(struct dvb_usb_device *d)
 {
 	int ret, i, len;
@@ -1336,7 +1332,8 @@ static int rtl2832u_get_rc_config(struct dvb_usb_device *d,
 	return 0;
 }
 #else
-	#define rtl2832u_get_rc_config NULL
+#define rtl2831u_get_rc_config NULL
+#define rtl2832u_get_rc_config NULL
 #endif
 
 static const struct dvb_usb_device_properties rtl2831u_props = {
