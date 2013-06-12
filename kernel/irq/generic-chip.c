@@ -45,7 +45,7 @@ void irq_gc_mask_disable_reg(struct irq_data *d)
 }
 
 /**
- * irq_gc_mask_set_mask_bit - Mask chip via setting bit in mask register
+ * irq_gc_mask_set_bit - Mask irq via setting bit in mask register
  * @d: irq_data
  *
  * Chip has a single mask register. Values of this register are cached
@@ -64,7 +64,7 @@ void irq_gc_mask_set_bit(struct irq_data *d)
 }
 
 /**
- * irq_gc_mask_set_mask_bit - Mask chip via clearing bit in mask register
+ * irq_gc_mask_clr_bit - Mask chip via clearing bit in mask register
  * @d: irq_data
  *
  * Chip has a single mask register. Values of this register are cached
@@ -132,7 +132,7 @@ void irq_gc_ack_clr_bit(struct irq_data *d)
 }
 
 /**
- * irq_gc_mask_disable_reg_and_ack- Mask and ack pending interrupt
+ * irq_gc_mask_disable_reg_and_ack - Mask and ack pending interrupt
  * @d: irq_data
  */
 void irq_gc_mask_disable_reg_and_ack(struct irq_data *d)
