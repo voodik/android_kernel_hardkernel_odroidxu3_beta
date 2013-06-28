@@ -45,7 +45,7 @@ void irq_gc_mask_disable_reg(struct irq_data *d)
 }
 
 /**
- * irq_gc_mask_set_bit - Mask irq via setting bit in mask register
+ * irq_gc_mask_set_bit - Mask chip via setting bit in mask register
  * @d: irq_data
  *
  * Chip has a single mask register. Values of this register are cached
@@ -135,7 +135,7 @@ void irq_gc_ack_clr_bit(struct irq_data *d)
 }
 
 /**
- * irq_gc_mask_disable_reg_and_ack - Mask and ack pending interrupt
+ * irq_gc_mask_disable_reg_and_ack- Mask and ack pending interrupt
  * @d: irq_data
  */
 void irq_gc_mask_disable_reg_and_ack(struct irq_data *d)
@@ -167,7 +167,8 @@ void irq_gc_eoi(struct irq_data *d)
 
 /**
  * irq_gc_set_wake - Set/clr wake bit for an interrupt
- * @d: irq_data
+ * @d:  irq_data
+ * @on: Indicates whether the wake bit should be set or cleared
  *
  * For chips where the wake from suspend functionality is not
  * configured in a separate register and the wakeup active state is
@@ -274,7 +275,10 @@ int irq_alloc_domain_generic_chips(struct irq_domain *d, int irqs_per_chip,
 	if (d->gc)
 		return -EBUSY;
 
-	numchips = d->revmap_size / irqs_per_chip;
+	if (d->revmap_type != IRQ_DOMAIN_MAP_LINEAR)
+		return -EINVAL;
+
+	numchips = d->revmap_data.linear.size / irqs_per_chip;
 	if (!numchips)
 		return -EINVAL;
 
@@ -306,7 +310,6 @@ int irq_alloc_domain_generic_chips(struct irq_domain *d, int irqs_per_chip,
 		/* Calc pointer to the next generic chip */
 		tmp += sizeof(*gc) + num_ct * sizeof(struct irq_chip_type);
 	}
-	d->name = name;
 	return 0;
 }
 EXPORT_SYMBOL_GPL(irq_alloc_domain_generic_chips);
@@ -337,7 +340,7 @@ EXPORT_SYMBOL_GPL(irq_get_domain_generic_chip);
  */
 static struct lock_class_key irq_nested_lock_class;
 
-/**
+/*
  * irq_map_generic_chip - Map a generic chip for an irq domain
  */
 static int irq_map_generic_chip(struct irq_domain *d, unsigned int virq,
@@ -360,6 +363,9 @@ static int irq_map_generic_chip(struct irq_domain *d, unsigned int virq,
 	gc = dgc->gc[idx];
 
 	idx = hw_irq % dgc->irqs_per_chip;
+
+	if (test_bit(idx, &gc->unused))
+		return -ENOTSUPP;
 
 	if (test_bit(idx, &gc->installed))
 		return -EBUSY;
@@ -449,7 +455,7 @@ EXPORT_SYMBOL_GPL(irq_setup_generic_chip);
 /**
  * irq_setup_alt_chip - Switch to alternative chip
  * @d:		irq_data for this interrupt
- * @type	Flow type to be initialized
+ * @type:	Flow type to be initialized
  *
  * Only to be called from chip->irq_set_type() callbacks.
  */
