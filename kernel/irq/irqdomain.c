@@ -465,26 +465,39 @@ int irq_create_strict_mappings(struct irq_domain *domain, unsigned int irq_base,
 }
 EXPORT_SYMBOL_GPL(irq_create_strict_mappings);
 
-unsigned int irq_create_of_mapping(struct of_phandle_args *irq_data)
+unsigned int irq_create_of_mapping(struct device_node *controller,
+				   const u32 *intspec, unsigned int intsize)
 {
 	struct irq_domain *domain;
 	irq_hw_number_t hwirq;
 	unsigned int type = IRQ_TYPE_NONE;
 	unsigned int virq;
 
-	domain = irq_data->np ? irq_find_host(irq_data->np) : irq_default_domain;
+	domain = controller ? irq_find_host(controller) : irq_default_domain;
 	if (!domain) {
+#ifdef CONFIG_MIPS
+		/*
+		 * Workaround to avoid breaking interrupt controller drivers
+		 * that don't yet register an irq_domain.  This is temporary
+		 * code. ~~~gcl, Feb 24, 2012
+		 *
+		 * Scheduled for removal in Linux v3.6.  That should be enough
+		 * time.
+		 */
+		if (intsize > 0)
+			return intspec[0];
+#endif
 		pr_warn("no irq domain found for %s !\n",
-			of_node_full_name(irq_data->np));
+			of_node_full_name(controller));
 		return 0;
 	}
 
 	/* If domain has no translation, then we assume interrupt line */
 	if (domain->ops->xlate == NULL)
-		hwirq = irq_data->args[0];
+		hwirq = intspec[0];
 	else {
-		if (domain->ops->xlate(domain, irq_data->np, irq_data->args,
-					irq_data->args_count, &hwirq, &type))
+		if (domain->ops->xlate(domain, controller, intspec, intsize,
+				     &hwirq, &type))
 			return 0;
 	}
 
