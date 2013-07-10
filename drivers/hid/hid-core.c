@@ -1231,7 +1231,8 @@ static void hid_output_field(const struct hid_device *hid,
 }
 
 /*
- * Create a report.
+ * Create a report. 'data' has to be allocated using
+ * hid_alloc_report_buf() so that it has proper size.
  */
 
 void hid_output_report(struct hid_report *report, __u8 *data)
