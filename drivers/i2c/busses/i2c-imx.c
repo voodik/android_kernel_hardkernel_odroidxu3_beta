@@ -50,8 +50,6 @@
 #include <linux/slab.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
-#include <linux/of_i2c.h>
-#include <linux/pinctrl/consumer.h>
 #include <linux/platform_data/i2c-imx.h>
 
 /** Defines ********************************************************************
@@ -580,8 +578,6 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "registration failed\n");
 		return ret;
 	}
-
-	of_i2c_register_devices(&i2c_imx->adapter);
 
 	/* Set up platform driver data */
 	platform_set_drvdata(pdev, i2c_imx);

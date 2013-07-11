@@ -934,6 +934,9 @@ stu300_probe(struct platform_device *pdev)
 	}
 
 	platform_set_drvdata(pdev, dev);
+	dev_info(&pdev->dev, "ST DDC I2C @ %p, irq %d\n",
+		 dev->virtbase, dev->irq);
+
 	return 0;
 }
 
