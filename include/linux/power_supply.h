@@ -15,6 +15,7 @@
 
 #include <linux/workqueue.h>
 #include <linux/leds.h>
+#include <linux/spinlock.h>
 
 struct device;
 
