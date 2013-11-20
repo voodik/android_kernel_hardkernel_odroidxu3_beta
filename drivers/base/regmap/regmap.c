@@ -1550,7 +1550,7 @@ int regmap_bulk_write(struct regmap *map, unsigned int reg, const void *val,
 						val_bytes,
 						false);
 			if (ret != 0)
-				return ret;
+				goto out;
 		}
 	} else {
 		ret = _regmap_raw_write(map, reg, wval, val_bytes * val_count);
