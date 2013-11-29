@@ -14,23 +14,33 @@
  *    GNU General Public License for more details.
  */
 
-#ifndef MN88472_PRIV_H
-#define MN88472_PRIV_H
+#ifndef MN88472_H
+#define MN88472_H
 
-#include "dvb_frontend.h"
-#include "mn88472.h"
-#include "dvb_math.h"
-#include <linux/firmware.h>
-#include <linux/i2c-mux.h>
+#include <linux/dvb/frontend.h>
 
-#define MN88472_FIRMWARE "dvb-demod-mn88472-02.fw"
-
-struct mn88472_state {
-	struct i2c_adapter *i2c;
-	const struct mn88472_c_config *cfg;
-	struct dvb_frontend fe;
-	fe_delivery_system_t delivery_system;
-	bool warm; /* FW running */
+struct mn88472_c_config {
+	/*
+	 * max bytes I2C client could write
+	 * Value must be set.
+	 */
+	int i2c_wr_max;
 };
+
+#if IS_ENABLED(CONFIG_DVB_MN88472)
+extern struct dvb_frontend *mn88472_c_attach(
+	const struct mn88472_c_config *cfg,
+	struct i2c_adapter *i2c
+);
+#else
+static inline struct dvb_frontend *mn88472_c_attach(
+	const struct mn88472_c_config *cfg,
+	struct i2c_adapter *i2c
+)
+{
+	dev_warn(&i2c->dev, "%s: driver disabled by Kconfig\n", __func__);
+	return NULL;
+}
+#endif
 
 #endif
