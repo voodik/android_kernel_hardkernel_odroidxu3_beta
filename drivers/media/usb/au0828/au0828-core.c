@@ -248,9 +248,8 @@ static int au0828_usb_probe(struct usb_interface *interface,
 	const struct usb_device_id *id)
 {
 	int ifnum;
-#ifdef CONFIG_VIDEO_AU0828_V4L2
-	int retval;
-#endif
+	int retval = 0;
+
 	struct au0828_dev *dev;
 	struct usb_device *usbdev = interface_to_usbdev(interface);
 
@@ -332,7 +331,11 @@ static int au0828_usb_probe(struct usb_interface *interface,
 #endif
 
 	/* Digital TV */
-	au0828_dvb_register(dev);
+	retval = au0828_dvb_register(dev);
+	if (retval)
+		pr_err("%s() au0282_dev_register failed\n",
+		       __func__);
+
 
 	/* Store the pointer to the au0828_dev so it can be accessed in
 	   au0828_usb_disconnect */
@@ -343,7 +346,7 @@ static int au0828_usb_probe(struct usb_interface *interface,
 
 	mutex_unlock(&dev->lock);
 
-	return 0;
+	return retval;
 }
 
 static struct usb_driver au0828_usb_driver = {
