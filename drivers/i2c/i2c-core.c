@@ -104,11 +104,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
 static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
 	struct i2c_client	*client = to_i2c_client(dev);
-	int rc;
-
-	rc = acpi_device_uevent_modalias(dev, env);
-	if (rc != -ENODEV)
-		return rc;
 
 	if (add_uevent_var(env, "MODALIAS=%s%s",
 			   I2C_MODULE_PREFIX, client->name))
@@ -253,7 +248,7 @@ static int i2c_device_probe(struct device *dev)
 	driver = to_i2c_driver(dev->driver);
 	if (!driver->probe || !driver->id_table)
 		return -ENODEV;
-	client->driver = driver;
+
 	if (!device_can_wakeup(&client->dev))
 		device_init_wakeup(&client->dev,
 					client->flags & I2C_CLIENT_WAKE);
@@ -261,11 +256,9 @@ static int i2c_device_probe(struct device *dev)
 
 	acpi_dev_pm_attach(&client->dev, true);
 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
-	if (status) {
-		client->driver = NULL;
-		i2c_set_clientdata(client, NULL);
+	if (status)
 		acpi_dev_pm_detach(&client->dev, true);
-	}
+
 	return status;
 }
 
@@ -273,7 +266,7 @@ static int i2c_device_remove(struct device *dev)
 {
 	struct i2c_client	*client = i2c_verify_client(dev);
 	struct i2c_driver	*driver;
-	int			status;
+	int status = 0;
 
 	if (!client || !dev->driver)
 		return 0;
@@ -282,14 +275,8 @@ static int i2c_device_remove(struct device *dev)
 	if (driver->remove) {
 		dev_dbg(dev, "remove\n");
 		status = driver->remove(client);
-	} else {
-		dev->driver = NULL;
-		status = 0;
 	}
-	if (status == 0) {
-		client->driver = NULL;
-		i2c_set_clientdata(client, NULL);
-	}
+
 	acpi_dev_pm_detach(&client->dev, true);
 	return status;
 }
@@ -417,12 +404,6 @@ static ssize_t
 show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct i2c_client *client = to_i2c_client(dev);
-	int len;
-
-	len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
-	if (len != -ENODEV)
-		return len;
-
 	return sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
 }
 
@@ -1638,9 +1619,14 @@ static int i2c_cmd(struct device *dev, void *_arg)
 {
 	struct i2c_client	*client = i2c_verify_client(dev);
 	struct i2c_cmd_arg	*arg = _arg;
+	struct i2c_driver	*driver;
 
-	if (client && client->driver && client->driver->command)
-		client->driver->command(client, arg->cmd, arg->arg);
+	if (!client || !client->dev.driver)
+		return 0;
+
+	driver = to_i2c_driver(client->dev.driver);
+	if (driver->command)
+		driver->command(client, arg->cmd, arg->arg);
 	return 0;
 }
 
