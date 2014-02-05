@@ -69,7 +69,7 @@ static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
 	if (!buf)
 		return -ENOMEM;
 
-	ret = hdev->hid_output_raw_report(hdev, buf, count, HID_OUTPUT_REPORT);
+	ret = hid_output_raw_report(hdev, buf, count, HID_OUTPUT_REPORT);
 
 	kfree(buf);
 	return ret;

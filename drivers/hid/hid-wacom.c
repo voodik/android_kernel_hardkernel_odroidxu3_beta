@@ -126,8 +126,7 @@ static void wacom_set_image(struct hid_device *hdev, const char *image,
 
 	rep_data[0] = WAC_CMD_ICON_START_STOP;
 	rep_data[1] = 0;
-	ret = hdev->hid_output_raw_report(hdev, rep_data, 2,
-				HID_FEATURE_REPORT);
+	ret = hid_output_raw_report(hdev, rep_data, 2, HID_FEATURE_REPORT);
 	if (ret < 0)
 		goto err;
 
@@ -141,15 +140,14 @@ static void wacom_set_image(struct hid_device *hdev, const char *image,
 			rep_data[j + 3] = p[(i << 6) + j];
 
 		rep_data[2] = i;
-		ret = hdev->hid_output_raw_report(hdev, rep_data, 67,
+		ret = hid_output_raw_report(hdev, rep_data, 67,
 					HID_FEATURE_REPORT);
 	}
 
 	rep_data[0] = WAC_CMD_ICON_START_STOP;
 	rep_data[1] = 0;
 
-	ret = hdev->hid_output_raw_report(hdev, rep_data, 2,
-				HID_FEATURE_REPORT);
+	ret = hid_output_raw_report(hdev, rep_data, 2, HID_FEATURE_REPORT);
 
 err:
 	return;
@@ -181,7 +179,7 @@ static void wacom_leds_set_brightness(struct led_classdev *led_dev,
 		buf[3] = value;
 		/* use fixed brightness for OLEDs */
 		buf[4] = 0x08;
-		hdev->hid_output_raw_report(hdev, buf, 9, HID_FEATURE_REPORT);
+		hid_output_raw_report(hdev, buf, 9, HID_FEATURE_REPORT);
 		kfree(buf);
 	}
 
@@ -328,7 +326,7 @@ static void wacom_set_features(struct hid_device *hdev, u8 speed)
 		rep_data[0] = 0x03 ; rep_data[1] = 0x00;
 		limit = 3;
 		do {
-			ret = hdev->hid_output_raw_report(hdev, rep_data, 2,
+			ret = hid_output_raw_report(hdev, rep_data, 2,
 					HID_FEATURE_REPORT);
 		} while (ret < 0 && limit-- > 0);
 
@@ -341,7 +339,7 @@ static void wacom_set_features(struct hid_device *hdev, u8 speed)
 			rep_data[1] = 0x00;
 			limit = 3;
 			do {
-				ret = hdev->hid_output_raw_report(hdev,
+				ret = hid_output_raw_report(hdev,
 					rep_data, 2, HID_FEATURE_REPORT);
 			} while (ret < 0 && limit-- > 0);
 
@@ -367,7 +365,7 @@ static void wacom_set_features(struct hid_device *hdev, u8 speed)
 		rep_data[0] = 0x03;
 		rep_data[1] = wdata->features;
 
-		ret = hdev->hid_output_raw_report(hdev, rep_data, 2,
+		ret = hid_output_raw_report(hdev, rep_data, 2,
 					HID_FEATURE_REPORT);
 		if (ret >= 0)
 			wdata->high_speed = speed;
