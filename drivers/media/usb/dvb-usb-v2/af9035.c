@@ -575,6 +575,10 @@ static int af9035_download_firmware(struct dvb_usb_device *d,
 		if (ret < 0)
 			goto err;
 
+		/* use default I2C address if eeprom has no address set */
+		if (!tmp)
+			tmp = 0x3a;
+
 		if (state->chip_type == 0x9135) {
 			ret = af9035_wr_reg(d, 0x004bfb, tmp);
 			if (ret < 0)
@@ -637,6 +641,7 @@ static int af9035_read_config(struct dvb_usb_device *d)
 
 	/* demod I2C "address" */
 	state->af9033_config[0].i2c_addr = 0x38;
+	state->af9033_config[1].i2c_addr = 0x3a;
 	state->af9033_config[0].adc_multiplier = AF9033_ADC_MULTIPLIER_2X;
 	state->af9033_config[1].adc_multiplier = AF9033_ADC_MULTIPLIER_2X;
 	state->af9033_config[0].ts_mode = AF9033_TS_MODE_USB;
@@ -684,7 +689,9 @@ static int af9035_read_config(struct dvb_usb_device *d)
 		if (ret < 0)
 			goto err;
 
-		state->af9033_config[1].i2c_addr = tmp;
+		if (tmp)
+			state->af9033_config[1].i2c_addr = tmp;
+
 		dev_dbg(&d->udev->dev, "%s: 2nd demod I2C addr=%02x\n",
 				__func__, tmp);
 	}
