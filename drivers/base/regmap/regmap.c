@@ -2396,6 +2396,9 @@ EXPORT_SYMBOL_GPL(regmap_async_complete);
  * apply them immediately.  Typically this is used to apply
  * corrections to be applied to the device defaults on startup, such
  * as the updates some vendors provide to undocumented registers.
+ *
+ * The caller must ensure that this function cannot be called
+ * concurrently with either itself or regcache_sync().
  */
 int regmap_register_patch(struct regmap *map, const struct reg_default *regs,
 			  int num_regs)
@@ -2408,6 +2411,17 @@ int regmap_register_patch(struct regmap *map, const struct reg_default *regs,
 	    num_regs))
 		return 0;
 
+	p = krealloc(map->patch,
+		     sizeof(struct reg_default) * (map->patch_regs + num_regs),
+		     GFP_KERNEL);
+	if (p) {
+		memcpy(p + map->patch_regs, regs, num_regs * sizeof(*regs));
+		map->patch = p;
+		map->patch_regs += num_regs;
+	} else {
+		return -ENOMEM;
+	}
+
 	map->lock(map->lock_arg);
 
 	bypass = map->cache_bypass;
@@ -2418,17 +2432,6 @@ int regmap_register_patch(struct regmap *map, const struct reg_default *regs,
 	ret = _regmap_multi_reg_write(map, regs, num_regs);
 	if (ret != 0)
 		goto out;
-
-	p = krealloc(map->patch,
-		     sizeof(struct reg_default) * (map->patch_regs + num_regs),
-		     GFP_KERNEL);
-	if (p) {
-		memcpy(p + map->patch_regs, regs, num_regs * sizeof(*regs));
-		map->patch = p;
-		map->patch_regs += num_regs;
-	} else {
-		ret = -ENOMEM;
-	}
 
 out:
 	map->async = false;
