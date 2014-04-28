@@ -1297,7 +1297,6 @@ static const struct v4l2_subdev_core_ops cx18_av_general_ops = {
 	.g_ext_ctrls = v4l2_subdev_g_ext_ctrls,
 	.queryctrl = v4l2_subdev_queryctrl,
 	.querymenu = v4l2_subdev_querymenu,
-	.s_std = cx18_av_s_std,
 #ifdef CONFIG_VIDEO_ADV_DEBUG
 	.g_register = cx18_av_g_register,
 	.s_register = cx18_av_s_register,
@@ -1317,6 +1316,7 @@ static const struct v4l2_subdev_audio_ops cx18_av_audio_ops = {
 };
 
 static const struct v4l2_subdev_video_ops cx18_av_video_ops = {
+	.s_std = cx18_av_s_std,
 	.s_routing = cx18_av_s_video_routing,
 	.s_stream = cx18_av_s_stream,
 	.s_mbus_fmt = cx18_av_s_mbus_fmt,

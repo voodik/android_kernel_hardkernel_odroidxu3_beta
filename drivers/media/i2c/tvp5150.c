@@ -1096,7 +1096,6 @@ static const struct v4l2_ctrl_ops tvp5150_ctrl_ops = {
 
 static const struct v4l2_subdev_core_ops tvp5150_core_ops = {
 	.log_status = tvp5150_log_status,
-	.s_std = tvp5150_s_std,
 	.reset = tvp5150_reset,
 	.g_chip_ident = tvp5150_g_chip_ident,
 #ifdef CONFIG_VIDEO_ADV_DEBUG
@@ -1110,6 +1109,7 @@ static const struct v4l2_subdev_tuner_ops tvp5150_tuner_ops = {
 };
 
 static const struct v4l2_subdev_video_ops tvp5150_video_ops = {
+	.s_std = tvp5150_s_std,
 	.s_routing = tvp5150_s_routing,
 	.enum_mbus_fmt = tvp5150_enum_mbus_fmt,
 	.s_mbus_fmt = tvp5150_mbus_fmt,
