@@ -212,6 +212,7 @@ struct ion_heap {
 	atomic_t page_idx;
 	struct vm_struct *reserved_vm_area;
 	pte_t **pte;
+
 	int (*debug_show)(struct ion_heap *heap, struct seq_file *, void *);
 };
 
