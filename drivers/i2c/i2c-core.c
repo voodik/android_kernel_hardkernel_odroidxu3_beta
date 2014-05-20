@@ -1282,6 +1282,7 @@ exit_recovery:
 	/* create pre-declared device nodes */
 	of_i2c_register_devices(adap);
 	acpi_i2c_register_devices(adap);
+	acpi_i2c_install_space_handler(adap);
 
 	if (adap->nr < __i2c_first_dynamic_bus_num)
 		i2c_scan_static_board_info(adap);
@@ -1455,6 +1456,7 @@ void i2c_del_adapter(struct i2c_adapter *adap)
 		return;
 	}
 
+	acpi_i2c_remove_space_handler(adap);
 	/* Tell drivers about this removal */
 	mutex_lock(&core_lock);
 	bus_for_each_drv(&i2c_bus_type, NULL, adap,
