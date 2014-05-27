@@ -1163,7 +1163,6 @@ static int vidioc_try_fmt_vid_cap(struct file *file, void *fh,
 	f->fmt.pix.sizeimage = f->fmt.pix.height *
 			       f->fmt.pix.bytesperline;
 	f->fmt.pix.colorspace = 0;
-	f->fmt.pix.priv = 0;
 
 	return 0;
 }
@@ -1229,7 +1228,6 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *fh,
 	f->fmt.pix.sizeimage = f->fmt.pix.height *
 			       f->fmt.pix.bytesperline;
 	f->fmt.pix.colorspace = 0;
-	f->fmt.pix.priv = 0;
 
 	return 0;
 }
