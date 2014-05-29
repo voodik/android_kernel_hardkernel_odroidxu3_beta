@@ -1346,7 +1346,7 @@ static int stk807x_frontend_attach(struct dvb_usb_adapter *adap)
 	dib8000_i2c_enumeration(&adap->dev->i2c_adap, 1, 18,
 				0x80, 0);
 
-	adap->fe_adap[0].fe = dvb_attach(dib8000_attach, &adap->dev->i2c_adap, 0x80,
+	adap->fe_adap[0].fe = dvb_attach(dib8000_init, &adap->dev->i2c_adap, 0x80,
 			      &dib807x_dib8000_config[0]);
 
 	return adap->fe_adap[0].fe == NULL ?  -ENODEV : 0;
@@ -1375,7 +1375,7 @@ static int stk807xpvr_frontend_attach0(struct dvb_usb_adapter *adap)
 	/* initialize IC 0 */
 	dib8000_i2c_enumeration(&adap->dev->i2c_adap, 1, 0x22, 0x80, 0);
 
-	adap->fe_adap[0].fe = dvb_attach(dib8000_attach, &adap->dev->i2c_adap, 0x80,
+	adap->fe_adap[0].fe = dvb_attach(dib8000_init, &adap->dev->i2c_adap, 0x80,
 			      &dib807x_dib8000_config[0]);
 
 	return adap->fe_adap[0].fe == NULL ? -ENODEV : 0;
@@ -1386,7 +1386,7 @@ static int stk807xpvr_frontend_attach1(struct dvb_usb_adapter *adap)
 	/* initialize IC 1 */
 	dib8000_i2c_enumeration(&adap->dev->i2c_adap, 1, 0x12, 0x82, 0);
 
-	adap->fe_adap[0].fe = dvb_attach(dib8000_attach, &adap->dev->i2c_adap, 0x82,
+	adap->fe_adap[0].fe = dvb_attach(dib8000_init, &adap->dev->i2c_adap, 0x82,
 			      &dib807x_dib8000_config[1]);
 
 	return adap->fe_adap[0].fe == NULL ? -ENODEV : 0;
@@ -1737,7 +1737,7 @@ static int stk809x_frontend_attach(struct dvb_usb_adapter *adap)
 
 	dib8000_i2c_enumeration(&adap->dev->i2c_adap, 1, 18, 0x80, 0);
 
-	adap->fe_adap[0].fe = dvb_attach(dib8000_attach, &adap->dev->i2c_adap, 0x80, &dib809x_dib8000_config[0]);
+	adap->fe_adap[0].fe = dvb_attach(dib8000_init, &adap->dev->i2c_adap, 0x80, &dib809x_dib8000_config[0]);
 
 	return adap->fe_adap[0].fe == NULL ?  -ENODEV : 0;
 }
@@ -1802,11 +1802,11 @@ static int nim8096md_frontend_attach(struct dvb_usb_adapter *adap)
 
 	dib8000_i2c_enumeration(&adap->dev->i2c_adap, 2, 18, 0x80, 0);
 
-	adap->fe_adap[0].fe = dvb_attach(dib8000_attach, &adap->dev->i2c_adap, 0x80, &dib809x_dib8000_config[0]);
+	adap->fe_adap[0].fe = dvb_attach(dib8000_init, &adap->dev->i2c_adap, 0x80, &dib809x_dib8000_config[0]);
 	if (adap->fe_adap[0].fe == NULL)
 		return -ENODEV;
 
-	fe_slave = dvb_attach(dib8000_attach, &adap->dev->i2c_adap, 0x82, &dib809x_dib8000_config[1]);
+	fe_slave = dvb_attach(dib8000_init, &adap->dev->i2c_adap, 0x82, &dib809x_dib8000_config[1]);
 	dib8000_set_slave_frontend(adap->fe_adap[0].fe, fe_slave);
 
 	return fe_slave == NULL ?  -ENODEV : 0;
@@ -2129,7 +2129,7 @@ static int tfe8096p_frontend_attach(struct dvb_usb_adapter *adap)
 
 	dib8000_i2c_enumeration(&adap->dev->i2c_adap, 1, 0x10, 0x80, 1);
 
-	adap->fe_adap[0].fe = dvb_attach(dib8000_attach,
+	adap->fe_adap[0].fe = dvb_attach(dib8000_init,
 			&adap->dev->i2c_adap, 0x80, &tfe8096p_dib8000_config);
 
 	return adap->fe_adap[0].fe == NULL ?  -ENODEV : 0;
