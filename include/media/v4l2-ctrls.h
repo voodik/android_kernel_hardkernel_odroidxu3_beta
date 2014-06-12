@@ -128,7 +128,10 @@ typedef void (*v4l2_ctrl_notify_fnc)(struct v4l2_ctrl *ctrl, void *priv);
   * @maximum:	The control's maximum value.
   * @default_value: The control's default value.
   * @step:	The control's step value for non-menu controls.
+  * @elems:	The number of elements in the N-dimensional array.
   * @elem_size:	The size in bytes of the control.
+  * @dims:	The size of each dimension.
+  * @nr_of_dims:The number of dimensions in @dims.
   * @menu_skip_mask: The control's skip mask for menu controls. This makes it
   *		easy to skip menu items that are not valid. If bit X is set,
   *		then menu item X is skipped. Of course, this only works for
@@ -175,7 +178,10 @@ struct v4l2_ctrl {
 	const char *name;
 	enum v4l2_ctrl_type type;
 	s64 minimum, maximum, default_value;
+	u32 elems;
 	u32 elem_size;
+	u32 dims[V4L2_CTRL_MAX_DIMS];
+	u32 nr_of_dims;
 	union {
 		u64 step;
 		u64 menu_skip_mask;
@@ -254,6 +260,7 @@ struct v4l2_ctrl_handler {
   * @max:	The control's maximum value.
   * @step:	The control's step value for non-menu controls.
   * @def: 	The control's default value.
+  * @dims:	The size of each dimension.
   * @elem_size:	The size in bytes of the control.
   * @flags:	The control's flags.
   * @menu_skip_mask: The control's skip mask for menu controls. This makes it
@@ -279,6 +286,7 @@ struct v4l2_ctrl_config {
 	s64 max;
 	u64 step;
 	s64 def;
+	u32 dims[V4L2_CTRL_MAX_DIMS];
 	u32 elem_size;
 	u32 flags;
 	u64 menu_skip_mask;
