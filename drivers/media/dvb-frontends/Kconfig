@@ -70,6 +70,14 @@ config DVB_MN88473
 	select REGMAP_I2C
 	default m if !MEDIA_SUBDRV_AUTOSELECT
 	help
+
+config DVB_SI2165
+	tristate "Silicon Labs si2165 based"
+	depends on DVB_CORE && I2C
+	default m if !MEDIA_SUBDRV_AUTOSELECT
+	help
+	  A DVB-C/T demodulator.
+
 	  Say Y when you want to support this frontend.
 
 comment "DVB-S (satellite) frontends"
