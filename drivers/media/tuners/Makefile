@@ -35,7 +35,7 @@ obj-$(CONFIG_MEDIA_TUNER_SI2157) += si2157.o
 obj-$(CONFIG_MEDIA_TUNER_FC0011) += fc0011.o
 obj-$(CONFIG_MEDIA_TUNER_FC0012) += fc0012.o
 obj-$(CONFIG_MEDIA_TUNER_FC0013) += fc0013.o
-obj-$(CONFIG_MEDIA_TUNER_IT913X) += tuner_it913x.o
+obj-$(CONFIG_MEDIA_TUNER_IT913X) += it913x.o
 obj-$(CONFIG_MEDIA_TUNER_R820T) += r820t.o
 
 ccflags-y += -I$(srctree)/drivers/media/dvb-core
