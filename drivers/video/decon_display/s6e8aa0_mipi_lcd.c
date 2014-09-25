@@ -243,7 +243,7 @@ static int s6e8aa0_set_brightness(struct backlight_device *bd)
 		return -EINVAL;
 	}
 
-	update_brightness(brightness);
+//	update_brightness(brightness);
 
 	return 1;
 }
