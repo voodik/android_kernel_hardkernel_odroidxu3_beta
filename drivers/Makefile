@@ -158,3 +158,4 @@ obj-$(CONFIG_NTB)		+= ntb/
 obj-$(CONFIG_MOBICORE_DRIVER)   += gud/
 # Hardkernel Specific
 obj-$(CONFIG_MACH_ODROIDXU3)	+= hardkernel/
+obj-$(CONFIG_ANDROID)		+= android/
