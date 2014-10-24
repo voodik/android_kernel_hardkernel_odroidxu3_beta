@@ -398,6 +398,29 @@ samsung_usb3phy_lpa_event(struct notifier_block *nb,
 	return ret;
 }
 
+#if defined(CONFIG_MACH_ODROIDXU3)
+
+static struct samsung_usbphy    *g_usb3phy[2];
+
+void samsung_usb3phy_retune(int phy_num)
+{
+	unsigned int    temp;
+
+	temp =  LOSLEVEL_OVRD_IN_LOS_BIAS_5420 |
+		    LOSLEVEL_OVRD_IN_EN |
+		    LOSLEVEL_OVRD_IN_LOS_LEVEL_DEFAULT;
+
+	samsung_usb3phy_crport_ctrl(g_usb3phy[phy_num],
+		EXYNOS5_DRD_PHYSS_LOSLEVEL_OVRD_IN, temp);
+
+	temp = TX_VBOOSTLEVEL_OVRD_IN_VBOOST_5420;
+	samsung_usb3phy_crport_ctrl(g_usb3phy[phy_num],
+		EXYNOS5_DRD_PHYSS_TX_VBOOSTLEVEL_OVRD_IN, temp);
+}
+EXPORT_SYMBOL(samsung_usb3phy_retune);
+
+#endif
+
 static int samsung_usb3phy_probe(struct platform_device *pdev)
 {
 	struct samsung_usbphy *sphy;
@@ -472,6 +495,14 @@ static int samsung_usb3phy_probe(struct platform_device *pdev)
 	}
 
 	platform_set_drvdata(pdev, sphy);
+
+#if defined(CONFIG_MACH_ODROIDXU3)
+    #define USB3_PHY0_BASE  0xDF8FE000
+    #define USB3_PHY1_BASE  0xDF94A000
+
+    if(phy_base == USB3_PHY0_BASE)  g_usb3phy[0] = sphy; 
+    else                            g_usb3phy[1] = sphy;
+#endif
 
 	return 0;
 
