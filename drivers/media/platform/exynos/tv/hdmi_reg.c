@@ -85,6 +85,70 @@ static const struct hdmi_timings hdmi_conf_720p60 = {
 	.vic = 4,
 };
 
+static const struct hdmi_timings hdmi_conf_800p59 = {
+	.core = {
+		.h_blank = {0xa0, 0x00},
+		.v2_blank = {0x37, 0x03},
+		.v1_blank = {0x17, 0x00},
+		.v_line = {0x37, 0x03},
+		.h_line = {0xa0, 0x05},
+		.hsync_pol = {0x00},
+		.vsync_pol = {0x00},
+		.int_pro_mode = {0x00},
+		.v_blank_f0 = {0xff, 0xff},
+		.v_blank_f1 = {0xff, 0xff},
+		.h_sync_start = {0x28, 0x00},
+		.h_sync_end = {0x3c, 0x00},
+		.v_sync_line_bef_2 = {0x0e, 0x00},
+		.v_sync_line_bef_1 = {0x0c, 0x00},
+		.v_sync_line_aft_2 = {0xff, 0xff},
+		.v_sync_line_aft_1 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_2 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_1 = {0xff, 0xff},
+		.v_blank_f2 = {0xff, 0xff},
+		.v_blank_f3 = {0xff, 0xff},
+		.v_blank_f4 = {0xff, 0xff},
+		.v_blank_f5 = {0xff, 0xff},
+		.v_sync_line_aft_3 = {0xff, 0xff},
+		.v_sync_line_aft_4 = {0xff, 0xff},
+		.v_sync_line_aft_5 = {0xff, 0xff},
+		.v_sync_line_aft_6 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_3 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_4 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_5 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_6 = {0xff, 0xff},
+		.vact_space_1 = {0xff, 0xff},
+		.vact_space_2 = {0xff, 0xff},
+		.vact_space_3 = {0xff, 0xff},
+		.vact_space_4 = {0xff, 0xff},
+		.vact_space_5 = {0xff, 0xff},
+		.vact_space_6 = {0xff, 0xff},
+		/* other don't care */
+	},
+	.tg = {
+		0x00, /* cmd */
+		0xa0, 0x05, /* h_fsz */
+		0xa0, 0x00, 0x00, 0x05, /* hact */
+		0x37, 0x03, /* v_fsz */
+		0x01, 0x00, 0x33, 0x02, /* vsync */
+		0x17, 0x00, 0x20, 0x03, /* vact */
+		0x33, 0x02, /* field_chg */
+		0x48, 0x02, /* vact_st2 */
+		0x7b, 0x04, /* vact_st3 */
+		0xae, 0x06, /* vact_st4 */
+		0x01, 0x00, 0x33, 0x02, /* vsync top/bot */
+		0x01, 0x00, 0x33, 0x02, /* field top/bot */
+		0x00, /* 3d FP */
+	},
+	.mbus_fmt = {
+		.width = 1280,
+		.height = 800,
+		.code = V4L2_MBUS_FMT_FIXED, /* means RGB888 */
+		.field = V4L2_FIELD_NONE,
+	},
+	.vic = 4,
+};
+
 static const struct hdmi_timings hdmi_conf_1080i60 = {
 	.core = {
 		.h_blank = {0x18, 0x01},
@@ -1569,6 +1633,7 @@ const struct hdmi_conf hdmi_conf[] = {
 	{ V4L2_DV_BT_CEA_720X576P50,	   &hdmi_conf_576p50,		&info_2d },
 	{ V4L2_DV_BT_CEA_1280X720P50,	   &hdmi_conf_720p50,		&info_2d },
 	{ V4L2_DV_BT_CEA_1280X720P60,	   &hdmi_conf_720p60,		&info_2d },
+	{ V4L2_DV_BT_DMT_1280X800P60_RB,	   &hdmi_conf_800p59,		&info_2d },
 	{ V4L2_DV_BT_CEA_1920X1080I50,	   &hdmi_conf_1080i50,		&info_2d },
 	{ V4L2_DV_BT_CEA_1920X1080I60,	   &hdmi_conf_1080i60,		&info_2d },
 	{ V4L2_DV_BT_CEA_1920X1080P24,	   &hdmi_conf_1080p24,		&info_2d },
@@ -1803,6 +1868,15 @@ static const u8 *hdmiphy_timing2conf(struct v4l2_dv_timings *timings)
 	return  hdmiphy_conf[i].data;
 }
 
+// Config Enable : Device Drivers -> Hardkernel
+#if defined(CONFIG_ODROID_EXYNOS5_HDMI_PHY_TUNE)
+    // hdmi_conf_28nm.c
+    extern  void hdmi_phy_tune(unsigned char *);
+    #if defined(CONFIG_ODROID_EXYNOS5_HDMI_PHY_TUNE)
+        extern  void hdmi_phy_tune_info(unsigned char *);
+    #endif
+#endif
+
 int hdmi_conf_apply(struct hdmi_device *hdmi_dev)
 {
 	struct device *dev = hdmi_dev->dev;
@@ -1826,6 +1900,14 @@ int hdmi_conf_apply(struct hdmi_device *hdmi_dev)
 		}
 
 		memcpy(buffer, data, 32);
+
+#if defined(CONFIG_ODROID_EXYNOS5_HDMI_PHY_TUNE)
+        hdmi_phy_tune(buffer);
+    #if defined(CONFIG_ODROID_EXYNOS5_HDMI_PHY_TUNE_DEBUG)
+        // Current HDMI-PHY Info Display
+        hdmi_phy_tune_info(buffer);
+    #endif
+#endif
 		hdmiphy_set_mode(hdmi_dev, 0);
 		hdmiphy_conf_store(hdmi_dev, buffer);
 		hdmiphy_set_mode(hdmi_dev, 1);
