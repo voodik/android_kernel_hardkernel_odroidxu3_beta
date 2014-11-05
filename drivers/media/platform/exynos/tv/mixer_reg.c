@@ -718,16 +718,18 @@ void mxr_reg_set_mbus_fmt(struct mxr_device *mdev,
 		val |= MXR_CFG_SCAN_PROGRASSIVE;
 
 	/* choosing between porper HD and SD mode */
-	if (fmt->height == 480)
+	if (fmt->height <= 480)
 		val |= MXR_CFG_SCAN_NTSC | MXR_CFG_SCAN_SD;
-	else if (fmt->height == 576)
+	else if (fmt->height <= 576)
 		val |= MXR_CFG_SCAN_PAL | MXR_CFG_SCAN_SD;
-	else if (fmt->height == 720)
+	else if (fmt->height <= 720)
 		val |= MXR_CFG_SCAN_HD_720 | MXR_CFG_SCAN_HD;
-	else if (fmt->height == 1080)
+	else if (fmt->height <= 1080)
 		val |= MXR_CFG_SCAN_HD_1080 | MXR_CFG_SCAN_HD;
-	else
+	else {
 		WARN(1, "unrecognized mbus height %u!\n", fmt->height);
+		val |= MXR_CFG_SCAN_HD_720 | MXR_CFG_SCAN_HD;
+	}
 
 	mxr_write_mask(mdev, MXR_CFG, val, MXR_CFG_SCAN_MASK |
 			MXR_CFG_OUT_MASK);
