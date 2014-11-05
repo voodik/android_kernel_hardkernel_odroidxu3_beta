@@ -47,6 +47,35 @@ static const struct of_device_id edid_device_table[] = {
 MODULE_DEVICE_TABLE(of, edid_device_table);
 #endif
 
+#ifdef CONFIG_MACH_ODROIDXU3
+//[*]--------------------------------------------------------------------------------------------------[*]
+//
+// HDMI PHY Bootargs parsing
+//
+//[*]--------------------------------------------------------------------------------------------------[*]
+unsigned char   HdmiPHYBootArgs[10] = { 0 };
+
+// Bootargs parsing
+static int __init hdmi_resolution_setup(char *line)
+{
+	memset(HdmiPHYBootArgs, 0x00, sizeof(HdmiPHYBootArgs));
+	sprintf(HdmiPHYBootArgs, "%s", line);
+	return 0;
+}
+__setup("hdmi_phy_res=", hdmi_resolution_setup);
+
+unsigned long   HdmiEDIDBootArgs = 1;
+
+// Bootargs parsing
+static int __init hdmi_edid_setup(char *line)
+{
+	if(kstrtoul(line, 10, &HdmiEDIDBootArgs) != 0)    HdmiEDIDBootArgs = 1;
+	return 0;
+}
+__setup("edid=", hdmi_edid_setup);
+
+#endif
+
 static struct i2c_client *edid_client;
 
 /* Structure for Checking 3D Mandatory Format in EDID */
@@ -79,6 +108,7 @@ static struct edid_preset {
 	{ V4L2_DV_BT_CEA_720X576P50,	720,  576,  50, FB_VMODE_NONINTERLACED, "576p@50" },
 	{ V4L2_DV_BT_CEA_1280X720P50,	1280, 720,  50, FB_VMODE_NONINTERLACED, "720p@50" },
 	{ V4L2_DV_BT_CEA_1280X720P60,	1280, 720,  60, FB_VMODE_NONINTERLACED, "720p@60" },
+	{ V4L2_DV_BT_DMT_1280X800P60_RB,	1280, 800,  59, FB_VMODE_NONINTERLACED, "800p@59" },
 	{ V4L2_DV_BT_CEA_1920X1080P24,	1920, 1080, 24, FB_VMODE_NONINTERLACED, "1080p@24" },
 	{ V4L2_DV_BT_CEA_1920X1080P25,	1920, 1080, 25, FB_VMODE_NONINTERLACED, "1080p@25" },
 	{ V4L2_DV_BT_CEA_1920X1080P30,	1920, 1080, 30, FB_VMODE_NONINTERLACED, "1080p@30" },
@@ -364,6 +394,37 @@ static void edid_find_3d_more_preset(struct fb_video *vic, char s3d_structure)
 	}
 }
 
+#ifdef CONFIG_MACH_ODROIDXU3
+static void edid_bootarg_preset(void)
+{
+	int i;
+	if (strncmp(HdmiPHYBootArgs, "1080p60hz", 9) == 0)
+		preferred_preset = hdmi_conf[11].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1080p50hz", 9) == 0)
+		preferred_preset = hdmi_conf[10].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1080p30hz", 9) == 0)
+		preferred_preset = hdmi_conf[9].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1080i60hz", 9) == 0)
+		preferred_preset = hdmi_conf[6].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1080i50hz", 9) == 0)
+		preferred_preset = hdmi_conf[5].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "800p59hz", 8) == 0)
+		preferred_preset = hdmi_conf[4].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "720p60hz", 8) == 0)
+		preferred_preset = hdmi_conf[3].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "720p50hz", 8) == 0)
+		preferred_preset = hdmi_conf[2].dv_timings;
+	else
+		preferred_preset = hdmi_conf[3].dv_timings;
+
+	for (i = 0; i < ARRAY_SIZE(edid_presets); i++)
+		edid_presets[i].supported =
+			v4l_match_dv_timings(&edid_presets[i].dv_timings,
+					&preferred_preset, 0);
+	max_audio_channels = 2;
+}
+#endif
+
 static void edid_use_default_preset(void)
 {
 	int i;
@@ -458,7 +519,7 @@ int edid_update(struct hdmi_device *hdev)
 		preset = edid_find_preset(&specs.modedb[i]);
 		if (preset) {
 			if (preset->supported == false) {
-				pr_info("EDID: found %s", preset->name);
+				pr_info("EDID: found %s\n", preset->name);
 				preset->supported = true;
 			}
 			if (first) {
@@ -501,7 +562,7 @@ int edid_update(struct hdmi_device *hdev)
 		audio_sample_rates = 0;
 		audio_bit_rates = 0;
 	}
-	pr_info("EDID: Audio channels %d", max_audio_channels);
+	pr_info("EDID: Audio channels %d\n", max_audio_channels);
 
 	fb_destroy_modedb(specs.modedb);
 	fb_destroy_audiodb(specs.audiodb);
@@ -511,6 +572,11 @@ out:
 	/* No supported preset found, use default */
 	if (first)
 		edid_use_default_preset();
+
+#ifdef CONFIG_MACH_ODROIDXU3
+	if (HdmiEDIDBootArgs == 0)
+		edid_bootarg_preset();
+#endif
 
 	if (block_cnt == -EPROTO)
 		edid_misc = FB_MISC_HDMI;
