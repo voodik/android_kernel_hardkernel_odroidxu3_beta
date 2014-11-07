@@ -31,7 +31,6 @@
 #include <media/v4l2-ioctl.h>
 #include <media/v4l2-fh.h>
 #include <media/v4l2-event.h>
-#include <media/v4l2-chip-ident.h>
 #include <media/videobuf2-vmalloc.h>
 
 #include <media/saa7115.h>
