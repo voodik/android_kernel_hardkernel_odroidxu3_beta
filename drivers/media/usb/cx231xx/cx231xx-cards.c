@@ -912,9 +912,6 @@ static inline void cx231xx_set_model(struct cx231xx *dev)
  */
 void cx231xx_pre_card_setup(struct cx231xx *dev)
 {
-
-	cx231xx_set_model(dev);
-
 	dev_info(dev->dev, "Identified as %s (card=%d)\n",
 		dev->board.name, dev->model);
 
@@ -1092,6 +1089,17 @@ void cx231xx_config_i2c(struct cx231xx *dev)
 	call_all(dev, video, s_stream, 1);
 }
 
+static void cx231xx_unregister_media_device(struct cx231xx *dev)
+{
+#ifdef CONFIG_MEDIA_CONTROLLER
+	if (dev->media_dev) {
+		media_device_unregister(dev->media_dev);
+		kfree(dev->media_dev);
+		dev->media_dev = NULL;
+	}
+#endif
+}
+
 /*
  * cx231xx_realease_resources()
  * unregisters the v4l2,i2c and usb devices
@@ -1099,6 +1107,8 @@ void cx231xx_config_i2c(struct cx231xx *dev)
 */
 void cx231xx_release_resources(struct cx231xx *dev)
 {
+	cx231xx_unregister_media_device(dev);
+
 	cx231xx_release_analog_resources(dev);
 
 	cx231xx_remove_from_devlist(dev);
@@ -1145,47 +1155,8 @@ static void cx231xx_media_device_register(struct cx231xx *dev,
 		return;
 	}
 
-	media_device_usb_init(mdev, udev, dev->board.name);
-
 	dev->media_dev = mdev;
 #endif
-}
-
-static void cx231xx_create_media_graph(struct cx231xx *dev)
-{
-#ifdef CONFIG_MEDIA_CONTROLLER
-	struct media_device *mdev = dev->media_dev;
-	struct media_entity *entity;
-	struct media_entity *tuner = NULL, *decoder = NULL;
-
-	if (!mdev)
-		return;
-
-	media_device_for_each_entity(entity, mdev) {
-		switch (entity->function) {
-		case MEDIA_ENT_F_TUNER:
-			tuner = entity;
-			break;
-		case MEDIA_ENT_F_ATV_DECODER:
-			decoder = entity;
-			break;
-		}
-	}
-
-	/* Analog setup, using tuner as a link */
-
-	if (!decoder)
-		return;
-
-	if (tuner)
-		media_create_pad_link(tuner, TUNER_PAD_IF_OUTPUT, decoder, 0,
-					 MEDIA_LNK_FL_ENABLED);
-	media_create_pad_link(decoder, 1, &dev->vdev.entity, 0,
-				 MEDIA_LNK_FL_ENABLED);
-	media_create_pad_link(decoder, 2, &dev->vbi_dev.entity, 0,
-				 MEDIA_LNK_FL_ENABLED);
-#endif
-
 }
 
 /*
@@ -1296,10 +1267,8 @@ static int cx231xx_init_dev(struct cx231xx *dev, struct usb_device *udev,
 	}
 
 	retval = cx231xx_register_analog_devices(dev);
-	if (retval) {
-		cx231xx_release_analog_resources(dev);
+	if (retval)
 		goto err_analog;
-	}
 
 	cx231xx_ir_init(dev);
 
@@ -1307,6 +1276,8 @@ static int cx231xx_init_dev(struct cx231xx *dev, struct usb_device *udev,
 
 	return 0;
 err_analog:
+	cx231xx_unregister_media_device(dev);
+	cx231xx_release_analog_resources(dev);
 	cx231xx_remove_from_devlist(dev);
 err_dev_init:
 	cx231xx_dev_uninit(dev);
@@ -1509,6 +1480,8 @@ static int cx231xx_usb_probe(struct usb_interface *interface,
 	dev->video_mode.alt = -1;
 	dev->dev = d;
 
+	cx231xx_set_model(dev);
+
 	dev->interface_count++;
 	/* reset gpio dir and value */
 	dev->gpio_dir = 0;
@@ -1573,7 +1546,11 @@ static int cx231xx_usb_probe(struct usb_interface *interface,
 	/* save our data pointer in this interface device */
 	usb_set_intfdata(interface, dev);
 
+	/* Register the media controller */
+	cx231xx_media_device_register(dev, udev);
+
 	/* Create v4l2 device */
+	dev->v4l2_dev.mdev = dev->media_dev;
 	retval = v4l2_device_register(&interface->dev, &dev->v4l2_dev);
 	if (retval) {
 		dev_err(d, "v4l2_device_register failed\n");
