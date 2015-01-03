@@ -1140,10 +1140,13 @@ static const struct file_operations dvb_demux_fops = {
 	.llseek = default_llseek,
 };
 
-static struct dvb_device dvbdev_demux = {
+static const struct dvb_device dvbdev_demux = {
 	.priv = NULL,
 	.users = 1,
 	.writers = 1,
+#if defined(CONFIG_MEDIA_CONTROLLER_DVB)
+	.name = "demux",
+#endif
 	.fops = &dvb_demux_fops
 };
 
@@ -1213,13 +1216,15 @@ static const struct file_operations dvb_dvr_fops = {
 	.llseek = default_llseek,
 };
 
-static struct dvb_device dvbdev_dvr = {
+static const struct dvb_device dvbdev_dvr = {
 	.priv = NULL,
 	.readers = 1,
 	.users = 1,
+#if defined(CONFIG_MEDIA_CONTROLLER_DVB)
+	.name = "dvr",
+#endif
 	.fops = &dvb_dvr_fops
 };
-
 int dvb_dmxdev_init(struct dmxdev *dmxdev, struct dvb_adapter *dvb_adapter)
 {
 	int i;
