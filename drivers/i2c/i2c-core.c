@@ -793,6 +793,7 @@ show_name(struct device *dev, struct device_attribute *attr, char *buf)
 	return sprintf(buf, "%s\n", dev->type == &i2c_client_type ?
 		       to_i2c_client(dev)->name : to_i2c_adapter(dev)->name);
 }
+static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
 
 static ssize_t
 show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
@@ -805,8 +806,6 @@ show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
 		return len;
 	return sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
 }
-
-static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
 static DEVICE_ATTR(modalias, S_IRUGO, show_modalias, NULL);
 
 static struct attribute *i2c_dev_attrs[] = {
@@ -815,15 +814,7 @@ static struct attribute *i2c_dev_attrs[] = {
 	&dev_attr_modalias.attr,
 	NULL
 };
-
-static struct attribute_group i2c_dev_attr_group = {
-	.attrs		= i2c_dev_attrs,
-};
-
-static const struct attribute_group *i2c_dev_attr_groups[] = {
-	&i2c_dev_attr_group,
-	NULL
-};
+ATTRIBUTE_GROUPS(i2c_dev);
 
 static const struct dev_pm_ops i2c_device_pm_ops = {
 	.suspend = i2c_device_pm_suspend,
@@ -850,7 +841,7 @@ struct bus_type i2c_bus_type = {
 EXPORT_SYMBOL_GPL(i2c_bus_type);
 
 static struct device_type i2c_client_type = {
-	.groups		= i2c_dev_attr_groups,
+	.groups		= i2c_dev_groups,
 	.uevent		= i2c_device_uevent,
 	.release	= i2c_client_dev_release,
 };
@@ -1249,6 +1240,7 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
 
 	return count;
 }
+static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
 
 /*
  * And of course let the users delete the devices they instantiated, if
@@ -1303,8 +1295,6 @@ i2c_sysfs_delete_device(struct device *dev, struct device_attribute *attr,
 			"delete_device");
 	return res;
 }
-
-static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
 static DEVICE_ATTR_IGNORE_LOCKDEP(delete_device, S_IWUSR, NULL,
 				   i2c_sysfs_delete_device);
 
@@ -1314,18 +1304,10 @@ static struct attribute *i2c_adapter_attrs[] = {
 	&dev_attr_delete_device.attr,
 	NULL
 };
-
-static struct attribute_group i2c_adapter_attr_group = {
-	.attrs		= i2c_adapter_attrs,
-};
-
-static const struct attribute_group *i2c_adapter_attr_groups[] = {
-	&i2c_adapter_attr_group,
-	NULL
-};
+ATTRIBUTE_GROUPS(i2c_adapter);
 
 struct device_type i2c_adapter_type = {
-	.groups		= i2c_adapter_attr_groups,
+	.groups		= i2c_adapter_groups,
 	.release	= i2c_adapter_dev_release,
 };
 EXPORT_SYMBOL_GPL(i2c_adapter_type);
