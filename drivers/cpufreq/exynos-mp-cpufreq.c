@@ -688,15 +688,17 @@ static int exynos_target(struct cpufreq_policy *policy,
 		BUG_ON(freqs[cur]->old != exynos_getspeed(policy->cpu));
 	}
 
-	if (cur == CA15) {
+/*
+    if (cur == CA15) {
 		target_freq = max((unsigned int)pm_qos_request(PM_QOS_CPU_FREQ_MIN), target_freq);
 		target_freq = min((unsigned int)pm_qos_request(PM_QOS_CPU_FREQ_MAX), target_freq);
-		target_freq = min(g_clamp_cpufreqs[CA15], target_freq); /* add IPA clamp */
+		target_freq = min(g_clamp_cpufreqs[CA15], target_freq);
 	} else {
 		target_freq = max((unsigned int)pm_qos_request(PM_QOS_KFC_FREQ_MIN), target_freq);
 		target_freq = min((unsigned int)pm_qos_request(PM_QOS_KFC_FREQ_MAX), target_freq);
-		target_freq = min(g_clamp_cpufreqs[CA7], target_freq); /* add IPA clamp */
-	}
+		target_freq = min(g_clamp_cpufreqs[CA7], target_freq);
+	} 
+*/
 
 #ifdef CONFIG_CPU_THERMAL_IPA_DEBUG
 	trace_printk("IPA:%s:%d will apply %d ", __PRETTY_FUNCTION__, __LINE__, target_freq);
@@ -1650,13 +1652,9 @@ static int exynos_kfc_min_qos_handler(struct notifier_block *b, unsigned long va
 	int cpu = boot_cluster ? NR_CA15 : 0;
 	unsigned int threshold_freq;
 
-#if defined(CONFIG_CPU_FREQ_GOV_INTERACTIVE)
-	threshold_freq = cpufreq_interactive_get_hispeed_freq(0);
-	if (!threshold_freq)
-		threshold_freq = 1000000;	/* 1.0GHz */
-#else
+
 	threshold_freq = 1000000;	/* 1.0GHz */
-#endif
+
 
 	if (val > threshold_freq)
 		event_hotplug_in();
@@ -1825,6 +1823,7 @@ static int __init exynos_cpufreq_init(void)
 		pr_err("%s: No set_freq function (ERR)\n", __func__);
 		goto err_set_freq;
 	}
+
 
 	freq_max[CA15] = exynos_info[CA15]->
 		freq_table[exynos_info[CA15]->max_support_idx].frequency;
