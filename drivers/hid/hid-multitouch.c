@@ -1088,6 +1088,11 @@ static const struct hid_device_id mt_devices[] = {
     	HID_USB_DEVICE(USB_VENDOR_ID_NEXIO, 
     	    USB_DEVICE_ID_NEXIO_42TOUCH) },
     
+    /* Chalk-Elec (7" Openframe Touch Screen) */
+    { .driver_data = MT_CLS_DEFAULT,
+        MT_USB_DEVICE(USB_VENDOR_ID_MICROCHIP,
+            USB_DEVICE_ID_CHALK7) },
+
 	/* 3M panels */
 	{ .driver_data = MT_CLS_3M,
 		MT_USB_DEVICE(USB_VENDOR_ID_3M,
