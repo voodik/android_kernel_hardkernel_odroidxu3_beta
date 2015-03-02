@@ -1171,7 +1171,9 @@ static int smsdvb_hotplug(struct smscore_device_t *coredev,
 	sms_board_setup(coredev);
 
 	if (smsdvb_debugfs_create(client) < 0)
-		sms_info("failed to create debugfs node");
+		pr_info("failed to create debugfs node\n");
+
+	dvb_create_media_graph(&client->adapter);
 
 	return 0;
 

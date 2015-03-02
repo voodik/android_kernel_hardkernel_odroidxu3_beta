@@ -268,6 +268,8 @@ int dvb_usb_adapter_frontend_init(struct dvb_usb_adapter *adap)
 		adap->num_frontends_initialized++;
 	}
 
+	dvb_create_media_graph(&adap->dvb_adap);
+
 	return 0;
 }
 
