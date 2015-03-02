@@ -1094,6 +1094,7 @@ static int smsdvb_hotplug(struct smscore_device_t *coredev,
 		sms_err("dvb_register_adapter() failed %d", rc);
 		goto adapter_error;
 	}
+	dvb_register_media_controller(&client->adapter, coredev->media_dev);
 
 	/* init dvb demux */
 	client->demux.dmx.capabilities = DMX_TS_FILTERING;
