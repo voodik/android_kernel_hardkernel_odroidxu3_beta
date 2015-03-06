@@ -1333,6 +1333,20 @@ fail:
 	return;
 }
 
+void wacom_battery_work(struct work_struct *work)
+{
+	struct wacom *wacom = container_of(work, struct wacom, work);
+
+	if ((wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) &&
+	     !wacom->battery.dev) {
+		wacom_initialize_battery(wacom);
+	}
+	else if (!(wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) &&
+		 wacom->battery.dev) {
+		wacom_destroy_battery(wacom);
+	}
+}
+
 /*
  * Not all devices report physical dimensions from HID.
  * Compute the default from hardcoded logical dimension
