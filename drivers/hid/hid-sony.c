@@ -1739,7 +1739,7 @@ static int sony_battery_probe(struct sony_sc *sc)
 	if (!sc->battery.name)
 		return -ENOMEM;
 
-	ret = power_supply_register(&hdev->dev, &sc->battery);
+	ret = power_supply_register(&hdev->dev, &sc->battery, NULL);
 	if (ret) {
 		hid_err(hdev, "Unable to register battery device\n");
 		goto err_free;
