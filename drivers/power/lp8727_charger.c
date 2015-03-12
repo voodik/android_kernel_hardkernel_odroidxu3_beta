@@ -79,9 +79,9 @@ enum lp8727_die_temp {
 };
 
 struct lp8727_psy {
-	struct power_supply ac;
-	struct power_supply usb;
-	struct power_supply batt;
+	struct power_supply *ac;
+	struct power_supply *usb;
+	struct power_supply *batt;
 };
 
 struct lp8727_chg {
@@ -241,9 +241,9 @@ static void lp8727_delayed_func(struct work_struct *_work)
 	lp8727_id_detection(pchg, idno, vbus);
 	lp8727_enable_chgdet(pchg);
 
-	power_supply_changed(&pchg->psy->ac);
-	power_supply_changed(&pchg->psy->usb);
-	power_supply_changed(&pchg->psy->batt);
+	power_supply_changed(pchg->psy->ac);
+	power_supply_changed(pchg->psy->usb);
+	power_supply_changed(pchg->psy->batt);
 }
 
 static irqreturn_t lp8727_isr_func(int irq, void *ptr)
@@ -310,12 +310,12 @@ static int lp8727_charger_get_property(struct power_supply *psy,
 				       enum power_supply_property psp,
 				       union power_supply_propval *val)
 {
-	struct lp8727_chg *pchg = dev_get_drvdata(psy->dev->parent);
+	struct lp8727_chg *pchg = dev_get_drvdata(psy->dev.parent);
 
 	if (psp != POWER_SUPPLY_PROP_ONLINE)
 		return -EINVAL;
 
-	val->intval = lp8727_is_charger_attached(psy->name, pchg->devid);
+	val->intval = lp8727_is_charger_attached(psy->desc->name, pchg->devid);
 
 	return 0;
 }
@@ -336,14 +336,14 @@ static int lp8727_battery_get_property(struct power_supply *psy,
 				       enum power_supply_property psp,
 				       union power_supply_propval *val)
 {
-	struct lp8727_chg *pchg = dev_get_drvdata(psy->dev->parent);
+	struct lp8727_chg *pchg = dev_get_drvdata(psy->dev.parent);
 	struct lp8727_platform_data *pdata = pchg->pdata;
 	enum lp8727_die_temp temp;
 	u8 read;
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_STATUS:
-		if (!lp8727_is_charger_attached(psy->name, pchg->devid)) {
+		if (!lp8727_is_charger_attached(psy->desc->name, pchg->devid)) {
 			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
 			return 0;
 		}
@@ -399,13 +399,13 @@ static int lp8727_battery_get_property(struct power_supply *psy,
 
 static void lp8727_charger_changed(struct power_supply *psy)
 {
-	struct lp8727_chg *pchg = dev_get_drvdata(psy->dev->parent);
+	struct lp8727_chg *pchg = dev_get_drvdata(psy->dev.parent);
 	u8 eoc_level;
 	u8 ichg;
 	u8 val;
 
 	/* skip if no charger exists */
-	if (!lp8727_is_charger_attached(psy->name, pchg->devid))
+	if (!lp8727_is_charger_attached(psy->desc->name, pchg->devid))
 		return;
 
 	/* update charging parameters */
@@ -416,6 +416,31 @@ static void lp8727_charger_changed(struct power_supply *psy)
 		lp8727_write_byte(pchg, LP8727_CHGCTRL2, val);
 	}
 }
+
+static const struct power_supply_desc lp8727_ac_desc = {
+	.name			= "ac",
+	.type			= POWER_SUPPLY_TYPE_MAINS,
+	.properties		= lp8727_charger_prop,
+	.num_properties		= ARRAY_SIZE(lp8727_charger_prop),
+	.get_property		= lp8727_charger_get_property,
+};
+
+static const struct power_supply_desc lp8727_usb_desc = {
+	.name			= "usb",
+	.type			= POWER_SUPPLY_TYPE_USB,
+	.properties		= lp8727_charger_prop,
+	.num_properties		= ARRAY_SIZE(lp8727_charger_prop),
+	.get_property		= lp8727_charger_get_property,
+};
+
+static const struct power_supply_desc lp8727_batt_desc = {
+	.name			= "main_batt",
+	.type			= POWER_SUPPLY_TYPE_BATTERY,
+	.properties		= lp8727_battery_prop,
+	.num_properties		= ARRAY_SIZE(lp8727_battery_prop),
+	.get_property		= lp8727_battery_get_property,
+	.external_power_changed	= lp8727_charger_changed,
+};
 
 static int lp8727_register_psy(struct lp8727_chg *pchg)
 {
@@ -431,40 +456,25 @@ static int lp8727_register_psy(struct lp8727_chg *pchg)
 	psy_cfg.supplied_to = battery_supplied_to;
 	psy_cfg.num_supplicants = ARRAY_SIZE(battery_supplied_to);
 
-	psy->ac.name = "ac";
-	psy->ac.type = POWER_SUPPLY_TYPE_MAINS;
-	psy->ac.properties = lp8727_charger_prop;
-	psy->ac.num_properties = ARRAY_SIZE(lp8727_charger_prop);
-	psy->ac.get_property = lp8727_charger_get_property;
-
-	if (power_supply_register(pchg->dev, &psy->ac, &psy_cfg))
+	psy->ac = power_supply_register(pchg->dev, &lp8727_ac_desc, &psy_cfg);
+	if (IS_ERR(psy->ac))
 		goto err_psy_ac;
 
-	psy->usb.name = "usb";
-	psy->usb.type = POWER_SUPPLY_TYPE_USB;
-	psy->usb.properties = lp8727_charger_prop;
-	psy->usb.num_properties = ARRAY_SIZE(lp8727_charger_prop);
-	psy->usb.get_property = lp8727_charger_get_property;
-
-	if (power_supply_register(pchg->dev, &psy->usb, &psy_cfg))
+	psy->usb = power_supply_register(pchg->dev, &lp8727_usb_desc,
+					 &psy_cfg);
+	if (IS_ERR(psy->usb))
 		goto err_psy_usb;
 
-	psy->batt.name = "main_batt";
-	psy->batt.type = POWER_SUPPLY_TYPE_BATTERY;
-	psy->batt.properties = lp8727_battery_prop;
-	psy->batt.num_properties = ARRAY_SIZE(lp8727_battery_prop);
-	psy->batt.get_property = lp8727_battery_get_property;
-	psy->batt.external_power_changed = lp8727_charger_changed;
-
-	if (power_supply_register(pchg->dev, &psy->batt, NULL))
+	psy->batt = power_supply_register(pchg->dev, &lp8727_batt_desc, NULL);
+	if (IS_ERR(psy->batt))
 		goto err_psy_batt;
 
 	return 0;
 
 err_psy_batt:
-	power_supply_unregister(&psy->usb);
+	power_supply_unregister(psy->usb);
 err_psy_usb:
-	power_supply_unregister(&psy->ac);
+	power_supply_unregister(psy->ac);
 err_psy_ac:
 	return -EPERM;
 }
@@ -476,9 +486,9 @@ static void lp8727_unregister_psy(struct lp8727_chg *pchg)
 	if (!psy)
 		return;
 
-	power_supply_unregister(&psy->ac);
-	power_supply_unregister(&psy->usb);
-	power_supply_unregister(&psy->batt);
+	power_supply_unregister(psy->ac);
+	power_supply_unregister(psy->usb);
+	power_supply_unregister(psy->batt);
 }
 
 static int lp8727_probe(struct i2c_client *cl, const struct i2c_device_id *id)

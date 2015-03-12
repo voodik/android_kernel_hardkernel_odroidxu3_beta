@@ -259,7 +259,8 @@ struct charger_manager {
 	int last_temp_mC;
 
 	char psy_name_buf[PSY_NAME_MAX + 1];
-	struct power_supply charger_psy;
+	struct power_supply_desc charger_psy_desc;
+	struct power_supply *charger_psy;
 
 	bool status_save_ext_pwr_inserted;
 	bool status_save_batt;
