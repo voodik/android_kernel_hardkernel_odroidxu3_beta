@@ -244,7 +244,7 @@ extern void register_hook_logbuf(void (*)(const char));
 #else
 extern void register_hook_logbuf(void (*)(const char *, u64, size_t));
 #endif
-extern void register_hook_logger(void (*)(const char *, const char *, size_t));
+//extern void register_hook_logger(void (*)(const char *, const char *, size_t));
 static struct exynos_ss_log *ess_log = NULL;
 static struct exynos_ss_hook ess_hook;
 
@@ -863,9 +863,6 @@ static int __init exynos_ss_init(void)
 
 		register_hook_logbuf(exynos_ss_hook_logbuf);
 
-#ifdef CONFIG_EXYNOS_SNAPSHOT_HOOK_LOGGER
-		register_hook_logger(exynos_ss_hook_logger);
-#endif
 		register_reboot_notifier(&nb_reboot_block);
 		atomic_notifier_chain_register(&panic_notifier_list, &nb_panic_block);
 
