@@ -21,7 +21,7 @@
 	};
 
 	chosen {
-		bootargs = "root=/dev/mmcblk0p2 rw rootfstype=ext4 init=/init console=ttySAC2,115200 vmalloc=512M";
+		bootargs = "root=/dev/mmcblk0p2 rw rootfstype=ext4 init=/init console=ttySAC2,115200 vmalloc=512M androidboot.selinux=permissive";
 	};
 
 	fixed-rate-clocks {
