@@ -58,3 +58,9 @@ obj-$(CONFIG_MWIFIEX)	+= mwifiex/
 obj-$(CONFIG_BRCMFMAC)	+= brcm80211/
 obj-$(CONFIG_BRCMSMAC)	+= brcm80211/
 obj-$(CONFIG_RTL8192CU_SDK) += rtl8192cu/
+obj-$(CONFIG_RTL8192EU_SDK) += rtl8192EU/
+obj-$(CONFIG_RTL8723AU_SDK) += rtl8723AU/
+obj-$(CONFIG_RTL8812AU_SDK) += rtl8812AU/
+obj-$(CONFIG_RTL8192DU_SDK) += rtl8xxx_DU/
+obj-$(CONFIG_RTL8188EU_SDK) += rtl8xxx_EU/
+
