@@ -43,6 +43,7 @@ struct rtl2832_platform_data {
 #define RTL2832_TUNER_FC0013    0x29
 #define RTL2832_TUNER_R820T     0x2a
 #define RTL2832_TUNER_R828D     0x2b
+#define RTL2832_TUNER_SI2157    0x2c
 	u8 tuner;
 
 	/*
