@@ -192,6 +192,8 @@ static int edid_i2c_read(struct hdmi_device *hdev, u8 segment, u8 offset,
 		}
 	};
 
+	msleep(25);
+
 	if (!i2c)
 		return -ENODEV;
 
