@@ -1006,6 +1006,68 @@ void write_mii_word(struct net_device *netdev, int phy_id, int reg, int val)
 static int
 r8152_submit_rx(struct r8152 *tp, struct rx_agg *agg, gfp_t mem_flags);
 
+#if defined(CONFIG_MACH_ODROIDXU3)
+#define MAC_ADDR_LEN    (6)
+
+static char *macaddr = ":";
+module_param(macaddr, charp, 0);
+MODULE_PARM_DESC(macaddr, "MAC address");
+
+/* Check the macaddr module parameter for a MAC address */
+static int r8152_is_macaddr_param(struct net_device *dev, u8 *dev_mac)
+{
+    int i, j, got_num, num;
+    u8 mtbl[MAC_ADDR_LEN];
+    struct r8152 *tp = netdev_priv(dev);
+
+    if (macaddr[0] == ':')
+        return 0;
+
+    i = 0;
+    j = 0;
+    num = 0;
+    got_num = 0;
+    while (j < MAC_ADDR_LEN) {
+        if (macaddr[i] && macaddr[i] != ':') {
+            got_num++;
+            if ('0' <= macaddr[i] && macaddr[i] <= '9')
+                num = num * 16 + macaddr[i] - '0';
+            else if ('A' <= macaddr[i] && macaddr[i] <= 'F')
+                num = num * 16 + 10 + macaddr[i] - 'A';
+            else if ('a' <= macaddr[i] && macaddr[i] <= 'f')
+                num = num * 16 + 10 + macaddr[i] - 'a';
+            else
+                break;
+            i++;
+        }
+        else if (got_num == 2) {
+            mtbl[j++] = (u8) num;
+            num = 0;
+            got_num = 0;
+            i++;
+        }
+        else {
+            break;
+        }
+    }
+
+    if (j == MAC_ADDR_LEN) {
+		netif_info(tp, probe, dev, "Overriding MAC address with: "
+            "%02x:%02x:%02x:%02x:%02x:%02x\n",  mtbl[0], mtbl[1], mtbl[2],
+                                           mtbl[3], mtbl[4], mtbl[5]);
+        for (i = 0; i < MAC_ADDR_LEN; i++)
+               dev_mac[i] = mtbl[i];
+
+        // Default LED Configuration
+        ocp_write_word(tp, MCU_TYPE_PLA, PLA_LEDSEL, 0x7CA9);
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+#endif
+
 static int rtl8152_set_mac_address(struct net_device *netdev, void *p)
 {
 	struct r8152 *tp = netdev_priv(netdev);
@@ -1043,10 +1105,15 @@ static int set_ethernet_addr(struct r8152 *tp)
 	struct sockaddr sa;
 	int ret;
 
-	if (tp->version == RTL_VER_01)
-		ret = pla_ocp_read(tp, PLA_IDR, 8, sa.sa_data);
-	else
-		ret = pla_ocp_read(tp, PLA_BACKUP, 8, sa.sa_data);
+#if defined(CONFIG_MACH_ODROIDXU3)
+    if(!(ret = r8152_is_macaddr_param(dev, sa.sa_data)))
+#endif
+    {
+        if (tp->version == RTL_VER_01)
+            ret = pla_ocp_read(tp, PLA_IDR, 8, sa.sa_data);
+        else
+            ret = pla_ocp_read(tp, PLA_BACKUP, 8, sa.sa_data);
+    }
 
 	if (ret < 0) {
 		netif_err(tp, probe, dev, "Get ether addr fail\n");
