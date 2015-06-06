@@ -1924,6 +1924,11 @@ static int ax88179_reset(struct usbnet *dev)
 	dev->net->features |= NETIF_F_SG | NETIF_F_TSO;
 #endif
 
+#if defined(CONFIG_MACH_ODROIDXU3)
+        /* Hack to set such features by default on driver is loaded */
+        dev->net->features |= NETIF_F_SG | NETIF_F_TSO;
+#endif
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)
 	dev->net->hw_features |= NETIF_F_IP_CSUM;
 	dev->net->hw_features |= NETIF_F_IPV6_CSUM;
