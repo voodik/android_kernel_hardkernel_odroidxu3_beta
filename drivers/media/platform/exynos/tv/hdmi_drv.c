@@ -56,6 +56,10 @@ MODULE_AUTHOR("Tomasz Stanislawski, <t.stanislaws@samsung.com>");
 MODULE_DESCRIPTION("Samsung HDMI");
 MODULE_LICENSE("GPL");
 
+#ifdef CONFIG_MACH_ODROIDXU3
+extern unsigned long   HdmiEDIDBootArgs;
+#endif
+
 /* I2C module and id for HDMIPHY */
 static struct i2c_board_info hdmiphy_info = {
 	I2C_BOARD_INFO("hdmiphy", 0x38),
@@ -774,6 +778,13 @@ static void hdmi_hpd_changed(struct hdmi_device *hdev, int state)
 		hdev->dvi_mode = !edid_supports_hdmi(hdev);
 		hdev->cur_timings = edid_preferred_preset(hdev);
 		hdev->cur_conf = hdmi_timing2conf(&hdev->cur_timings);
+
+#ifdef CONFIG_MACH_ODROIDXU3
+		if (HdmiEDIDBootArgs == 0)
+			hdev->dvi_mode = false;
+#endif
+
+
 	}
 
 	switch_set_state(&hdev->hpd_switch, state);
