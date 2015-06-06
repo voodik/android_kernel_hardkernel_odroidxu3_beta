@@ -577,13 +577,33 @@ static int max98090_volatile(struct snd_soc_codec *codec, unsigned int reg)
 //------------------------------------------------
 inline unsigned int max98090_i2c_read(struct snd_soc_codec *codec, unsigned int reg)
 {
-	int ret;
+    struct i2c_client *client;
+	struct i2c_msg	msg[2];
+	int 			ret;
+	
+	unsigned char   cmd;
+	unsigned char   rdata;
+	
+    client = codec->control_data;
 
-	ret = i2c_smbus_read_byte_data(codec->control_data, (u8)(reg & 0xFF));
+	memset(msg, 0x00, sizeof(msg));
+    
+    cmd = (unsigned char)(reg & 0xFF);
+	msg[0].addr 	= client->addr;
+	msg[0].flags 	= 0;
+	msg[0].len 		= 1;
+	msg[0].buf 		= &cmd;
 
-	if (ret < 0)
-		printk("DEBUG -> %s error!!! [%d]\n",__FUNCTION__,__LINE__);
-	return ret;
+	msg[1].addr 	= client->addr;
+	msg[1].flags    = I2C_M_RD;
+	msg[1].len 		= 1;
+	msg[1].buf 		= &rdata;
+	
+	if ((ret = i2c_transfer(client->adapter, msg, 2)) != 2) {
+		dev_err(&client->dev, "I2C read error: (%d) reg: 0x%X \n", ret, cmd);
+		return -1;
+	}
+	return 	rdata;
 }
 
 /*
@@ -607,14 +627,24 @@ static inline void max98090_write_reg_cache(struct snd_soc_codec *codec,
 static int max98090_i2c_write(struct snd_soc_codec *codec, unsigned int reg,
 	unsigned int value)
 {
+    struct i2c_client *client;
+	int 			ret = 0;
+	unsigned char	block_data[2];
+	unsigned char   cmd=0;
+	
 	max98090_write_reg_cache (codec, reg, value);
 
-	if(i2c_smbus_write_byte_data(codec->control_data, (u8)(reg & 0xFF), (u8)(value & 0xFF))<0) {
-		printk("%s error!!! [%d]\n",__FUNCTION__,__LINE__);
-		return -EIO;
+	memset(block_data, 0x00, sizeof(block_data));
+	cmd = (unsigned char)(reg & 0xFF);
+    client = codec->control_data;
+    block_data[0] = cmd;
+    block_data[1] = (value ) & 0xFF;	
+
+	if ((ret = i2c_master_send(client, block_data, 2)) < 0) {
+		dev_err(&client->dev, "I2C write error: (%d) reg: 0x%X \n", ret, cmd);
+		return -1;
 	}
-	
-	return 0;
+	return ret;
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -1088,6 +1118,14 @@ static int max98090_probe(struct snd_soc_codec *codec)
 	codec->read = max98090_i2c_read;
 	max98090->codec = codec;
 
+	ret = snd_soc_read(codec, M98090_0FF_REV_ID);
+	if (ret < 0) {
+		dev_err(codec->dev, "Failed to read device revision: %d\n",
+			ret);
+		goto err_access;
+	}
+	dev_info(codec->dev, "revision 0x%02x\n", ret);
+
 	/* reset the codec, the DSP core, and disable all interrupts */
 	max98090_reset(codec);
 
@@ -1105,14 +1143,6 @@ static int max98090_probe(struct snd_soc_codec *codec)
 	max98090->lin_state = 0;
 	max98090->mic1pre = 0;
 	max98090->mic2pre = 0;
-
-	ret = snd_soc_read(codec, M98090_0FF_REV_ID);
-	if (ret < 0) {
-		dev_err(codec->dev, "Failed to read device revision: %d\n",
-			ret);
-		goto err_access;
-	}
-	dev_info(codec->dev, "revision 0x%02x\n", ret);
 
 	snd_soc_write(codec, M98090_045_PWR_SYS, M98090_SHDNRUN);
 

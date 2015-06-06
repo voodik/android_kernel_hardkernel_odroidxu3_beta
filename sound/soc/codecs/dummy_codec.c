@@ -24,6 +24,9 @@
 #define RATES	SNDRV_PCM_RATE_8000_192000
 #define FORMATS	(SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE)
 
+struct dummy_codec_private {
+	struct snd_soc_codec codec;	
+};
 
 static struct snd_soc_codec_driver soc_codec_dummy;
 
@@ -97,8 +100,20 @@ static struct snd_soc_dai_driver dummy_codec_dai[] = {
 
 static int dummy_codec_probe(struct platform_device *pdev)
 {
-	return snd_soc_register_codec(&pdev->dev, &soc_codec_dummy,
+   	struct dummy_codec_private *dummy_codec;
+    int ret;
+
+	dummy_codec = kzalloc(sizeof(struct dummy_codec_private), GFP_KERNEL);
+	if (dummy_codec == NULL) {
+		return -ENOMEM;
+	}
+	platform_set_drvdata(pdev, dummy_codec);
+
+    ret = snd_soc_register_codec(&pdev->dev, &soc_codec_dummy,
 			dummy_codec_dai, ARRAY_SIZE(dummy_codec_dai));
+	if (ret < 0)
+		kfree(dummy_codec);		
+	return ret;
 }
 
 static int dummy_codec_remove(struct platform_device *pdev)
