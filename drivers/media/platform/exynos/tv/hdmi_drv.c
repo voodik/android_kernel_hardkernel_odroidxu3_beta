@@ -58,6 +58,7 @@ MODULE_LICENSE("GPL");
 
 #ifdef CONFIG_MACH_ODROIDXU3
 extern unsigned long   HdmiEDIDBootArgs;
+extern unsigned char   HdmiVOUTBootArgs[10];
 #endif
 
 /* I2C module and id for HDMIPHY */
@@ -412,7 +413,8 @@ int hdmi_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *ctrl)
 		hdev->color_range = ctrl->value;
 		break;
 	case V4L2_CID_TV_HDCP_ENABLE:
-		hdev->hdcp_info.hdcp_enable = ctrl->value;
+		if (!hdev->dvi_mode)
+			hdev->hdcp_info.hdcp_enable = ctrl->value;
 		dev_dbg(hdev->dev, "HDCP %s\n",
 				ctrl->value ? "enable" : "disable");
 		break;
@@ -782,8 +784,10 @@ static void hdmi_hpd_changed(struct hdmi_device *hdev, int state)
 #ifdef CONFIG_MACH_ODROIDXU3
 		if (HdmiEDIDBootArgs == 0)
 			hdev->dvi_mode = false;
-#endif
 
+		if(strcmp(HdmiVOUTBootArgs, "dvi") == 0)
+			hdev->dvi_mode = true;
+#endif
 
 	}
 
