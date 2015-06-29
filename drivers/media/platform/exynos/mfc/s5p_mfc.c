@@ -676,9 +676,11 @@ static void s5p_mfc_handle_frame_new(struct s5p_mfc_ctx *ctx, unsigned int err)
 				break;
 			}
 
+/*
 			if (s5p_mfc_err_dspl(err))
 				mfc_err_ctx("Warning for displayed frame: %d\n",
 							s5p_mfc_err_dspl(err));
+*/
 
 			if (call_cop(ctx, get_buf_ctrls_val, ctx, &ctx->dst_ctrls[index]) < 0)
 				mfc_err_ctx("failed in get_buf_ctrls_val\n");
