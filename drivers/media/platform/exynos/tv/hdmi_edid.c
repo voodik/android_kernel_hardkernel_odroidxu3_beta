@@ -53,7 +53,7 @@ MODULE_DEVICE_TABLE(of, edid_device_table);
 // HDMI PHY Bootargs parsing
 //
 //[*]--------------------------------------------------------------------------------------------------[*]
-unsigned char   HdmiPHYBootArgs[10] = { 0 };
+unsigned char   HdmiPHYBootArgs[12] = "720p60hz";
 
 // Bootargs parsing
 static int __init hdmi_resolution_setup(char *line)
@@ -64,7 +64,7 @@ static int __init hdmi_resolution_setup(char *line)
 }
 __setup("hdmi_phy_res=", hdmi_resolution_setup);
 
-unsigned char   HdmiVOUTBootArgs[10] = { 0 };
+unsigned char   HdmiVOUTBootArgs[10] = "hdmi";
 
 // Bootargs parsing
 static int __init hdmi_vout_setup(char *line)
@@ -533,16 +533,15 @@ int edid_update(struct hdmi_device *hdev)
 	int ret = 0;
 	int i;
 
-#ifdef CONFIG_MACH_ODROIDXU3
-	if (HdmiEDIDBootArgs == 0)
-		goto out;
-#endif
-
 	edid_misc = 0;
 
 	block_cnt = edid_read(hdev, &edid);
-	if (block_cnt < 0)
+	if (block_cnt < 0) {
+		printk("###########################################\n");
+		printk("# edid_read fail, broken??\n");
+		printk("###########################################\n");
 		goto out;
+	}
 
 	fb_edid_to_monspecs(edid, &specs);
 	for (i = 1; i < block_cnt; i++) {

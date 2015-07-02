@@ -777,18 +777,30 @@ static void hdmi_hpd_changed(struct hdmi_device *hdev, int state)
 			return;
 		}
 
+#ifdef CONFIG_MACH_ODROIDXU3
+			printk("###########################################\n");
+			printk("# HDMI EDID mode %d #\n", HdmiEDIDBootArgs);
+			printk("###########################################\n");
+
+			printk("###########################################\n");
+			printk("# HDMI VOUT mode %s #\n", HdmiVOUTBootArgs);
+			printk("###########################################\n");
+
+		if (HdmiEDIDBootArgs == 0) {
+			if(strcmp(HdmiVOUTBootArgs, "dvi") == 0) {
+				hdev->dvi_mode = true;
+			} else {
+				hdev->dvi_mode = false;
+			}
+		}
+#endif
 		hdev->dvi_mode = !edid_supports_hdmi(hdev);
 		hdev->cur_timings = edid_preferred_preset(hdev);
 		hdev->cur_conf = hdmi_timing2conf(&hdev->cur_timings);
 
-#ifdef CONFIG_MACH_ODROIDXU3
-		if (HdmiEDIDBootArgs == 0)
-			hdev->dvi_mode = false;
-
-		if(strcmp(HdmiVOUTBootArgs, "dvi") == 0)
-			hdev->dvi_mode = true;
-#endif
-
+		printk("###########################################\n");
+		printk("# hdev->dvi_mode %s #\n", hdev->dvi_mode ? "true" : "false");
+		printk("###########################################\n");
 	}
 
 	switch_set_state(&hdev->hpd_switch, state);
