@@ -180,6 +180,8 @@ static int audio_bit_rates;
 static int audio_sample_rates;
 static u32 source_phy_addr;
 
+module_param_named(source_phy_addr, source_phy_addr, uint, S_IRUGO);
+
 static int edid_i2c_read(struct hdmi_device *hdev, u8 segment, u8 offset,
 						   u8 *buf, size_t len)
 {
