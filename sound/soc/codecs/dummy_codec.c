@@ -22,7 +22,7 @@
 #define DRV_NAME	"dummy-codec"
 
 #define RATES	SNDRV_PCM_RATE_8000_192000
-#define FORMATS	(SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE)
+#define FORMATS	(SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE | SNDRV_PCM_FMTBIT_S32_LE)
 
 struct dummy_codec_private {
 	struct snd_soc_codec codec;	

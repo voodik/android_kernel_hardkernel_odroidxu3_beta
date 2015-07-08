@@ -201,12 +201,14 @@ static struct snd_soc_ops odroid_ops = {
 static struct snd_soc_dai_link odroid_dai[] = {
 	{ /* Primary DAI i/f */
 		.name = "MAX98090 AIF1",
-		.stream_name = "i2s0-pri",
+		.stream_name = "i2s0-sec",
+		.cpu_dai_name = "samsung-i2s-sec",
+		.platform_name = "samsung-i2s-sec",
 		.codec_dai_name = "max98090-aif1",
 		.ops = &odroid_ops,
 	}, { /* Secondary DAI i/f */
 		.name = "MAX98090 AIF2",
-		.stream_name = "i2s0-sec",
+		.stream_name = "i2s0-pri",
 		.codec_dai_name = "max98090-aif1",
 		.ops = &odroid_ops,
 	}
@@ -255,11 +257,13 @@ static int odroid_audio_probe(struct platform_device *pdev)
 	if (ret) { // MAX98090 register failed.
         dev_err(&pdev->dev, "snd_soc_register_card() failed(max98090): %d\n", ret);
 
-	    odroid_dai[0].name="DUMMY-PRI";
-	    odroid_dai[0].codec_dai_name="dummy-aif1";
+        odroid_dai[0].name="DUMMY-SEC";
+        odroid_dai[0].stream_name = "i2s0-sec";
+        odroid_dai[0].codec_dai_name="dummy-aif1";
 
-	    odroid_dai[1].name="DUMMY-SEC";
-	    odroid_dai[1].codec_dai_name="dummy-aif1";
+        odroid_dai[1].name="DUMMY-PRI";
+        odroid_dai[1].stream_name = "i2s0-pri";
+        odroid_dai[1].codec_dai_name="dummy-aif2";
 
     	for (n = 0; np && n < ARRAY_SIZE(odroid_dai); n++) {
     		odroid_dai[n].codec_name = NULL;
