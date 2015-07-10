@@ -447,6 +447,25 @@ static void s2mps11_pmic_shutdown(struct platform_device *pdev)
             break;
         }
    }
+
+    // MMC Power Control for MMC UHS Mode
+    if(sec_reg_read(iodev, S2MPS11_REG_L19CTRL, &reg_ctrl1))
+        printk(KERN_EMERG "%s : S2MPS11 LDO CTRL19 Error!!\n", __func__);
+
+    // VDDQ_MMC2 OFF
+    if(sec_reg_update(iodev, S2MPS11_REG_L13CTRL, 0x00, 0x3F))
+        printk(KERN_EMERG "%s : S2MPS11 LDO CTRL13 Error!!\n", __func__);
+
+    // VDD_SD_2V8 OFF
+    if(sec_reg_update(iodev, S2MPS11_REG_L19CTRL, 0x00, 0x3F))
+        printk(KERN_EMERG "%s : S2MPS11 LDO CTRL19 Error!!\n", __func__);
+
+    mdelay(10);
+
+    if(sec_reg_update(iodev, S2MPS11_REG_L19CTRL, reg_ctrl1, 0x3F))
+        printk(KERN_EMERG "%s : S2MPS11 LDO CTRL19 Error!!\n", __func__);
+    if(sec_reg_update(iodev, S2MPS11_REG_L13CTRL, 0xE8, 0xFF))
+        printk(KERN_EMERG "%s : S2MPS11 LDO CTRL13 Error!!\n", __func__);
 }
 #endif
 
