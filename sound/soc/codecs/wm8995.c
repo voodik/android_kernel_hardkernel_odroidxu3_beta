@@ -44,7 +44,7 @@ static const char *wm8995_supply_names[WM8995_NUM_SUPPLIES] = {
 	"MICVDD"
 };
 
-static struct reg_default wm8995_reg_defaults[] = {
+static struct reg_sequence wm8995_reg_defaults[] = {
 	{ 0, 0x8995 },
 	{ 5, 0x0100 },
 	{ 16, 0x000b },

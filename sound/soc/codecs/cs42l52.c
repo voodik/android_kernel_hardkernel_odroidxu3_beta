@@ -56,7 +56,7 @@ struct  cs42l52_private {
 #endif
 };
 
-static const struct reg_default cs42l52_reg_defaults[] = {
+static const struct reg_sequence cs42l52_reg_defaults[] = {
 	{ CS42L52_PWRCTL1, 0x9F },	/* r02 PWRCTL 1 */
 	{ CS42L52_PWRCTL2, 0x07 },	/* r03 PWRCTL 2 */
 	{ CS42L52_PWRCTL3, 0xFF },	/* r04 PWRCTL 3 */
@@ -1175,7 +1175,7 @@ static struct snd_soc_codec_driver soc_codec_dev_cs42l52 = {
 };
 
 /* Current and threshold powerup sequence Pg37 */
-static const struct reg_default cs42l52_threshold_patch[] = {
+static const struct reg_sequence cs42l52_threshold_patch[] = {
 
 	{ 0x00, 0x99 },
 	{ 0x3E, 0xBA },

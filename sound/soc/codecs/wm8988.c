@@ -33,7 +33,7 @@
  * We can't read the WM8988 register space when we
  * are using 2 wire for device control, so we cache them instead.
  */
-static const struct reg_default wm8988_reg_defaults[] = {
+static const struct reg_sequence wm8988_reg_defaults[] = {
 	{ 0, 0x0097 },
 	{ 1, 0x0097 },
 	{ 2, 0x0079 },

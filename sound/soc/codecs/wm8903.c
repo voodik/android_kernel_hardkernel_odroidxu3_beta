@@ -39,7 +39,7 @@
 #include "wm8903.h"
 
 /* Register defaults at reset */
-static const struct reg_default wm8903_reg_defaults[] = {
+static const struct reg_sequence wm8903_reg_defaults[] = {
 	{ 4,  0x0018 },     /* R4   - Bias Control 0 */
 	{ 5,  0x0000 },     /* R5   - VMID Control 0 */
 	{ 6,  0x0000 },     /* R6   - Mic Bias Control 0 */

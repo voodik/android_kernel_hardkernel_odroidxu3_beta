@@ -34,7 +34,7 @@
 
 #include "wm9090.h"
 
-static const struct reg_default wm9090_reg_defaults[] = {
+static const struct reg_sequence wm9090_reg_defaults[] = {
 	{ 1,  0x0006 },     /* R1   - Power Management (1) */
 	{ 2,  0x6000 },     /* R2   - Power Management (2) */
 	{ 3,  0x0000 },     /* R3   - Power Management (3) */

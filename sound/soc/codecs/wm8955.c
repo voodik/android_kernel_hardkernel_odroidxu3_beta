@@ -49,7 +49,7 @@ struct wm8955_priv {
 	struct regulator_bulk_data supplies[WM8955_NUM_SUPPLIES];
 };
 
-static const struct reg_default wm8955_reg_defaults[] = {
+static const struct reg_sequence wm8955_reg_defaults[] = {
 	{ 2,  0x0079 },     /* R2  - LOUT1 volume */
 	{ 3,  0x0079 },     /* R3  - ROUT1 volume */
 	{ 5,  0x0008 },     /* R5  - DAC Control */

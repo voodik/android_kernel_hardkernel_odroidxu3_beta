@@ -56,7 +56,7 @@
 	 SNDRV_PCM_FMTBIT_S32_LE  | SNDRV_PCM_FMTBIT_S32_BE)
 
 /* Power-up register defaults */
-static const struct reg_default sta32x_regs[] = {
+static const struct reg_sequence sta32x_regs[] = {
 	{  0x0, 0x63 },
 	{  0x1, 0x80 },
 	{  0x2, 0xc2 },

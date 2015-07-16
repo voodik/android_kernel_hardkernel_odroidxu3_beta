@@ -43,7 +43,7 @@ struct  cs42l73_private {
 	int shutdwn_delay;
 };
 
-static const struct reg_default cs42l73_reg_defaults[] = {
+static const struct reg_sequence cs42l73_reg_defaults[] = {
 	{ 6, 0xF1 },	/* r06	- Power Ctl 1 */
 	{ 7, 0xDF },	/* r07	- Power Ctl 2 */
 	{ 8, 0x3F },	/* r08	- Power Ctl 3 */

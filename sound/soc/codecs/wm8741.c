@@ -47,7 +47,7 @@ struct wm8741_priv {
 	struct snd_pcm_hw_constraint_list *sysclk_constraints;
 };
 
-static const struct reg_default wm8741_reg_defaults[] = {
+static const struct reg_sequence wm8741_reg_defaults[] = {
 	{  0, 0x0000 },     /* R0  - DACLLSB Attenuation */
 	{  1, 0x0000 },     /* R1  - DACLMSB Attenuation */
 	{  2, 0x0000 },     /* R2  - DACRLSB Attenuation */

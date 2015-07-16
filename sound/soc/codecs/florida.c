@@ -89,7 +89,7 @@ static const struct wm_adsp_region *florida_dsp_regions[] = {
 	florida_dsp4_regions,
 };
 
-static const struct reg_default florida_sysclk_revd_patch[] = {
+static const struct reg_sequence florida_sysclk_revd_patch[] = {
 	{ 0x3093, 0x1001 },
 	{ 0x30E3, 0x1301 },
 	{ 0x3133, 0x1201 },
@@ -103,7 +103,7 @@ static int florida_sysclk_ev(struct snd_soc_dapm_widget *w,
 	struct snd_soc_codec *codec = w->codec;
 	struct arizona *arizona = dev_get_drvdata(codec->dev->parent);
 	struct regmap *regmap = codec->control_data;
-	const struct reg_default *patch = NULL;
+	const struct reg_sequence *patch = NULL;
 	int i, patch_size;
 
 	switch (arizona->rev) {

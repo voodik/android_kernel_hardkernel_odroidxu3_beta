@@ -47,7 +47,7 @@ struct wm8523_priv {
 	struct snd_pcm_hw_constraint_list rate_constraint;
 };
 
-static const struct reg_default wm8523_reg_defaults[] = {
+static const struct reg_sequence wm8523_reg_defaults[] = {
 	{ 2, 0x0000 },     /* R2 - PSCTRL1 */
 	{ 3, 0x1812 },     /* R3 - AIF_CTRL1 */
 	{ 4, 0x0000 },     /* R4 - AIF_CTRL2 */

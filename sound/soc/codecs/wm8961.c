@@ -32,7 +32,7 @@
 
 #define WM8961_MAX_REGISTER                     0xFC
 
-static const struct reg_default wm8961_reg_defaults[] = {
+static const struct reg_sequence wm8961_reg_defaults[] = {
 	{  0, 0x009F },     /* R0   - Left Input volume */
 	{  1, 0x009F },     /* R1   - Right Input volume */
 	{  2, 0x0000 },     /* R2   - LOUT1 volume */

@@ -28,7 +28,7 @@
 
 #include "wm8983.h"
 
-static const struct reg_default wm8983_defaults[] = {
+static const struct reg_sequence wm8983_defaults[] = {
 	{ 0x01, 0x0000 },     /* R1  - Power management 1 */
 	{ 0x02, 0x0000 },     /* R2  - Power management 2 */
 	{ 0x03, 0x0000 },     /* R3  - Power management 3 */

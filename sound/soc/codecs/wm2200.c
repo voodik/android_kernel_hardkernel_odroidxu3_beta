@@ -166,7 +166,7 @@ static const struct wm_adsp_region wm2200_dsp2_regions[] = {
 	{ .type = WMFW_ADSP1_ZM, .base = WM2200_DSP2_ZM_BASE },
 };
 
-static struct reg_default wm2200_reg_defaults[] = {
+static struct reg_sequence wm2200_reg_defaults[] = {
 	{ 0x000B, 0x0000 },   /* R11    - Tone Generator 1 */
 	{ 0x0102, 0x0000 },   /* R258   - Clocking 3 */
 	{ 0x0103, 0x0011 },   /* R259   - Clocking 4 */
@@ -897,7 +897,7 @@ static bool wm2200_readable_register(struct device *dev, unsigned int reg)
 	}
 }
 
-static const struct reg_default wm2200_reva_patch[] = {
+static const struct reg_sequence wm2200_reva_patch[] = {
 	{ 0x07, 0x0003 },
 	{ 0x102, 0x0200 },
 	{ 0x203, 0x0084 },

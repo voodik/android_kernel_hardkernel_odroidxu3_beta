@@ -69,7 +69,7 @@
 #define JZ4740_CODEC_2_MIC_BOOST_GAIN_OFFSET	 4
 #define JZ4740_CODEC_2_HEADPHONE_VOLUME_OFFSET	 0
 
-static const struct reg_default jz4740_codec_reg_defaults[] = {
+static const struct reg_sequence jz4740_codec_reg_defaults[] = {
 	{ JZ4740_REG_CODEC_1, 0x021b2302 },
 	{ JZ4740_REG_CODEC_2, 0x00170803 },
 };

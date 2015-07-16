@@ -21,7 +21,7 @@
 #define FLORIDA_NUM_AOD_ISR 2
 #define FLORIDA_NUM_ISR 5
 
-static const struct reg_default florida_reva_patch[] = {
+static const struct reg_sequence florida_reva_patch[] = {
 	{ 0x80, 0x3 },
 	{ 0x44, 0x20 },
 	{ 0x45, 0x40 },
@@ -134,7 +134,7 @@ static const struct reg_default florida_reva_patch[] = {
 	{ 0x209, 0x002A },
 };
 
-static const struct reg_default florida_revb_patch[] = {
+static const struct reg_sequence florida_revb_patch[] = {
 	{ 0x80, 0x3 },
 	{ 0x36e, 0x0210 },
 	{ 0x370, 0x0210 },
@@ -224,7 +224,7 @@ static const struct reg_default florida_revb_patch[] = {
 	{ 0x80, 0x0 },
 };
 
-static const struct reg_default florida_revd_patch[] = {
+static const struct reg_sequence florida_revd_patch[] = {
 	{ 0x80, 0x3 },
 	{ 0x80, 0x3 },
 	{ 0x393, 0x27 },
@@ -445,7 +445,7 @@ const struct regmap_irq_chip florida_irq = {
 };
 EXPORT_SYMBOL_GPL(florida_irq);
 
-static const struct reg_default florida_reg_default[] = {
+static const struct reg_sequence florida_reg_default[] = {
 	{ 0x00000008, 0x0019 },    /* R8     - Ctrl IF SPI CFG 1 */
 	{ 0x00000009, 0x0001 },    /* R9     - Ctrl IF I2C1 CFG 1 */
 	{ 0x0000000A, 0x0001 },    /* R10    - Ctrl IF I2C2 CFG 1 */

@@ -46,7 +46,7 @@ struct wm8737_priv {
 	unsigned int mclk;
 };
 
-static const struct reg_default wm8737_reg_defaults[] = {
+static const struct reg_sequence wm8737_reg_defaults[] = {
 	{  0, 0x00C3 },     /* R0  - Left PGA volume */
 	{  1, 0x00C3 },     /* R1  - Right PGA volume */
 	{  2, 0x0007 },     /* R2  - AUDIO path L */

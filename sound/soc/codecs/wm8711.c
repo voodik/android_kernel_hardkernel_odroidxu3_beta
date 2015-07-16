@@ -43,7 +43,7 @@ struct wm8711_priv {
  * using 2 wire for device control, so we cache them instead.
  * There is no point in caching the reset register
  */
-static const struct reg_default wm8711_reg_defaults[] = {
+static const struct reg_sequence wm8711_reg_defaults[] = {
 	{ 0, 0x0079 }, { 1, 0x0079 }, { 2, 0x000a }, { 3, 0x0008 },
 	{ 4, 0x009f }, { 5, 0x000a }, { 6, 0x0000 }, { 7, 0x0000 },
 };

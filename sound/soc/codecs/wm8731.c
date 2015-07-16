@@ -55,7 +55,7 @@ struct wm8731_priv {
 /*
  * wm8731 register cache
  */
-static const struct reg_default wm8731_reg_defaults[] = {
+static const struct reg_sequence wm8731_reg_defaults[] = {
 	{ 0, 0x0097 },
 	{ 1, 0x0097 },
 	{ 2, 0x0079 },

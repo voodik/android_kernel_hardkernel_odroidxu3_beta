@@ -158,7 +158,7 @@
  * We can't read the WM8580 register space when we
  * are using 2 wire for device control, so we cache them instead.
  */
-static const struct reg_default wm8580_reg_defaults[] = {
+static const struct reg_sequence wm8580_reg_defaults[] = {
 	{  0, 0x0121 },
 	{  1, 0x017e },
 	{  2, 0x007d },

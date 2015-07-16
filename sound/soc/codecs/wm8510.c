@@ -34,7 +34,7 @@
  * We can't read the WM8510 register space when we are
  * using 2 wire for device control, so we cache them instead.
  */
-static const struct reg_default wm8510_reg_defaults[] = {
+static const struct reg_sequence wm8510_reg_defaults[] = {
 	{  1, 0x0000 },
 	{  2, 0x0000 },
 	{  3, 0x0000 },

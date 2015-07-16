@@ -40,7 +40,7 @@ static const char *wm8985_supply_names[WM8985_NUM_SUPPLIES] = {
 	"AVDD2"
 };
 
-static const struct reg_default wm8985_reg_defaults[] = {
+static const struct reg_sequence wm8985_reg_defaults[] = {
 	{ 1,  0x0000 },     /* R1  - Power management 1 */
 	{ 2,  0x0000 },     /* R2  - Power management 2 */
 	{ 3,  0x0000 },     /* R3  - Power management 3 */

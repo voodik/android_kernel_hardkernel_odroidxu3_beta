@@ -5310,6 +5310,6 @@ int wm5100_detect(struct snd_soc_codec *codec, struct snd_soc_jack *jack);
 bool wm5100_readable_register(struct device *dev, unsigned int reg);
 bool wm5100_volatile_register(struct device *dev, unsigned int reg);
 
-extern struct reg_default wm5100_reg_defaults[WM5100_REGISTER_COUNT];
+extern struct reg_sequence wm5100_reg_defaults[WM5100_REGISTER_COUNT];
 
 #endif

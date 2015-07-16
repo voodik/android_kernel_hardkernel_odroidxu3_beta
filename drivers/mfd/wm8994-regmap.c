@@ -19,7 +19,7 @@
 
 #include "wm8994.h"
 
-static struct reg_default wm1811_defaults[] = {
+static struct reg_sequence wm1811_defaults[] = {
 	{ 0x0001, 0x0000 },    /* R1    - Power Management (1) */
 	{ 0x0002, 0x6000 },    /* R2    - Power Management (2) */
 	{ 0x0003, 0x0000 },    /* R3    - Power Management (3) */
@@ -219,7 +219,7 @@ static struct reg_default wm1811_defaults[] = {
 	{ 0x0748, 0x003F },    /* R1864 - IRQ Debounce */
 };
 
-static struct reg_default wm8994_defaults[] = {
+static struct reg_sequence wm8994_defaults[] = {
 	{ 0x0001, 0x0000 },    /* R1     - Power Management (1) */ 
 	{ 0x0002, 0x6000 },    /* R2     - Power Management (2) */ 
 	{ 0x0003, 0x0000 },    /* R3     - Power Management (3) */ 
@@ -438,7 +438,7 @@ static struct reg_default wm8994_defaults[] = {
 	{ 0x0748, 0x003F },    /* R1864  - IRQ Debounce */ 
 };
 
-static struct reg_default wm8958_defaults[] = {
+static struct reg_sequence wm8958_defaults[] = {
 	{ 0x0001, 0x0000 },    /* R1     - Power Management (1) */
 	{ 0x0002, 0x6000 },    /* R2     - Power Management (2) */
 	{ 0x0003, 0x0000 },    /* R3     - Power Management (3) */

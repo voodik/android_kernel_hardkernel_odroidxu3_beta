@@ -113,7 +113,7 @@
  * exception of the "CHIPID" register (01h).  The lower four bits of that
  * register contain the hardware revision, so it is treated as volatile.
  */
-static const struct reg_default cs4270_reg_defaults[] = {
+static const struct reg_sequence cs4270_reg_defaults[] = {
 	{ 2, 0x00 },
 	{ 3, 0x30 },
 	{ 4, 0x00 },

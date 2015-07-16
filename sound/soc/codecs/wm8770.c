@@ -36,7 +36,7 @@ static const char *wm8770_supply_names[WM8770_NUM_SUPPLIES] = {
 	"DVDD"
 };
 
-static const struct reg_default wm8770_reg_defaults[] = {
+static const struct reg_sequence wm8770_reg_defaults[] = {
 	{  0, 0x7f },
 	{  1, 0x7f },
 	{  2, 0x7f },

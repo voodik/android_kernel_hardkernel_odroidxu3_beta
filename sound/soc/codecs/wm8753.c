@@ -66,7 +66,7 @@ static int wm8753_voice_write_dai_fmt(struct snd_soc_codec *codec,
  * We can't read the WM8753 register space when we
  * are using 2 wire for device control, so we cache them instead.
  */
-static const struct reg_default wm8753_reg_defaults[] = {
+static const struct reg_sequence wm8753_reg_defaults[] = {
 	{ 0x00, 0x0000 },
 	{ 0x01, 0x0008 },
 	{ 0x02, 0x0000 },

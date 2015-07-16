@@ -142,7 +142,7 @@
  * Array do not include Chip ID, as codec driver does not use
  * registers read operations at all
  */
-static const struct reg_default cs4271_reg_defaults[] = {
+static const struct reg_sequence cs4271_reg_defaults[] = {
 	{ CS4271_MODE1,		0, },
 	{ CS4271_DACCTL,	CS4271_DACCTL_AMUTE, },
 	{ CS4271_DACVOL,	CS4271_DACVOL_SOFT | CS4271_DACVOL_ATAPI_AL_BR, },

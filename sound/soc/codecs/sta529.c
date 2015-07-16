@@ -94,7 +94,7 @@
 #define BCLK_TO_FS_MSK		0x30
 #define AUDIO_MUTE_MSK		0x80
 
-static const struct reg_default sta529_reg_defaults[] = {
+static const struct reg_sequence sta529_reg_defaults[] = {
 	{ 0,  0x35 },     /* R0   - FFX Configuration reg 0 */
 	{ 1,  0xc8 },     /* R1   - FFX Configuration reg 1 */
 	{ 2,  0x50 },     /* R2   - Master Volume */

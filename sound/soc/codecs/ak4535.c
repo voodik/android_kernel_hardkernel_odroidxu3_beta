@@ -37,7 +37,7 @@ struct ak4535_priv {
 /*
  * ak4535 register cache
  */
-static const struct reg_default ak4535_reg_defaults[] = {
+static const struct reg_sequence ak4535_reg_defaults[] = {
 	{ 0, 0x00 },
 	{ 1, 0x80 },
 	{ 2, 0x00 },

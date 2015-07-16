@@ -39,7 +39,7 @@ struct rt5631_priv {
 	int dmic_used_flag;
 };
 
-static const struct reg_default rt5631_reg[] = {
+static const struct reg_sequence rt5631_reg[] = {
 	{ RT5631_SPK_OUT_VOL, 0x8888 },
 	{ RT5631_HP_OUT_VOL, 0x8080 },
 	{ RT5631_MONO_AXO_1_2_VOL, 0xa080 },

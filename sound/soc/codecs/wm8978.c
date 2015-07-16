@@ -30,7 +30,7 @@
 
 #include "wm8978.h"
 
-static const struct reg_default wm8978_reg_defaults[] = {
+static const struct reg_sequence wm8978_reg_defaults[] = {
 	{ 1, 0x0000 },
 	{ 2, 0x0000 },
 	{ 3, 0x0000 },

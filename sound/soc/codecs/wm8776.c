@@ -42,7 +42,7 @@ struct wm8776_priv {
 	int sysclk[2];
 };
 
-static const struct reg_default wm8776_reg_defaults[] = {
+static const struct reg_sequence wm8776_reg_defaults[] = {
 	{  0, 0x79 },
 	{  1, 0x79 },
 	{  2, 0x79 },

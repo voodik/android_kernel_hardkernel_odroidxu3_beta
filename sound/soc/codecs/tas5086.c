@@ -87,7 +87,7 @@
 /*
  * Default TAS5086 power-up configuration
  */
-static const struct reg_default tas5086_reg_defaults[] = {
+static const struct reg_sequence tas5086_reg_defaults[] = {
 	{ 0x00,	0x6c },
 	{ 0x01,	0x03 },
 	{ 0x02,	0x00 },

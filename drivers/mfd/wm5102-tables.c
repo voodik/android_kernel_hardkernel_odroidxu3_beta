@@ -21,7 +21,7 @@
 #define WM5102_NUM_AOD_ISR 2
 #define WM5102_NUM_ISR 5
 
-static const struct reg_default wm5102_reva_patch[] = {
+static const struct reg_sequence wm5102_reva_patch[] = {
 	{ 0x80, 0x0003 },
 	{ 0x221, 0x0090 },
 	{ 0x211, 0x0014 },
@@ -57,7 +57,7 @@ static const struct reg_default wm5102_reva_patch[] = {
 	{ 0x80, 0x0000 },
 };
 
-static const struct reg_default wm5102_revb_patch[] = {
+static const struct reg_sequence wm5102_revb_patch[] = {
 	{ 0x19, 0x0001 },
 	{ 0x80, 0x0003 },
 	{ 0x081, 0xE022 },
@@ -79,7 +79,7 @@ static const struct reg_default wm5102_revb_patch[] = {
 /* We use a function so we can use ARRAY_SIZE() */
 int wm5102_patch(struct arizona *arizona)
 {
-	const struct reg_default *wm5102_patch;
+	const struct reg_sequence *wm5102_patch;
 	int ret = 0;
 	int i, patch_size;
 
@@ -256,7 +256,7 @@ const struct regmap_irq_chip wm5102_irq = {
 	.num_irqs = ARRAY_SIZE(wm5102_irqs),
 };
 
-static const struct reg_default wm5102_reg_default[] = {
+static const struct reg_sequence wm5102_reg_default[] = {
 	{ 0x00000008, 0x0019 },   /* R8     - Ctrl IF SPI CFG 1 */ 
 	{ 0x00000009, 0x0001 },   /* R9     - Ctrl IF I2C1 CFG 1 */ 
 	{ 0x00000016, 0x0000 },   /* R22    - Write Sequencer Ctrl 0 */ 

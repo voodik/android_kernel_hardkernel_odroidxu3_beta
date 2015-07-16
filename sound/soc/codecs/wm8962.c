@@ -111,7 +111,7 @@ WM8962_REGULATOR_EVENT(5)
 WM8962_REGULATOR_EVENT(6)
 WM8962_REGULATOR_EVENT(7)
 
-static struct reg_default wm8962_reg[] = {
+static struct reg_sequence wm8962_reg[] = {
 	{ 0, 0x009F },   /* R0     - Left Input volume */
 	{ 1, 0x049F },   /* R1     - Right Input volume */
 	{ 2, 0x0000 },   /* R2     - HPOUTL volume */
@@ -3568,7 +3568,7 @@ static struct snd_soc_codec_driver soc_codec_dev_wm8962 = {
 };
 
 /* Improve power consumption for IN4 DC measurement mode */
-static const struct reg_default wm8962_dc_measure[] = {
+static const struct reg_sequence wm8962_dc_measure[] = {
 	{ 0xfd, 0x1 },
 	{ 0xcc, 0x40 },
 	{ 0xfd, 0 },

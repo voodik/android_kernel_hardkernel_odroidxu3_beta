@@ -36,7 +36,7 @@
  * the volume update bits, mute the output and enable infinite zero
  * detect.
  */
-static const struct reg_default wm8728_reg_defaults[] = {
+static const struct reg_sequence wm8728_reg_defaults[] = {
 	{ 0, 0x1ff },
 	{ 1, 0x1ff },
 	{ 2, 0x001 },

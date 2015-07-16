@@ -148,7 +148,7 @@ struct wm8900_priv {
  * wm8900 register cache.  We can't read the entire register space and we
  * have slow control buses so we cache the registers.
  */
-static const struct reg_default wm8900_reg_defaults[] = {
+static const struct reg_sequence wm8900_reg_defaults[] = {
 	{  1, 0x0000 },
 	{  2, 0xc000 },
 	{  3, 0x0000 },

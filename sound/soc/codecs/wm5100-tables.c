@@ -815,7 +815,7 @@ bool wm5100_readable_register(struct device *dev, unsigned int reg)
 	}
 }
 
-struct reg_default wm5100_reg_defaults[WM5100_REGISTER_COUNT] = {
+struct reg_sequence wm5100_reg_defaults[WM5100_REGISTER_COUNT] = {
 	{ 0x0000, 0x0000 },  /* R0     - software reset */
 	{ 0x0001, 0x0000 },  /* R1     - Device Revision */
 	{ 0x0010, 0x0801 },  /* R16    - Ctrl IF 1 */

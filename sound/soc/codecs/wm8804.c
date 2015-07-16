@@ -36,7 +36,7 @@ static const char *wm8804_supply_names[WM8804_NUM_SUPPLIES] = {
 	"DVDD"
 };
 
-static const struct reg_default wm8804_reg_defaults[] = {
+static const struct reg_sequence wm8804_reg_defaults[] = {
 	{ 3,  0x21 },     /* R3  - PLL1 */
 	{ 4,  0xFD },     /* R4  - PLL2 */
 	{ 5,  0x36 },     /* R5  - PLL3 */

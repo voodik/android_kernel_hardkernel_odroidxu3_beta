@@ -333,7 +333,7 @@ static struct snd_soc_codec_driver soc_codec_dev_ad1836 = {
 	.num_dapm_routes = ARRAY_SIZE(ad183x_dapm_routes),
 };
 
-static const struct reg_default ad1836_reg_defaults[] = {
+static const struct reg_sequence ad1836_reg_defaults[] = {
 	{ AD1836_DAC_CTRL1, 0x0000 },
 	{ AD1836_DAC_CTRL2, 0x0000 },
 	{ AD1836_DAC_L_VOL(0), 0x0000 },
