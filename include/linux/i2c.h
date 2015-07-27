@@ -644,6 +644,8 @@ extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
 /* must call put_device() when done with returned i2c_adapter device */
 extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node);
 
+/* must call i2c_put_adapter() when done with returned i2c_adapter device */
+struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node);
 #else
 
 static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
@@ -652,6 +654,11 @@ static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *
 }
 
 static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+{
+	return NULL;
+}
+
+static inline struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node)
 {
 	return NULL;
 }
