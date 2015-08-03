@@ -150,7 +150,7 @@ unsigned long   gTxAmpLevel = 31;   // Default setup
 
 static int __init hdmi_tx_amp_lvl(char *line)
 {
-    if(kstrtoul(line, 5, &gTxAmpLevel) != 0)    gTxAmpLevel = 31;
+    if(kstrtoul(line, 10, &gTxAmpLevel) != 0)   gTxAmpLevel = 31;
 
     if(gTxAmpLevel > 31)    gTxAmpLevel = 31;
 
@@ -176,7 +176,7 @@ unsigned long   gTxLevelCh2 = 3;    // Default setup
 
 static int __init hdmi_tx_lvl_ch0(char *line)
 {
-    if(kstrtoul(line, 5, &gTxLevelCh0) != 0)    gTxLevelCh0 = 3;
+    if(kstrtoul(line, 10, &gTxLevelCh0) != 0)   gTxLevelCh0 = 3;
 
     if(gTxLevelCh0 > 3)     gTxLevelCh0 = 3;
 
@@ -185,7 +185,7 @@ static int __init hdmi_tx_lvl_ch0(char *line)
 
 static int __init hdmi_tx_lvl_ch1(char *line)
 {
-    if(kstrtoul(line, 5, &gTxLevelCh1) != 0)    gTxLevelCh1 = 3;
+    if(kstrtoul(line, 10, &gTxLevelCh1) != 0)   gTxLevelCh1 = 3;
 
     if(gTxLevelCh1 > 3)     gTxLevelCh1 = 3;
 
@@ -194,7 +194,7 @@ static int __init hdmi_tx_lvl_ch1(char *line)
 
 static int __init hdmi_tx_lvl_ch2(char *line)
 {
-    if(kstrtoul(line, 5, &gTxLevelCh2) != 0)    gTxLevelCh2 = 3;
+    if(kstrtoul(line, 10, &gTxLevelCh2) != 0)   gTxLevelCh2 = 3;
 
     if(gTxLevelCh2 > 3)     gTxLevelCh2 = 3;
 
@@ -218,7 +218,7 @@ unsigned long   gTxEmpLevel = 6;    // Default setup
 
 static int __init hdmi_tx_emp_lvl(char *line)
 {
-    if(kstrtoul(line, 5, &gTxEmpLevel) != 0)    gTxEmpLevel = 6;
+    if(kstrtoul(line, 10, &gTxEmpLevel) != 0)   gTxEmpLevel = 6;
 
     if(gTxEmpLevel > 15)    gTxEmpLevel = 6;
 
@@ -240,7 +240,7 @@ unsigned long   gClkAmpLevel = 31;  // Default setup
 
 static int __init hdmi_clk_amp_lvl(char *line)
 {
-    if(kstrtoul(line, 5, &gClkAmpLevel) != 0)   gClkAmpLevel = 31;
+    if(kstrtoul(line, 10, &gClkAmpLevel) != 0)  gClkAmpLevel = 31;
 
     if(gClkAmpLevel > 31)   gClkAmpLevel = 31;
 
@@ -262,7 +262,7 @@ unsigned long   gTxRes = 0; // Default setup
 
 static int __init hdmi_tx_res(char *line)
 {
-    if(kstrtoul(line, 5, &gTxRes) != 0) gTxRes = 0;
+    if(kstrtoul(line, 10, &gTxRes) != 0)    gTxRes = 0;
 
     if(gTxRes > 3)  gTxRes = 0;
 
