@@ -75,8 +75,8 @@ static struct media_entity *find_entity(struct media_device *mdev, u32 id)
 	spin_lock(&mdev->lock);
 
 	media_device_for_each_entity(entity, mdev) {
-		if ((entity->id == id && !next) ||
-		    (entity->id > id && next)) {
+		if (((media_entity_id(entity) == id) && !next) ||
+		    ((media_entity_id(entity) > id) && next)) {
 			spin_unlock(&mdev->lock);
 			return entity;
 		}
@@ -93,6 +93,7 @@ static long media_device_enum_entities(struct media_device *mdev,
 	struct media_entity *ent;
 	struct media_entity_desc u_ent;
 
+	memset(&u_ent, 0, sizeof(u_ent));
 	if (copy_from_user(&u_ent.id, &uent->id, sizeof(u_ent.id)))
 		return -EFAULT;
 
@@ -101,13 +102,9 @@ static long media_device_enum_entities(struct media_device *mdev,
 	if (ent == NULL)
 		return -EINVAL;
 
-	u_ent.id = ent->id;
-	if (ent->name) {
-		strncpy(u_ent.name, ent->name, sizeof(u_ent.name));
-		u_ent.name[sizeof(u_ent.name) - 1] = '\0';
-	} else {
-		memset(u_ent.name, 0, sizeof(u_ent.name));
-	}
+	u_ent.id = media_entity_id(ent);
+	if (ent->name)
+		strlcpy(u_ent.name, ent->name, sizeof(u_ent.name));
 	u_ent.type = ent->type;
 	u_ent.revision = ent->revision;
 	u_ent.flags = ent->flags;
@@ -123,7 +120,7 @@ static long media_device_enum_entities(struct media_device *mdev,
 static void media_device_kpad_to_upad(const struct media_pad *kpad,
 				      struct media_pad_desc *upad)
 {
-	upad->entity = kpad->entity->id;
+	upad->entity = media_entity_id(kpad->entity);
 	upad->index = kpad->index;
 	upad->flags = kpad->flags;
 }
