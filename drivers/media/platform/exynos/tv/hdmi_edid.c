@@ -85,6 +85,16 @@ static int __init hdmi_edid_setup(char *line)
 }
 __setup("edid=", hdmi_edid_setup);
 
+unsigned long   HdmiHPDBootArgs = 1;
+
+// Bootargs parsing
+static int __init hdmi_hpd_setup(char *line)
+{
+	if(kstrtoul(line, 10, &HdmiHPDBootArgs) != 0)    HdmiHPDBootArgs = 1;
+	return 0;
+}
+__setup("hpd=", hdmi_hpd_setup);
+
 #endif
 
 static struct i2c_client *edid_client;

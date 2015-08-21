@@ -59,6 +59,7 @@ MODULE_LICENSE("GPL");
 #ifdef CONFIG_MACH_ODROIDXU3
 extern unsigned long   HdmiEDIDBootArgs;
 extern unsigned char   HdmiVOUTBootArgs[10];
+extern unsigned char   HdmiHPDBootArgs;
 #endif
 
 /* I2C module and id for HDMIPHY */
@@ -815,7 +816,14 @@ static void hdmi_hpd_work_ext(struct work_struct *work)
 						hpd_work_ext.work);
 
 	state = gpio_get_value(hdev->res.gpio_hpd);
+#ifdef CONFIG_MACH_ODROIDXU3
+	if (HdmiHPDBootArgs == 0)
+		state = 1;
+	printk("###########################################\n");
+	printk("# HDMI HPD state %d #\n", state);
+	printk("###########################################\n");
 	hdmi_hpd_changed(hdev, state);
+#endif
 }
 
 static void hdmi_hpd_work(struct work_struct *work)
