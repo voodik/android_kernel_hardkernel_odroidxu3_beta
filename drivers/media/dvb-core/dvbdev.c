@@ -237,17 +237,17 @@ static void dvb_create_media_entity(struct dvb_device *dvbdev,
 
 	switch (type) {
 	case DVB_DEVICE_FRONTEND:
-		dvbdev->entity->type = MEDIA_ENT_T_DEVNODE_DVB_FE;
+		dvbdev->entity->type = MEDIA_ENT_T_DVB_DEMOD;
 		dvbdev->pads[0].flags = MEDIA_PAD_FL_SINK;
 		dvbdev->pads[1].flags = MEDIA_PAD_FL_SOURCE;
 		break;
 	case DVB_DEVICE_DEMUX:
-		dvbdev->entity->type = MEDIA_ENT_T_DEVNODE_DVB_DEMUX;
+		dvbdev->entity->type = MEDIA_ENT_T_DVB_DEMUX;
 		dvbdev->pads[0].flags = MEDIA_PAD_FL_SINK;
 		dvbdev->pads[1].flags = MEDIA_PAD_FL_SOURCE;
 		break;
 	case DVB_DEVICE_CA:
-		dvbdev->entity->type = MEDIA_ENT_T_DEVNODE_DVB_CA;
+		dvbdev->entity->type = MEDIA_ENT_T_DVB_CA;
 		dvbdev->pads[0].flags = MEDIA_PAD_FL_SINK;
 		dvbdev->pads[1].flags = MEDIA_PAD_FL_SOURCE;
 		break;
@@ -446,7 +446,7 @@ EXPORT_SYMBOL(dvb_unregister_device);
 void dvb_create_media_graph(struct dvb_adapter *adap)
 {
 	struct media_device *mdev = adap->mdev;
-	struct media_entity *entity, *tuner = NULL, *fe = NULL;
+	struct media_entity *entity, *tuner = NULL, *demod = NULL;
 	struct media_entity *demux = NULL, *dvr = NULL, *ca = NULL;
 	struct media_interface *intf;
 
@@ -458,26 +458,25 @@ void dvb_create_media_graph(struct dvb_adapter *adap)
 		case MEDIA_ENT_T_V4L2_SUBDEV_TUNER:
 			tuner = entity;
 			break;
-		case MEDIA_ENT_T_DEVNODE_DVB_FE:
-			fe = entity;
+		case MEDIA_ENT_T_DVB_DEMOD:
+			demod = entity;
 			break;
-		case MEDIA_ENT_T_DEVNODE_DVB_DEMUX:
+		case MEDIA_ENT_T_DVB_DEMUX:
 			demux = entity;
 			break;
-		case MEDIA_ENT_T_DEVNODE_DVB_DVR:
+		case MEDIA_ENT_T_DVB_TSOUT:
 			dvr = entity;
 			break;
-		case MEDIA_ENT_T_DEVNODE_DVB_CA:
+		case MEDIA_ENT_T_DVB_CA:
 			ca = entity;
 			break;
 		}
 	}
+	if (tuner && demod)
+		media_entity_create_link(tuner, 0, demod, 0, 0);
 
-	if (tuner && fe)
-		media_entity_create_link(tuner, 0, fe, 0, 0);
-
-	if (fe && demux)
-		media_entity_create_link(fe, 1, demux, 0, MEDIA_LNK_FL_ENABLED);
+	if (demod && demux)
+		media_entity_create_link(demod, 1, demux, 0, MEDIA_LNK_FL_ENABLED);
 
 	if (demux && dvr)
 		media_entity_create_link(demux, 1, dvr, 0, MEDIA_LNK_FL_ENABLED);
