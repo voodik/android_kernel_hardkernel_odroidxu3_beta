@@ -375,6 +375,7 @@ int __must_check media_device_register(struct media_device *mdev)
 		return -EINVAL;
 
 	INIT_LIST_HEAD(&mdev->entities);
+	INIT_LIST_HEAD(&mdev->interfaces);
 	spin_lock_init(&mdev->lock);
 	mutex_init(&mdev->graph_mutex);
 
