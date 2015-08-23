@@ -24,6 +24,7 @@
 #define _MEDIA_ENTITY_H
 
 #include <linux/bitops.h>
+#include <linux/kernel.h>
 #include <linux/list.h>
 #include <linux/media.h>
 
@@ -65,6 +66,7 @@ enum media_gobj_type {
 struct media_gobj {
 	struct media_device	*mdev;
 	u32			id;
+	struct list_head	list;
 };
 
 
@@ -103,9 +105,7 @@ struct media_entity_operations {
 };
 
 struct media_entity {
-	struct media_gobj graph_obj;
-	struct list_head list;
-	struct media_device *parent;	/* Media device this entity belongs to*/
+	struct media_gobj graph_obj;	/* must be first field in struct */
 	const char *name;		/* Entity name */
 	u32 type;			/* Entity type (MEDIA_ENT_T_*) */
 	u32 revision;			/* Entity revision, driver specific */
@@ -167,7 +167,6 @@ struct media_entity {
  */
 struct media_interface {
 	struct media_gobj		graph_obj;
-	struct list_head		list;
 	struct list_head		links;
 	u32				type;
 	u32				flags;
@@ -219,6 +218,40 @@ static inline u32 media_gobj_gen_id(enum media_gobj_type type, u32 local_id)
 	id |= local_id & MEDIA_LOCAL_ID_MASK;
 
 	return id;
+}
+
+static inline bool is_media_entity_v4l2_io(struct media_entity *entity)
+{
+	if (!entity)
+		return false;
+
+	switch (entity->type) {
+	case MEDIA_ENT_T_V4L2_VIDEO:
+	case MEDIA_ENT_T_V4L2_VBI:
+	case MEDIA_ENT_T_V4L2_SWRADIO:
+		return true;
+	default:
+		return false;
+	}
+}
+
+static inline bool is_media_entity_v4l2_subdev(struct media_entity *entity)
+{
+	if (!entity)
+		return false;
+
+	switch (entity->type) {
+	case MEDIA_ENT_T_V4L2_SUBDEV_UNKNOWN:
+	case MEDIA_ENT_T_V4L2_SUBDEV_SENSOR:
+	case MEDIA_ENT_T_V4L2_SUBDEV_FLASH:
+	case MEDIA_ENT_T_V4L2_SUBDEV_LENS:
+	case MEDIA_ENT_T_V4L2_SUBDEV_DECODER:
+	case MEDIA_ENT_T_V4L2_SUBDEV_TUNER:
+		return true;
+
+	default:
+		return false;
+	}
 }
 
 #define MEDIA_ENTITY_ENUM_MAX_DEPTH	16

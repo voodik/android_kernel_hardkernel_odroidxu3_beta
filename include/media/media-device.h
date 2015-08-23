@@ -89,6 +89,8 @@ struct media_device {
 			   unsigned int notification);
 };
 
+#ifdef CONFIG_MEDIA_CONTROLLER
+
 /* Supported link_notify @notification values. */
 #define MEDIA_DEV_NOTIFY_PRE_LINK_CH	0
 #define MEDIA_DEV_NOTIFY_POST_LINK_CH	1
@@ -96,15 +98,49 @@ struct media_device {
 /* media_devnode to media_device */
 #define to_media_device(node) container_of(node, struct media_device, devnode)
 
-int __must_check media_device_register(struct media_device *mdev);
+int __must_check __media_device_register(struct media_device *mdev,
+					 struct module *owner);
+#define media_device_register(mdev) __media_device_register(mdev, THIS_MODULE)
 void media_device_unregister(struct media_device *mdev);
 
 int __must_check media_device_register_entity(struct media_device *mdev,
 					      struct media_entity *entity);
 void media_device_unregister_entity(struct media_entity *entity);
+struct media_device *media_device_get_devres(struct device *dev);
+struct media_device *media_device_find_devres(struct device *dev);
 
 /* Iterate over all entities. */
 #define media_device_for_each_entity(entity, mdev)			\
-	list_for_each_entry(entity, &(mdev)->entities, list)
+	list_for_each_entry(entity, &(mdev)->entities, graph_obj.list)
 
+/* Iterate over all interfaces. */
+#define media_device_for_each_intf(intf, mdev)			\
+	list_for_each_entry(intf, &(mdev)->interfaces, graph_obj.list)
+
+
+#else
+static inline int media_device_register(struct media_device *mdev)
+{
+	return 0;
+}
+static inline void media_device_unregister(struct media_device *mdev)
+{
+}
+static inline int media_device_register_entity(struct media_device *mdev,
+						struct media_entity *entity)
+{
+	return 0;
+}
+static inline void media_device_unregister_entity(struct media_entity *entity)
+{
+}
+static inline struct media_device *media_device_get_devres(struct device *dev)
+{
+	return NULL;
+}
+static inline struct media_device *media_device_find_devres(struct device *dev)
+{
+	return NULL;
+}
+#endif /* CONFIG_MEDIA_CONTROLLER */
 #endif
