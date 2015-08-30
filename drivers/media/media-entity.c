@@ -627,6 +627,7 @@ media_entity_create_link(struct media_entity *source, u16 source_pad,
 	backlink->source = &source->pads[source_pad];
 	backlink->sink = &sink->pads[sink_pad];
 	backlink->flags = flags;
+	backlink->is_backlink = true;
 
 	/* Initialize graph object embedded at the new link */
 	media_gobj_init(sink->graph_obj.mdev, MEDIA_GRAPH_LINK,
