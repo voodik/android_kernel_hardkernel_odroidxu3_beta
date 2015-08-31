@@ -26,6 +26,8 @@
 #include <linux/mutex.h>
 
 #include "au0828.h"
+/* Due to enum tuner_pad_index */
+#include <media/tuner.h>
 
 /*
  * 1 = General debug messages
@@ -167,6 +169,79 @@ static void au0828_usb_disconnect(struct usb_interface *interface)
 	}
 #endif
 	au0828_usb_release(dev);
+}
+
+static void au0828_media_device_register(struct au0828_dev *dev,
+					  struct usb_device *udev)
+{
+#ifdef CONFIG_MEDIA_CONTROLLER
+	struct media_device *mdev;
+	int ret;
+
+	mdev = kzalloc(sizeof(*mdev), GFP_KERNEL);
+	if (!mdev)
+		return;
+
+	mdev->dev = &udev->dev;
+
+	if (!dev->board.name)
+		strlcpy(mdev->model, "unknown au0828", sizeof(mdev->model));
+	else
+		strlcpy(mdev->model, dev->board.name, sizeof(mdev->model));
+	if (udev->serial)
+		strlcpy(mdev->serial, udev->serial, sizeof(mdev->serial));
+	strcpy(mdev->bus_info, udev->devpath);
+	mdev->hw_revision = le16_to_cpu(udev->descriptor.bcdDevice);
+	mdev->driver_version = LINUX_VERSION_CODE;
+
+	ret = media_device_register(mdev);
+	if (ret) {
+		pr_err(
+			"Couldn't create a media device. Error: %d\n",
+			ret);
+		kfree(mdev);
+		return;
+	}
+
+	dev->media_dev = mdev;
+#endif
+}
+
+
+static void au0828_create_media_graph(struct au0828_dev *dev)
+{
+#ifdef CONFIG_MEDIA_CONTROLLER
+	struct media_device *mdev = dev->media_dev;
+	struct media_entity *entity;
+	struct media_entity *tuner = NULL, *decoder = NULL;
+
+	if (!mdev)
+		return;
+
+	media_device_for_each_entity(entity, mdev) {
+		switch (entity->type) {
+		case MEDIA_ENT_T_V4L2_SUBDEV_TUNER:
+			tuner = entity;
+			break;
+		case MEDIA_ENT_T_V4L2_SUBDEV_DECODER:
+			decoder = entity;
+			break;
+		}
+	}
+
+	/* Analog setup, using tuner as a link */
+
+	if (!decoder)
+		return;
+
+	if (tuner)
+		media_create_pad_link(tuner, TUNER_PAD_IF_OUTPUT, decoder, 0,
+				      MEDIA_LNK_FL_ENABLED);
+	media_create_pad_link(decoder, 1, &dev->vdev.entity, 0,
+			      MEDIA_LNK_FL_ENABLED);
+	media_create_pad_link(decoder, 2, &dev->vbi_dev.entity, 0,
+			      MEDIA_LNK_FL_ENABLED);
+#endif
 }
 
 static int au0828_usb_probe(struct usb_interface *interface,
