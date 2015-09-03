@@ -221,14 +221,14 @@ static int bh1780_probe(struct i2c_client *client, const struct i2c_device_id *i
 		return -ENOMEM;
 	}
 
+	i2c_set_clientdata(client, bh1780);
+
+	dev_set_drvdata(&client->dev, bh1780);
+
+	bh1780->client = client;
+
 	/* detect and init hardware */
 	if ((err = bh1780_detect(client, NULL)) != 0)   goto error;
-
-	i2c_set_clientdata(client, bh1780);
-	
-    dev_set_drvdata(&client->dev, bh1780);
-	
-	bh1780->client = client;
 
 	if((err = i2c_smbus_write_byte(bh1780->client, (BH1780_COMMAND_REG + BH1780_PART_REV_REG))) < 0)	{
 		dev_err(&client->dev, "I2C write byte error: data=0x%02x\n", (BH1780_COMMAND_REG + BH1780_PART_REV_REG));
@@ -238,29 +238,29 @@ static int bh1780_probe(struct i2c_client *client, const struct i2c_device_id *i
 		dev_err(&client->dev, "I2C read byte error\n");
 		goto error;
 	}
-	
+
 	dev_info(&client->dev, "%s found\n", id->name);
 	dev_info(&client->dev, "part number=%d, rev=%d\n", ((err >> 4) & 0x0F), (err & 0x0F));
 
-	bh1780_power_up(bh1780);	
+	bh1780_power_up(bh1780);
 
 	INIT_DELAYED_WORK(&bh1780->work, bh1780_work_func);
-	
+
 	#if defined(CONFIG_ODROID_EXYNOS5_IOBOARD_DEBUG)
-	    bh1780->enabled = 1;
+		bh1780->enabled = 1;
 	#endif
-	
-    if(bh1780->enabled) schedule_delayed_work(&bh1780->work, BH1780_WORK_PERIOD);
-	
+
+	if(bh1780->enabled) schedule_delayed_work(&bh1780->work, BH1780_WORK_PERIOD);
+
 	if ((err = sysfs_create_group(&client->dev.kobj, &bh1780_attribute_group)) < 0)		goto error;
 
-    printk("\n=================== ioboard_%s ===================\n\n", __func__);
+	printk("\n=================== ioboard_%s ===================\n\n", __func__);
 
 	return 0;
 
 error:
-    printk("\n=================== ioboard_%s FAIL! ===================\n\n", __func__);
-	kfree(bh1780);
+	printk("\n=================== ioboard_%s FAIL! ===================\n\n", __func__);
+
 	return err;
 }
 

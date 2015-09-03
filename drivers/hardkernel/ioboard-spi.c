@@ -26,14 +26,23 @@
 #include <linux/spi/spi.h>
 
 #if defined(CONFIG_OF)
-    #include <linux/of.h>
-    #include <linux/of_gpio.h>
+	#include <linux/of.h>
+	#include <linux/of_gpio.h>
 #endif
 
+#include <linux/platform_data/spi-s3c64xx.h>
 #include "ioboard-spi.h"
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 #define SST25WF020_NAME 	    "ioboard-spi"
+
+#define SPI_BUS_NUM     1
+#define SPI_CS_NUM      0
+#define SPI_CS_GPIO     190         /* GPA2.5(#190) */
+#define SPI_WP_GPIO     21          /* GPX1.5(#21) */
+#define SPI_BUS_SPEED   10000000
+
+static  struct  ioboard_spi     *ioboard_spi;
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 #define SPI_MAX_BUFFER_SIZE     32
@@ -81,381 +90,345 @@
     //  0   : BP1 and BP0 are read/writable (Power-up default value)
     #define STATUS_REG_BPL      0x80    // (R/W)
 
-//    struct ioboard_spi  *ioboard_spi = dev_get_drvdata(&spi->dev);
 //[*]--------------------------------------------------------------------------------------------------[*]
 int wait_until_ready         (struct spi_device *spi, unsigned int check_usec)
 {
-    unsigned char   tx, status, retry_cnt = 0;
+	unsigned char   tx, status, retry_cnt = 0;
 
-    do  {
-        tx = CMD_READ_STATUS_REG; // ReaD Status Register(RDSR)
-        
-        spi_write_then_read(spi, &tx, sizeof(tx), &status, sizeof(status));
-        udelay(check_usec);
-        
-        if(retry_cnt++ >= SPI_MAX_RETRY_CNT)    {
-            printk("%s : timeout error!!\n", __func__); return  -1;
-        }
-    }   while(status & STATUS_REG_BUSY);
-    
-    return  0;
+	do  {
+		tx = CMD_READ_STATUS_REG; // ReaD Status Register(RDSR)
+
+		spi_write_then_read(spi, &tx, sizeof(tx), &status, sizeof(status));
+		udelay(check_usec);
+
+		if(retry_cnt++ >= SPI_MAX_RETRY_CNT)    {
+			pr_err("%s : timeout error!!\n", __func__); return  -1;
+		}
+	}   while(status & STATUS_REG_BUSY);
+
+	return  0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 int is_ready    (struct spi_device *spi)
 {
-    unsigned char   tx, status;
+	unsigned char   tx, status;
 
-    tx = CMD_READ_STATUS_REG; // ReaD Status Register(RDSR)
-        
-    spi_write_then_read(spi, &tx, sizeof(tx), &status, sizeof(status));
+	tx = CMD_READ_STATUS_REG; // ReaD Status Register(RDSR)
 
-    // 0 : not ready, 1 : ready
-    return  (status & STATUS_REG_BUSY) ? 0 : 1;
+	spi_write_then_read(spi, &tx, sizeof(tx), &status, sizeof(status));
+
+	// 0 : not ready, 1 : ready
+	return  (status & STATUS_REG_BUSY) ? 0 : 1;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 static int ioboard_spi_write_enable     (struct spi_device *spi, unsigned char enable)
 {
-    unsigned char   tx;
-    
-    tx = enable ? CMD_WRITE_ENABLE : CMD_WRITE_DISABLE;
+	unsigned char   tx;
 
-    spi_write_then_read(spi, &tx, sizeof(tx), NULL, 0);
+	tx = enable ? CMD_WRITE_ENABLE : CMD_WRITE_DISABLE;
 
-    if(wait_until_ready(spi, 100))  {
-        printk("%s : error!!\n", __func__);     return  -1;
-    }   
-    return  0;
+	spi_write_then_read(spi, &tx, sizeof(tx), NULL, 0);
+
+	if(wait_until_ready(spi, 100))  {
+		pr_err("%s : error!!\n", __func__);     return  -1;
+	}
+	return  0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 int ioboard_spi_erase        (struct spi_device *spi, unsigned int addr, unsigned char mode)
 {
-    unsigned char   tx[4], tx_size;
+	unsigned char   tx[4], tx_size;
 
-    switch(mode) {
-        case CMD_ERASE_4KB :    case CMD_ERASE_32KB:    case CMD_ERASE_64KB:
-            tx[0] = mode;  tx_size = 4;
-            tx[1] = (addr >> 16) & 0xFF;   
-            tx[2] = (addr >>  8) & 0xFF;
-            tx[3] = (addr      ) & 0xFF;
-            break;
-        case CMD_ERASE_ALL :
-            tx[0] = mode;  tx_size = 1;
-            break;
-        default :    
-            printk("%s : Unknown command 0x%02X\n", __func__, mode);
-            return  -1;
-    }
-    // write enable
-    if(ioboard_spi_write_enable(spi, 1) != 0)   return  -1;     // write enable
+	switch(mode) {
+		case CMD_ERASE_4KB :    case CMD_ERASE_32KB:    case CMD_ERASE_64KB:
+			tx[0] = mode;  tx_size = 4;
+			tx[1] = (addr >> 16) & 0xFF;
+			tx[2] = (addr >>  8) & 0xFF;
+			tx[3] = (addr      ) & 0xFF;
+			break;
+		case CMD_ERASE_ALL :
+			tx[0] = mode;  tx_size = 1;
+			break;
+		default :
+			pr_err("%s : Unknown command 0x%02X\n", __func__, mode);
+			return  -1;
+	}
+	// write enable
+	if(ioboard_spi_write_enable(spi, 1) != 0)   return  -1;     // write enable
 
-    spi_write_then_read(spi, &tx[0], tx_size, NULL, 0);     
+	spi_write_then_read(spi, &tx[0], tx_size, NULL, 0);
 
-    if(mode == CMD_ERASE_ALL)   mdelay(200);
-    else                        mdelay(100);
+	if(mode == CMD_ERASE_ALL)   mdelay(200);
+	else                        mdelay(100);
 
-    if(wait_until_ready(spi, 100))              return  -1;
+	if(wait_until_ready(spi, 100))              return  -1;
 
-    // write disable
-    if(ioboard_spi_write_enable(spi, 0) != 0)   return  -1;     // write disable
+	// write disable
+	if(ioboard_spi_write_enable(spi, 0) != 0)   return  -1;     // write disable
 
-    return  0;
+	return  0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 static int ioboard_spi_byte_write   (struct spi_device *spi, unsigned int addr, unsigned char wdata)
 {
-    unsigned char   tx[5];
+	unsigned char   tx[5];
 
-    // write enable
-    if(ioboard_spi_write_enable(spi, 1) != 0)   return  -1;     // write enable
+	// write enable
+	if(ioboard_spi_write_enable(spi, 1) != 0)   return  -1;     // write enable
 
-    tx[0] = CMD_BYTE_WRITE;
-    tx[1] = (addr >> 16) & 0xFF;
-    tx[2] = (addr >>  8) & 0xFF;
-    tx[3] = (addr      ) & 0xFF;
-    tx[4] = wdata;    
-    
-    spi_write_then_read(spi, &tx[0], 5, NULL, 0);
+	tx[0] = CMD_BYTE_WRITE;
+	tx[1] = (addr >> 16) & 0xFF;
+	tx[2] = (addr >>  8) & 0xFF;
+	tx[3] = (addr      ) & 0xFF;
+	tx[4] = wdata;
 
-    if(wait_until_ready(spi, 100))     {
-        printk("%s : error!!\n", __func__);     return  -1;
-    }
+	spi_write_then_read(spi, &tx[0], 5, NULL, 0);
 
-    if(ioboard_spi_write_enable(spi, 0) != 0)   return  -1;     // write disable
+	if(wait_until_ready(spi, 100))     {
+		pr_err("%s : error!!\n", __func__);     return  -1;
+	}
 
-    return  0;
+	if(ioboard_spi_write_enable(spi, 0) != 0)   return  -1;     // write disable
+
+	return  0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 static int ioboard_spi_read_memory_highspeed    (struct spi_device *spi, unsigned int addr, unsigned char *rdata, unsigned int size)
 {
-    unsigned char   tx[5]; // read memory highspeed
-    
-    tx[0] = CMD_HIGH_SPEED_READ;    tx[1] = (addr >> 16) & 0xFF;
-    tx[2] = (addr >>  8) & 0xFF;    tx[3] = (addr      ) & 0xFF;
-    tx[4] = 0x00; // Dummy cycle
+	unsigned char   tx[5]; // read memory highspeed
 
-    spi_write_then_read(spi, &tx[0], sizeof(tx), &rdata[0], size);
+	tx[0] = CMD_HIGH_SPEED_READ;    tx[1] = (addr >> 16) & 0xFF;
+	tx[2] = (addr >>  8) & 0xFF;    tx[3] = (addr      ) & 0xFF;
+	tx[4] = 0x00; // Dummy cycle
 
-    if(wait_until_ready(spi, 100))     {
-        printk("%s : error!!\n", __func__);     return  -1;
-    }
+	spi_write_then_read(spi, &tx[0], sizeof(tx), &rdata[0], size);
 
-    if(size == 0)   {
-        printk("%s : read size is 0. error!!\n", __func__); return -1;
-    }
+	if(wait_until_ready(spi, 100))     {
+		pr_err("%s : error!!\n", __func__);     return  -1;
+	}
 
-    return  0;
+	if(size == 0)   {
+		pr_err("%s : read size is 0. error!!\n", __func__); return -1;
+	}
+
+	return  0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 static int ioboard_spi_read_memory              (struct spi_device *spi, unsigned int addr, unsigned char *rdata, unsigned int size)
 {
-    unsigned char   tx[4]; // read memory
-    
-    tx[0] = CMD_READ;               tx[1] = (addr >> 16) & 0xFF;
-    tx[2] = (addr >>  8) & 0xFF;    tx[3] = (addr      ) & 0xFF;
+	unsigned char   tx[4]; // read memory
 
-    spi_write_then_read(spi, &tx[0], sizeof(tx), &rdata[0], size);
+	tx[0] = CMD_READ;               tx[1] = (addr >> 16) & 0xFF;
+	tx[2] = (addr >>  8) & 0xFF;    tx[3] = (addr      ) & 0xFF;
 
-    if(wait_until_ready(spi, 100))     {
-        printk("%s : error!!\n", __func__);     return  -1;
-    }
+	spi_write_then_read(spi, &tx[0], sizeof(tx), &rdata[0], size);
 
-    if(size == 0)   {
-        printk("%s : read size is 0. error!!\n", __func__); return -1;
-    }
+	if(wait_until_ready(spi, 100))     {
+		pr_err("%s : error!!\n", __func__);     return  -1;
+	}
 
-    return  0;
+	if(size == 0)   {
+		pr_err("%s : read size is 0. error!!\n", __func__); return -1;
+	}
+
+	return  0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 int ioboard_spi_read    (struct spi_device *spi, unsigned int addr, unsigned char *rdata, unsigned int size)
 {
-    unsigned int    offset = 0, mok, na;
-    
-    mok     = size / SPI_MAX_BUFFER_SIZE;
-    na      = size % SPI_MAX_BUFFER_SIZE;
-    
-    while(mok)  {
-        ioboard_spi_read_memory_highspeed(spi, addr + offset, &rdata[offset], SPI_MAX_BUFFER_SIZE);
-        offset += SPI_MAX_BUFFER_SIZE;      mok = mok - 1;
-    }
-    
-    if(na)  {
-        ioboard_spi_read_memory_highspeed(spi, addr + offset, &rdata[offset], na);
-    }
-    
-    return  0;
+	unsigned int    offset = 0, mok, na;
+
+	mok     = size / SPI_MAX_BUFFER_SIZE;
+	na      = size % SPI_MAX_BUFFER_SIZE;
+
+	while(mok)  {
+		ioboard_spi_read_memory_highspeed(spi, addr + offset, &rdata[offset], SPI_MAX_BUFFER_SIZE);
+		offset += SPI_MAX_BUFFER_SIZE;      mok = mok - 1;
+	}
+
+	if(na)  {
+		ioboard_spi_read_memory_highspeed(spi, addr + offset, &rdata[offset], na);
+	}
+
+	return  0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 int ioboard_spi_write   (struct spi_device *spi, unsigned int addr, unsigned char *wdata, unsigned int size)
 {
-    unsigned int    i;
+	unsigned int    i;
 
-    if(size == 0)   {
-        printk("%s : write size is 0. error!!\n", __func__); return -1;
-    }
-    
-    for(i = 0; i < size; i++)   ioboard_spi_byte_write(spi, addr + i, wdata[i]);
+	if(size == 0)   {
+		pr_err("%s : write size is 0. error!!\n", __func__); return -1;
+	}
 
-    return  0;
+	for(i = 0; i < size; i++)   ioboard_spi_byte_write(spi, addr + i, wdata[i]);
+
+	return  0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 static int ioboard_spi_id_read      (struct spi_device *spi)
 {
-    unsigned char   tx[] = { 0xAB, 0x00, 0x00, 0x00 };
-    unsigned char   rx[2];
-    
-    spi_write_then_read(spi, &tx, sizeof(tx), &rx, sizeof(rx));
-    
-    if(wait_until_ready(spi, 100) != 0)     {
-        printk("%s : ready error!\n", __func__);    return  -1;
-    }
-    
-    printk("%s : id read ! [0x%02X][0x%02X]\n", __func__, rx[0], rx[1]);
+	unsigned char   tx[] = { 0xAB, 0x00, 0x00, 0x00 };
+	unsigned char   rx[2];
 
-    return  0;
+	spi_write_then_read(spi, &tx, sizeof(tx), &rx, sizeof(rx));
+
+	if(wait_until_ready(spi, 100) != 0)     {
+		pr_err("%s : ready error!\n", __func__);    return  -1;
+	}
+
+	pr_info("%s : id read ! [0x%02X][0x%02X]\n", __func__, rx[0], rx[1]);
+
+	return  0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 static int ioboard_spi_write_status_reg (struct spi_device *spi, unsigned char status)
 {
-    unsigned char   tx[2];
-    
-    // write enable
-    if(ioboard_spi_write_enable(spi, 1) != 0)   return  -1;     // write enable
-        
-    tx[0] = CMD_WRITE_STATUS_REG;
-    tx[1] = status;
-    spi_write_then_read(spi, &tx, sizeof(tx), NULL, 0);
-    
-    if(ioboard_spi_write_enable(spi, 0) != 0)   return  -1;     // write disable
-        
-    return  0;
+	unsigned char   tx[2];
+
+	// write enable
+	if(ioboard_spi_write_enable(spi, 1) != 0)   return  -1;     // write enable
+
+	tx[0] = CMD_WRITE_STATUS_REG;
+	tx[1] = status;
+	spi_write_then_read(spi, &tx, sizeof(tx), NULL, 0);
+
+	if(ioboard_spi_write_enable(spi, 0) != 0)   return  -1;     // write disable
+
+	return  0;
 }
 
-//[*]--------------------------------------------------------------------------------------------------[*]
-#if defined(CONFIG_OF)
-    int     wp_gpio = -1;
-#else
-    int 	wp_gpio = EXYNOS5410_GPX1(5);			// GPIO Number
-#endif    
-
+//[*]--------------------------------------------------------------------------------------
 static void ioboard_spi_wp_disable   (unsigned char disable)
 {
-#if defined(CONFIG_OF)
-    if(wp_gpio < 0) {
-        printk("%s : write protect gpio not defined!!\n", __func__);
-        return;
-    }
-#endif    
-    // write protection port init
-    if(gpio_request(wp_gpio, "ioboard-spi-wp"))  {
-        printk("%s : %s gpio request error!\n", __func__, "ioboard-spi-wp");
-    }
-    else    {
-        s3c_gpio_setpull(wp_gpio, S3C_GPIO_PULL_NONE);
+	// write protection port init
+	if(gpio_request(ioboard_spi->wp_gpio, "ioboard-spi-wp"))  {
+		pr_err("%s : %s gpio request error!(GPIO[%d])\n", __func__, "ioboard-spi-wp", ioboard_spi->wp_gpio);
+		ioboard_spi->wp_gpio = -1;
+	}
+	else    {
+		s3c_gpio_setpull(ioboard_spi->wp_gpio, S3C_GPIO_PULL_NONE);
 
-        // write-protection disable 
-        if(disable) gpio_direction_output(wp_gpio, 1);   // write enable
-        else        gpio_direction_output(wp_gpio, 0);   // write disable
-    }
+		// write-protection disable
+		if(disable) gpio_direction_output(ioboard_spi->wp_gpio, 1);   // write enable
+		else        gpio_direction_output(ioboard_spi->wp_gpio, 0);   // write disable
+	}
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 static void ioboard_spi_test        (struct spi_device *spi)
 {
-    unsigned char   wdata[64], rdata[64];
-    unsigned int    addr = 0, i;
-    
-    for(i = 0; i < sizeof(wdata); i++)  wdata[i] = i;
-    
-    // read before erase
-    memset(rdata, 0x00, sizeof(rdata));
-    ioboard_spi_read (spi, addr, &rdata[0], sizeof(rdata));
+	unsigned char   wdata[64], rdata[64];
+	unsigned int    addr = 0, i;
 
-    printk("\nread before erase : addr = 0x%04X", addr);
-    for(i = 0; i < sizeof(rdata); i++)  {
-        if(!(i % 16))   printk("\n");
-        printk("[0x%02X] ", rdata[i]);
-    }
-    
-    ioboard_spi_erase(spi, addr, CMD_ERASE_ALL);
-    
-    // read after erase
-    memset(rdata, 0x00, sizeof(rdata));
-    ioboard_spi_read (spi, addr, &rdata[0], sizeof(rdata));
+	for(i = 0; i < sizeof(wdata); i++)  wdata[i] = i;
 
-    printk("\nread after erase : addr = 0x%04X", addr);
-    for(i = 0; i < sizeof(rdata); i++)  {
-        if(!(i % 16))   printk("\n");
-        printk("[0x%02X] ", rdata[i]);
-    }
-    
-    ioboard_spi_write(spi, addr, &wdata[0], sizeof(wdata));
+	// read before erase
+	memset(rdata, 0x00, sizeof(rdata));
+	ioboard_spi_read (spi, addr, &rdata[0], sizeof(rdata));
 
-    // read after erase
-    memset(rdata, 0x00, sizeof(rdata));
-    ioboard_spi_read (spi, 0, &rdata[0], sizeof(rdata));
+	pr_info("\nread before erase : addr = 0x%04X", addr);
+	for(i = 0; i < sizeof(rdata); i++)  {
+		if(!(i % 16))   pr_info("\n");
+		pr_info("[0x%02X] ", rdata[i]);
+	}
 
-    printk("\nread after write : addr = 0x%04X", addr);
-    for(i = 0; i < sizeof(rdata); i++)  {
-        if(!(i % 16))   printk("\n");
-        printk("[0x%02X] ", rdata[i]);
-    }
+	ioboard_spi_erase(spi, addr, CMD_ERASE_ALL);
+
+	// read after erase
+	memset(rdata, 0x00, sizeof(rdata));
+	ioboard_spi_read (spi, addr, &rdata[0], sizeof(rdata));
+
+	pr_info("\nread after erase : addr = 0x%04X", addr);
+	for(i = 0; i < sizeof(rdata); i++)  {
+		if(!(i % 16))   pr_info("\n");
+		pr_info("[0x%02X] ", rdata[i]);
+	}
+
+	ioboard_spi_write(spi, addr, &wdata[0], sizeof(wdata));
+
+	// read after erase
+	memset(rdata, 0x00, sizeof(rdata));
+	ioboard_spi_read (spi, 0, &rdata[0], sizeof(rdata));
+
+	pr_info("\nread after write : addr = 0x%04X", addr);
+	for(i = 0; i < sizeof(rdata); i++)  {
+		if(!(i % 16))   pr_info("\n");
+		pr_info("[0x%02X] ", rdata[i]);
+	}
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 static int ioboard_spi_probe        (struct spi_device *spi)
 {
-	int     ret;
-	struct  ioboard_spi     *ioboard_spi;
+	int     ret = 0;
 
-#if defined(CONFIG_OF)
-	struct  device_node *np = spi->dev.of_node;
-	
-    wp_gpio = of_get_named_gpio(np, "wp-gpio", 0);
+	// spi write protection disable
+	ioboard_spi_wp_disable(1);
 
-	if (!gpio_is_valid(wp_gpio))    wp_gpio = -1;
-#endif        
-
-	if(!(ioboard_spi = kzalloc(sizeof(struct ioboard_spi), GFP_KERNEL)))	{
-		printk("ioboard-spi struct malloc error!\n");
-		return	-ENOMEM;
+	if(ioboard_spi->wp_gpio == -1)  {
+		ret = -1;
+		goto    err;
 	}
-
-    ioboard_spi->spi                = spi;
-    ioboard_spi->spi->mode          = SPI_MODE_0;
-    ioboard_spi->spi->bits_per_word = 8;
 
 	dev_set_drvdata(&spi->dev, ioboard_spi);
 
-    if((ret = spi_setup(spi)) < 0) {
-        printk("%s(%s) fail!\n", __func__, SST25WF020_NAME);
-        goto    err;
-    }
-    
-    // spi write protection disable
-    ioboard_spi_wp_disable(1);
+	// read chip id
+	if((ret = ioboard_spi_id_read(spi)) < 0)
+		goto    err;
 
-    // read chip id
-    if((ret = ioboard_spi_id_read(spi)) < 0)
-        goto    err;
+	// software protection disable
+	if((ret = ioboard_spi_write_status_reg(spi, 0))< 0)
+		goto    err;
 
-    // software protection disable
-    if((ret = ioboard_spi_write_status_reg(spi, 0))< 0) 
-        goto    err;
-    
-    if((ret = ioboard_spi_misc_probe(spi)) < 0) {
-        printk("%s : misc driver added fail!\n", __func__);
-        goto    err;
-    }
+	if((ret = ioboard_spi_misc_probe(spi)) < 0) {
+		pr_err("%s : misc driver added fail!\n", __func__);
+		goto    err;
+	}
 
-#if defined(CONFIG_ODROID_EXYNOS5_IOBOARD_DEBUG)    
-    ioboard_spi_test(spi);
+#if defined(CONFIG_ODROID_EXYNOS5_IOBOARD_DEBUG)
+	ioboard_spi_test(spi);
 #endif
-    
-    printk("\n=================== %s ===================\n\n", __func__);
 
-    return  0;
+	pr_info("\n=================== %s ===================\n\n", __func__);
+
+	return  0;
 
 err:
-    printk("\n=================== %s FAIL! ===================\n\n", __func__);
-    kfree(ioboard_spi);
+	pr_err("\n=================== %s FAIL! ===================\n\n", __func__);
 
-    return  ret;
-        
+	return  ret;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
 static int ioboard_spi_remove   (struct spi_device *spi)
 {
+	if(ioboard_spi->wp_gpio != -1)
+		gpio_free(ioboard_spi->wp_gpio);
+
+	ioboard_spi_misc_remove(&ioboard_spi->spi->dev);
+
+	pr_info("\n=================== %s ===================\n\n", __func__);
+
 	return 0;
 }
 
 //[*]--------------------------------------------------------------------------------------------------[*]
-#if defined(CONFIG_OF)
-static const struct of_device_id ioboard_spi_dt[] = {
-	{ .compatible = "ioboard-spi" },
-	{ },
-};
-MODULE_DEVICE_TABLE(of, ioboard_spi_dt);
-#endif
-
 static struct spi_driver ioboard_spi_driver = {
 	.driver = {
 		.name	= SST25WF020_NAME,
 		.bus	= &spi_bus_type,
 		.owner	= THIS_MODULE,
-#if defined(CONFIG_OF)
-		.of_match_table = of_match_ptr(ioboard_spi_dt),
-#endif
 	},
 	.probe	= ioboard_spi_probe,
 	.remove	= ioboard_spi_remove,
@@ -468,6 +441,75 @@ static struct spi_driver ioboard_spi_driver = {
 //[*]--------------------------------------------------------------------------------------------------[*]
 static int __init ioboard_spi_init(void)
 {
+	struct  spi_master  *spi_master;
+	struct  device      *pdev;
+	char    buff[64];
+	int     status = 0;
+
+	if(!(spi_master = spi_busnum_to_master(SPI_BUS_NUM))) {
+		pr_err("%s : spi_busnum_to_master(%d) returned NULL!\n", __func__, SPI_BUS_NUM);
+		return  -1;
+	}
+
+	if(!(ioboard_spi = kzalloc(sizeof(struct ioboard_spi), GFP_KERNEL)))	{
+		pr_err("%s : ioboard-spi struct malloc error!\n", __func__);
+		return	-ENOMEM;
+	}
+
+	if(!(ioboard_spi->spi = spi_alloc_device(spi_master))) {
+		put_device(&spi_master->dev);
+		pr_err("%s : spi_alloc_device() failed!\n", __func__);
+		return  -1;
+	}
+
+	ioboard_spi->spi->chip_select = SPI_CS_NUM;
+	ioboard_spi->wp_gpio = SPI_WP_GPIO;
+
+	/* Check whether this SPI bus.cs is already claimed */
+	snprintf(buff, sizeof(buff), "%s.%u",
+		dev_name(&ioboard_spi->spi->master->dev), ioboard_spi->spi->chip_select);
+
+	if ((pdev = bus_find_device_by_name(ioboard_spi->spi->dev.bus, NULL, buff))) {
+		/* We are not going to use this spi_device, so free it */
+		device_del(pdev);
+
+		/*
+		 * There is already a device configured for this bus.cs
+		 * It is okay if it us, otherwise complain and fail.
+		*/
+		if (pdev->driver && pdev->driver->name &&
+			strcmp("ioboard-spi", pdev->driver->name)) {
+			pr_err("%s : Driver [%s] already registered for %s\n",
+				__func__, pdev->driver->name, buff);
+			status = -1;
+		}
+	}
+
+	if(status == 0) {
+		ioboard_spi->spi->max_speed_hz = SPI_BUS_SPEED;
+		ioboard_spi->spi->mode = SPI_MODE_0;
+		ioboard_spi->spi->bits_per_word = 8;
+		ioboard_spi->spi->irq = -1;
+		ioboard_spi->spi->controller_state = NULL;
+
+		ioboard_spi->csinfo =
+			kzalloc(sizeof(struct s3c64xx_spi_csinfo), GFP_KERNEL);
+
+		ioboard_spi->csinfo->line = SPI_CS_GPIO;
+
+		ioboard_spi->spi->controller_data = (void *)ioboard_spi->csinfo;
+		strlcpy(ioboard_spi->spi->modalias, "ioboard-spi", SPI_NAME_SIZE);
+		status = spi_add_device(ioboard_spi->spi);
+	}
+
+	if (status < 0) {
+		spi_dev_put(ioboard_spi->spi);
+		pr_err("%s : spi_add_device() failed: %d\n", __func__, status);
+		return  status;
+	}
+
+	put_device(&spi_master->dev);
+
 	return spi_register_driver(&ioboard_spi_driver);
 }
 module_init(ioboard_spi_init);
@@ -475,6 +517,19 @@ module_init(ioboard_spi_init);
 //[*]--------------------------------------------------------------------------------------------------[*]
 static void __exit ioboard_spi_exit(void)
 {
+	if(ioboard_spi->csinfo)  {
+		if(ioboard_spi->csinfo->line)
+			gpio_free(ioboard_spi->csinfo->line);
+
+		kfree(ioboard_spi->csinfo);
+	}
+
+	if (ioboard_spi->spi) {
+		device_del(&ioboard_spi->spi->dev);
+		kfree(ioboard_spi->spi);
+	}
+	kfree(ioboard_spi);
+
 	spi_unregister_driver(&ioboard_spi_driver);
 }
 module_exit(ioboard_spi_exit);

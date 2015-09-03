@@ -332,13 +332,13 @@ static int bmp180_probe(struct i2c_client *client, const struct i2c_device_id *i
 		return -ENOMEM;
 	}
 
-    if(bmp180_detect(client) < 0)     goto error;
-
 	i2c_set_clientdata(client, bmp180);
-	
-    dev_set_drvdata(&client->dev, bmp180);
-	
+
+	dev_set_drvdata(&client->dev, bmp180);
+
 	bmp180->client = client;
+
+	if(bmp180_detect(client) < 0)     goto error;
 
 	err = bmp180_read_store_eeprom_val(bmp180);
 
@@ -349,22 +349,22 @@ static int bmp180_probe(struct i2c_client *client, const struct i2c_device_id *i
 	}
 
 	INIT_DELAYED_WORK(&bmp180->work, bmp180_work_func);
-	
+
 	#if defined(CONFIG_ODROID_EXYNOS5_IOBOARD_DEBUG)
-	    bmp180->enabled = 1;
+		bmp180->enabled = 1;
 	#endif
-	
+
 	if(bmp180->enabled) schedule_delayed_work(&bmp180->work, BMP180_WORK_PERIOD);
-	
+
 	if ((err = sysfs_create_group(&client->dev.kobj, &bmp180_attribute_group)) < 0)		goto error;
 
-    printk("\n=================== ioboard_%s ===================\n\n", __func__);
+	printk("\n=================== ioboard_%s ===================\n\n", __func__);
 
 	return 0;
 
 error:
-    printk("\n=================== ioboard_%s FAIL! ===================\n\n", __func__);
-	kfree(bmp180);
+	printk("\n=================== ioboard_%s FAIL! ===================\n\n", __func__);
+
 	return err;
 }
 
@@ -379,7 +379,6 @@ static int bmp180_remove(struct i2c_client *client)
 	sysfs_remove_group(&client->dev.kobj, &bmp180_attribute_group);
 
 	kfree(bmp180);
-
 	return 0;
 }
 
