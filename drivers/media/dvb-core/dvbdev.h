@@ -210,7 +210,7 @@ int dvb_register_device(struct dvb_adapter *adap,
 void dvb_unregister_device(struct dvb_device *dvbdev);
 
 #ifdef CONFIG_MEDIA_CONTROLLER_DVB
-void dvb_create_media_graph(struct dvb_adapter *adap);
+int dvb_create_media_graph(struct dvb_adapter *adap);
 static inline void dvb_register_media_controller(struct dvb_adapter *adap,
 						 struct media_device *mdev)
 {
@@ -218,7 +218,10 @@ static inline void dvb_register_media_controller(struct dvb_adapter *adap,
 }
 
 #else
-static inline void dvb_create_media_graph(struct dvb_adapter *adap) {}
+static inline int dvb_create_media_graph(struct dvb_adapter *adap)
+{
+	return 0;
+};
 #define dvb_register_media_controller(a, b) {}
 #endif
 
