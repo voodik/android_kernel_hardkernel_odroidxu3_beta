@@ -1601,7 +1601,7 @@ static int s5c73m3_probe(struct i2c_client *client,
 
 	state->sensor_pads[S5C73M3_JPEG_PAD].flags = MEDIA_PAD_FL_SOURCE;
 	state->sensor_pads[S5C73M3_ISP_PAD].flags = MEDIA_PAD_FL_SOURCE;
-	sd->entity.type = MEDIA_ENT_T_V4L2_SUBDEV;
+	sd->entity.function = MEDIA_ENT_T_V4L2_SUBDEV;
 
 	ret = media_entity_pads_init(&sd->entity, S5C73M3_NUM_PADS,
 							state->sensor_pads, 0);
@@ -1617,7 +1617,7 @@ static int s5c73m3_probe(struct i2c_client *client,
 	state->oif_pads[OIF_ISP_PAD].flags = MEDIA_PAD_FL_SINK;
 	state->oif_pads[OIF_JPEG_PAD].flags = MEDIA_PAD_FL_SINK;
 	state->oif_pads[OIF_SOURCE_PAD].flags = MEDIA_PAD_FL_SOURCE;
-	oif_sd->entity.type = MEDIA_ENT_T_V4L2_SUBDEV;
+	oif_sd->entity.function = MEDIA_ENT_T_V4L2_SUBDEV;
 
 	ret = media_entity_pads_init(&oif_sd->entity, OIF_NUM_PADS,
 							state->oif_pads, 0);

@@ -979,7 +979,7 @@ static int m5mols_probe(struct i2c_client *client,
 	ret = media_entity_pads_init(&sd->entity, 1, &info->pad, 0);
 	if (ret < 0)
 		goto out_reg;
-	sd->entity.type = MEDIA_ENT_T_V4L2_SUBDEV_SENSOR;
+	sd->entity.function = MEDIA_ENT_T_V4L2_SUBDEV_SENSOR;
 
 	init_waitqueue_head(&info->irq_waitq);
 	mutex_init(&info->lock);

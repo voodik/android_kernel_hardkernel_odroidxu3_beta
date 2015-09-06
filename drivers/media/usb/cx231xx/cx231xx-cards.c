@@ -974,7 +974,7 @@ static void cx231xx_create_media_graph(struct cx231xx *dev)
 		return;
 
 	media_device_for_each_entity(entity, mdev) {
-		switch (entity->type) {
+		switch (entity->function) {
 		case MEDIA_ENT_T_V4L2_SUBDEV_TUNER:
 			tuner = entity;
 			break;
