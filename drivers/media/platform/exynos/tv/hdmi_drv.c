@@ -414,8 +414,9 @@ int hdmi_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *ctrl)
 		hdev->color_range = ctrl->value;
 		break;
 	case V4L2_CID_TV_HDCP_ENABLE:
-		if (!hdev->dvi_mode)
-			hdev->hdcp_info.hdcp_enable = ctrl->value;
+		// Disable HDCP
+		//hdev->hdcp_info.hdcp_enable = ctrl->value;
+		hdev->hdcp_info.hdcp_enable = false;
 		dev_dbg(hdev->dev, "HDCP %s\n",
 				ctrl->value ? "enable" : "disable");
 		break;
@@ -772,11 +773,15 @@ static void hdmi_hpd_changed(struct hdmi_device *hdev, int state)
 		return;
 
 	if (state) {
-		ret = edid_update(hdev);
-		if (ret == -ENODEV) {
-			dev_err(hdev->dev, "failed to update edid\n");
-			return;
+#ifdef CONFIG_MACH_ODROIDXU3
+		if (HdmiEDIDBootArgs != 0) {
+			ret = edid_update(hdev);
+			if (ret == -ENODEV) {
+				dev_err(hdev->dev, "failed to update edid\n");
+				return;
+			}
 		}
+#endif
 
 #ifdef CONFIG_MACH_ODROIDXU3
 			printk("###########################################\n");
