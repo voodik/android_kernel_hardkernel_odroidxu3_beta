@@ -64,17 +64,6 @@ static int __init hdmi_resolution_setup(char *line)
 }
 __setup("hdmi_phy_res=", hdmi_resolution_setup);
 
-unsigned char   HdmiVOUTBootArgs[10] = "hdmi";
-
-// Bootargs parsing
-static int __init hdmi_vout_setup(char *line)
-{
-	memset(HdmiVOUTBootArgs, 0x00, sizeof(HdmiVOUTBootArgs));
-	sprintf(HdmiVOUTBootArgs, "%s", line);
-	return 0;
-}
-__setup("vout=", hdmi_vout_setup);
-
 unsigned long   HdmiEDIDBootArgs = 0;
 
 // Bootargs parsing

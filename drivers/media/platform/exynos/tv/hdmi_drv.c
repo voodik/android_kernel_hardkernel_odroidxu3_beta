@@ -58,7 +58,6 @@ MODULE_LICENSE("GPL");
 
 #ifdef CONFIG_MACH_ODROIDXU3
 extern unsigned long   HdmiEDIDBootArgs;
-extern unsigned char   HdmiVOUTBootArgs[10];
 extern unsigned char   HdmiHPDBootArgs;
 #endif
 
@@ -781,24 +780,9 @@ static void hdmi_hpd_changed(struct hdmi_device *hdev, int state)
 				return;
 			}
 		}
-#endif
-
-#ifdef CONFIG_MACH_ODROIDXU3
-			printk("###########################################\n");
-			printk("# HDMI EDID mode %d #\n", HdmiEDIDBootArgs);
-			printk("###########################################\n");
-
-			printk("###########################################\n");
-			printk("# HDMI VOUT mode %s #\n", HdmiVOUTBootArgs);
-			printk("###########################################\n");
-
-		if (HdmiEDIDBootArgs == 0) {
-			if(strcmp(HdmiVOUTBootArgs, "dvi") == 0) {
-				hdev->dvi_mode = true;
-			} else {
-				hdev->dvi_mode = false;
-			}
-		}
+		printk("###########################################\n");
+		printk("# HDMI EDID mode %d #\n", HdmiEDIDBootArgs);
+		printk("###########################################\n");
 #endif
 		hdev->dvi_mode = !edid_supports_hdmi(hdev);
 		hdev->cur_timings = edid_preferred_preset(hdev);
