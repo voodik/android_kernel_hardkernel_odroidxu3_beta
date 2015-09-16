@@ -772,18 +772,14 @@ static void hdmi_hpd_changed(struct hdmi_device *hdev, int state)
 		return;
 
 	if (state) {
-#ifdef CONFIG_MACH_ODROIDXU3
-		if (HdmiEDIDBootArgs != 0) {
-			ret = edid_update(hdev);
-			if (ret == -ENODEV) {
-				dev_err(hdev->dev, "failed to update edid\n");
-				return;
-			}
+		ret = edid_update(hdev);
+		if (ret == -ENODEV) {
+			dev_err(hdev->dev, "failed to update edid\n");
+			return;
 		}
 		printk("###########################################\n");
 		printk("# HDMI EDID mode %d #\n", HdmiEDIDBootArgs);
 		printk("###########################################\n");
-#endif
 		hdev->dvi_mode = !edid_supports_hdmi(hdev);
 		hdev->cur_timings = edid_preferred_preset(hdev);
 		hdev->cur_conf = hdmi_timing2conf(&hdev->cur_timings);
