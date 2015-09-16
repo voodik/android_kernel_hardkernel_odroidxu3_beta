@@ -388,8 +388,37 @@
 		status = "okay";
 	};
 
-	i2c_2: i2c@12C80000 {
-		samsung,i2c-max-bus-freq = <400000>;
+	pinctrl@14010000 {
+		gpio_i2c_sda: gpio-i2c-sda {
+			samsung,pins = "gpa0-6";
+			/* 0 = input, 1 = output */
+			samsung,pin-function = <0>;
+			/* 0 = disable, 1 = pull dn, 2 = reserved, 3 = pull up */
+			samsung,pin-pud = <0>;
+		};
+		gpio_i2c_scl: gpio-i2c-scl {
+			samsung,pins = "gpa0-7";
+			/* 0 = input, 1 = output */
+			samsung,pin-function = <0>;
+			/* 0 = disable, 1 = pull dn, 2 = reserved, 3 = pull up */
+			samsung,pin-pud = <0>;
+		};
+	};
+
+	i2c_gpio {
+		compatible = "i2c-gpio";
+		gpios = <
+		         &gpa0 6 0 /* sda */
+			     &gpa0 7 0 /* scl */
+			    >;
+		#i2c-gpio,sda-open-drain;
+		#i2c-gpio,scl-open-drain;
+		#i2c-gpio,scl-output-only;
+		i2c-gpio,delay-us = <5>;	/* ~50 kHz */
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_i2c_sda &gpio_i2c_scl>;
 		status = "okay";
 
 		/* hdmi edid dirver */
