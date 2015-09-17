@@ -63,6 +63,7 @@ static void regmap_irq_sync_unlock(struct irq_data *data)
 	struct regmap *map = d->map;
 	int i, ret;
 	u32 reg;
+	u32 unmask_offset;
 
 	if (d->chip->runtime_pm) {
 		ret = pm_runtime_get_sync(map->dev);
@@ -79,12 +80,28 @@ static void regmap_irq_sync_unlock(struct irq_data *data)
 	for (i = 0; i < d->chip->num_regs; i++) {
 		reg = d->chip->mask_base +
 			(i * map->reg_stride * d->irq_reg_stride);
-		if (d->chip->mask_invert)
+		if (d->chip->mask_invert) {
 			ret = regmap_update_bits(d->map, reg,
 					 d->mask_buf_def[i], ~d->mask_buf[i]);
-		else
+		} else if (d->chip->unmask_base) {
+			/* set mask with mask_base register */
+			ret = regmap_update_bits(d->map, reg,
+					d->mask_buf_def[i], ~d->mask_buf[i]);
+			if (ret < 0)
+				dev_err(d->map->dev,
+					"Failed to sync unmasks in %x\n",
+					reg);
+			unmask_offset = d->chip->unmask_base -
+							d->chip->mask_base;
+			/* clear mask with unmask_base register */
+			ret = regmap_update_bits(d->map,
+					reg + unmask_offset,
+					d->mask_buf_def[i],
+					d->mask_buf[i]);
+		} else {
 			ret = regmap_update_bits(d->map, reg,
 					 d->mask_buf_def[i], d->mask_buf[i]);
+		}
 		if (ret != 0)
 			dev_err(d->map->dev, "Failed to sync masks in %x\n",
 				reg);
@@ -339,6 +356,7 @@ int regmap_add_irq_chip(struct regmap *map, int irq, int irq_flags,
 	int i;
 	int ret = -ENOMEM;
 	u32 reg;
+	u32 unmask_offset;
 
 	for (i = 0; i < chip->num_irqs; i++) {
 		if (chip->irqs[i].reg_offset % map->reg_stride)
@@ -417,7 +435,14 @@ int regmap_add_irq_chip(struct regmap *map, int irq, int irq_flags,
 		if (chip->mask_invert)
 			ret = regmap_update_bits(map, reg,
 					 d->mask_buf[i], ~d->mask_buf[i]);
-		else
+		else if (d->chip->unmask_base) {
+			unmask_offset = d->chip->unmask_base -
+					d->chip->mask_base;
+			ret = regmap_update_bits(d->map,
+					reg + unmask_offset,
+					d->mask_buf[i],
+					d->mask_buf[i]);
+		} else
 			ret = regmap_update_bits(map, reg,
 					 d->mask_buf[i], d->mask_buf[i]);
 		if (ret != 0) {
