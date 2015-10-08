@@ -513,9 +513,9 @@ void exynos_tmu_call_notifier(enum tmu_noti_state_t cur_state, int temp)
 		else
 			blocking_notifier_call_chain(&exynos_tmu_notifier, cur_state, &tmu_old_state);
 		if (cur_state == TMU_COLD)
-			pr_info("tmu temperature state %d to %d\n", tmu_old_state, cur_state);
+			pr_debug("tmu temperature state %d to %d\n", tmu_old_state, cur_state);
 		else
-			pr_info("tmu temperature state %d to %d, cur_temp : %d\n", tmu_old_state, cur_state, temp);
+			pr_debug("tmu temperature state %d to %d, cur_temp : %d\n", tmu_old_state, cur_state, temp);
 		tmu_old_state = cur_state;
 	}
 }
@@ -531,7 +531,7 @@ void exynos_gpu_call_notifier(enum gpu_noti_state_t cur_state)
 		cur_state = GPU_COLD;
 
 	if (cur_state != gpu_old_state) {
-		pr_info("gpu temperature state %d to %d\n", gpu_old_state, cur_state);
+		pr_debug("gpu temperature state %d to %d\n", gpu_old_state, cur_state);
 		blocking_notifier_call_chain(&exynos_gpu_notifier, cur_state, &cur_state);
 		gpu_old_state = cur_state;
 	}
