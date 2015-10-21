@@ -483,6 +483,8 @@
 
 	usb@12000000 {
 		dwc3-vbus-supply = <&dwc3_vbus>;
+		vdd33-supply = <&ldo9_reg>;
+		vdd10-supply = <&ldo11_reg>;
 		samsung,bsess-gpio = <&gpx3 5 0xf>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&b_sess0_irq>;
@@ -499,6 +501,8 @@
 
 	usb@12400000 {
 		dwc3-vbus-supply = <&dwc3_vbus>;
+		vdd33-supply = <&ldo9_reg>;
+		vdd10-supply = <&ldo11_reg>;
 		samsung,bsess-gpio = <&gpx3 4 0xf>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&b_sess1_irq>;
