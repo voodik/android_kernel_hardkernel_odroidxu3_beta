@@ -1293,6 +1293,10 @@ static int fimc_md_link_notify(struct media_pad *source,
 	return ret ? -EPIPE : ret;
 }
 
+static const struct media_device_ops fimc_md_ops = {
+	.link_notify = fimc_md_link_notify,
+};
+
 static ssize_t fimc_md_sysfs_show(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
@@ -1373,7 +1377,7 @@ static int fimc_md_probe(struct platform_device *pdev)
 
 	strlcpy(fmd->media_dev.model, "SAMSUNG S5P FIMC",
 		sizeof(fmd->media_dev.model));
-	fmd->media_dev.link_notify = fimc_md_link_notify;
+	fmd->media_dev.ops = &fimc_md_ops;
 	fmd->media_dev.dev = dev;
 
 	v4l2_dev = &fmd->v4l2_dev;
