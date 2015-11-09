@@ -816,7 +816,14 @@ static void hdmi_hpd_work(struct work_struct *work)
 	struct hdmi_device *hdev = container_of(work, struct hdmi_device,
 						hpd_work);
 
+#ifdef CONFIG_MACH_ODROIDXU3
+	if (HdmiHPDBootArgs != 0) {
+		printk("ignore hpd change\n");
+		hdmi_hpd_changed(hdev, 0);
+	}
+#else
 	hdmi_hpd_changed(hdev, 0);
+#endif
 }
 
 static int hdmi_set_gpio(struct hdmi_device *hdev)
