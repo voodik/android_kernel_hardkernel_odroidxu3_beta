@@ -42,12 +42,44 @@
 
 #include "dvbdev.h"
 
+/**
+ * DOC: Digital TV Frontend
+ *
+ * The Digital TV Frontend kABI defines a driver-internal interface for
+ * registering low-level, hardware specific driver to a hardware independent
+ * frontend layer. It is only of interest for Digital TV device driver writers.
+ * The header file for this API is named dvb_frontend.h and located in
+ * drivers/media/dvb-core.
+ *
+ * Before using the Digital TV frontend core, the bridge driver should attach
+ * the frontend demod, tuner and SEC devices and call dvb_register_frontend(),
+ * in order to register the new frontend at the subsystem. At device
+ * detach/removal, the bridge driver should call dvb_unregister_frontend() to
+ * remove the frontend from the core and then dvb_frontend_detach() to free the
+ * memory allocated by the frontend drivers.
+ *
+ * The drivers should also call dvb_frontend_suspend() as part of their
+ * handler for the &device_driver.suspend(), and dvb_frontend_resume() as
+ * part of their handler for &device_driver.resume().
+ *
+ * A few other optional functions are provided to handle some special cases.
+ */
+
 /*
  * Maximum number of Delivery systems per frontend. It
  * should be smaller or equal to 32
  */
 #define MAX_DELSYS	8
 
+/**
+ * struct dvb_frontend_tune_settings - parameters to adjust frontend tuning
+ *
+ * @min_delay_ms:	minimum delay for tuning, in ms
+ * @step_size:		step size between two consecutive frequencies
+ * @max_drift:		maximum drift
+ *
+ * NOTE: step_size is in Hz, for terrestrial/cable or kHz for satellite
+ */
 struct dvb_frontend_tune_settings {
 	int min_delay_ms;
 	int step_size;
@@ -56,6 +88,20 @@ struct dvb_frontend_tune_settings {
 
 struct dvb_frontend;
 
+/**
+ * struct dvb_tuner_info - Frontend name and min/max ranges/bandwidths
+ *
+ * @name:		name of the Frontend
+ * @frequency_min:	minimal frequency supported
+ * @frequency_max:	maximum frequency supported
+ * @frequency_step:	frequency step
+ * @bandwidth_min:	minimal frontend bandwidth supported
+ * @bandwidth_max:	maximum frontend bandwidth supported
+ * @bandwidth_step:	frontend bandwidth step
+ *
+ * NOTE: frequency parameters are in Hz, for terrestrial/cable or kHz for
+ * satellite.
+ */
 struct dvb_tuner_info {
 	char name[128];
 
@@ -68,6 +114,20 @@ struct dvb_tuner_info {
 	u32 bandwidth_step;
 };
 
+/**
+ * struct analog_parameters - Parameters to tune into an analog/radio channel
+ *
+ * @frequency:	Frequency used by analog TV tuner (either in 62.5 kHz step,
+ * 		for TV, or 62.5 Hz for radio)
+ * @mode:	Tuner mode, as defined on enum v4l2_tuner_type
+ * @audmode:	Audio mode as defined for the rxsubchans field at videodev2.h,
+ * 		e. g. V4L2_TUNER_MODE_*
+ * @std:	TV standard bitmap as defined at videodev2.h, e. g. V4L2_STD_*
+ *
+ * Hybrid tuners should be supported by both V4L2 and DVB APIs. This
+ * struct contains the data that are used by the V4L2 side. To avoid
+ * dependencies from V4L2 headers, all enums here are declared as integers.
+ */
 struct analog_parameters {
 	unsigned int frequency;
 	unsigned int mode;
@@ -75,35 +135,28 @@ struct analog_parameters {
 	u64 std;
 };
 
-enum tuner_param {
-	DVBFE_TUNER_FREQUENCY		= (1 <<  0),
-	DVBFE_TUNER_BANDWIDTH		= (1 <<  1),
-};
-
-/*
- * ALGO_HW: (Hardware Algorithm)
- * ----------------------------------------------------------------
- * Devices that support this algorithm do everything in hardware
- * and no software support is needed to handle them.
- * Requesting these devices to LOCK is the only thing required,
- * device is supposed to do everything in the hardware.
+/**
+ * enum dvbfe_algo - defines the algorithm used to tune into a channel
  *
- * ALGO_SW: (Software Algorithm)
- * ----------------------------------------------------------------
+ * @DVBFE_ALGO_HW: Hardware Algorithm -
+ *	Devices that support this algorithm do everything in hardware
+ *	and no software support is needed to handle them.
+ *	Requesting these devices to LOCK is the only thing required,
+ *	device is supposed to do everything in the hardware.
+ *
+ * @DVBFE_ALGO_SW: Software Algorithm -
  * These are dumb devices, that require software to do everything
  *
- * ALGO_CUSTOM: (Customizable Agorithm)
- * ----------------------------------------------------------------
- * Devices having this algorithm can be customized to have specific
- * algorithms in the frontend driver, rather than simply doing a
- * software zig-zag. In this case the zigzag maybe hardware assisted
- * or it maybe completely done in hardware. In all cases, usage of
- * this algorithm, in conjunction with the search and track
- * callbacks, utilizes the driver specific algorithm.
+ * @DVBFE_ALGO_CUSTOM: Customizable Agorithm -
+ *	Devices having this algorithm can be customized to have specific
+ *	algorithms in the frontend driver, rather than simply doing a
+ *	software zig-zag. In this case the zigzag maybe hardware assisted
+ *	or it maybe completely done in hardware. In all cases, usage of
+ *	this algorithm, in conjunction with the search and track
+ *	callbacks, utilizes the driver specific algorithm.
  *
- * ALGO_RECOVERY: (Recovery Algorithm)
- * ----------------------------------------------------------------
- * These devices have AUTO recovery capabilities from LOCK failure
+ * @DVBFE_ALGO_RECOVERY: Recovery Algorithm -
+ *	These devices have AUTO recovery capabilities from LOCK failure
  */
 enum dvbfe_algo {
 	DVBFE_ALGO_HW			= (1 <<  0),
@@ -112,32 +165,27 @@ enum dvbfe_algo {
 	DVBFE_ALGO_RECOVERY		= (1 << 31)
 };
 
-struct tuner_state {
-	u32 frequency;
-	u32 bandwidth;
-};
-
-/*
- * search callback possible return status
+/**
+ * enum dvbfe_search - search callback possible return status
  *
- * DVBFE_ALGO_SEARCH_SUCCESS
- * The frontend search algorithm completed and returned successfully
+ * @DVBFE_ALGO_SEARCH_SUCCESS:
+ *	The frontend search algorithm completed and returned successfully
  *
- * DVBFE_ALGO_SEARCH_ASLEEP
- * The frontend search algorithm is sleeping
+ * @DVBFE_ALGO_SEARCH_ASLEEP:
+ *	The frontend search algorithm is sleeping
  *
- * DVBFE_ALGO_SEARCH_FAILED
- * The frontend search for a signal failed
+ * @DVBFE_ALGO_SEARCH_FAILED:
+ *	The frontend search for a signal failed
  *
- * DVBFE_ALGO_SEARCH_INVALID
- * The frontend search algorith was probably supplied with invalid
- * parameters and the search is an invalid one
+ * @DVBFE_ALGO_SEARCH_INVALID:
+ *	The frontend search algorith was probably supplied with invalid
+ *	parameters and the search is an invalid one
  *
- * DVBFE_ALGO_SEARCH_ERROR
- * The frontend search algorithm failed due to some error
+ * @DVBFE_ALGO_SEARCH_ERROR:
+ *	The frontend search algorithm failed due to some error
  *
- * DVBFE_ALGO_SEARCH_AGAIN
- * The frontend search algorithm was requested to search again
+ * @DVBFE_ALGO_SEARCH_AGAIN:
+ *	The frontend search algorithm was requested to search again
  */
 enum dvbfe_search {
 	DVBFE_ALGO_SEARCH_SUCCESS	= (1 <<  0),
@@ -148,7 +196,50 @@ enum dvbfe_search {
 	DVBFE_ALGO_SEARCH_ERROR		= (1 << 31),
 };
 
-
+/**
+ * struct dvb_tuner_ops - Tuner information and callbacks
+ *
+ * @info:		embedded struct dvb_tuner_info with tuner properties
+ * @release:		callback function called when frontend is dettached.
+ *			drivers should free any allocated memory.
+ * @init:		callback function used to initialize the tuner device.
+ * @sleep:		callback function used to put the tuner to sleep.
+ * @suspend:		callback function used to inform that the Kernel will
+ *			suspend.
+ * @resume:		callback function used to inform that the Kernel is
+ *			resuming from suspend.
+ * @set_params:		callback function used to inform the tuner to tune
+ *			into a digital TV channel. The properties to be used
+ *			are stored at @dvb_frontend.dtv_property_cache;. The
+ *			tuner demod can change the parameters to reflect the
+ *			changes needed for the channel to be tuned, and
+ *			update statistics. This is the recommended way to set
+ *			the tuner parameters and should be used on newer
+ *			drivers.
+ * @set_analog_params:	callback function used to tune into an analog TV
+ *			channel on hybrid tuners. It passes @analog_parameters;
+ *			to the driver.
+ * @set_config:		callback function used to send some tuner-specific
+ *			parameters.
+ * @get_frequency:	get the actual tuned frequency
+ * @get_bandwidth:	get the bandwitdh used by the low pass filters
+ * @get_if_frequency:	get the Intermediate Frequency, in Hz. For baseband,
+ * 			should return 0.
+ * @get_status:		returns the frontend lock status
+ * @get_rf_strength:	returns the RF signal strengh. Used mostly to support
+ *			analog TV and radio. Digital TV should report, instead,
+ *			via DVBv5 API (@dvb_frontend.dtv_property_cache;).
+ * @get_afc:		Used only by analog TV core. Reports the frequency
+ *			drift due to AFC.
+ * @calc_regs:		callback function used to pass register data settings
+ *			for simple tuners.  Shouldn't be used on newer drivers.
+ * @set_frequency:	Set a new frequency. Shouldn't be used on newer drivers.
+ * @set_bandwidth:	Set a new frequency. Shouldn't be used on newer drivers.
+ *
+ * NOTE: frequencies used on get_frequency and set_frequency are in Hz for
+ * terrestrial/cable or kHz for satellite.
+ *
+ */
 struct dvb_tuner_ops {
 
 	struct dvb_tuner_info info;
@@ -159,14 +250,10 @@ struct dvb_tuner_ops {
 	int (*suspend)(struct dvb_frontend *fe);
 	int (*resume)(struct dvb_frontend *fe);
 
-	/** This is for simple PLLs - set all parameters in one go. */
+	/* This is the recomended way to set the tuner */
 	int (*set_params)(struct dvb_frontend *fe);
 	int (*set_analog_params)(struct dvb_frontend *fe, struct analog_parameters *p);
 
-	/** This is support for demods like the mt352 - fills out the supplied buffer with what to write. */
-	int (*calc_regs)(struct dvb_frontend *fe, u8 *buf, int buf_len);
-
-	/** This is to allow setting tuner-specific configs */
 	int (*set_config)(struct dvb_frontend *fe, void *priv_cfg);
 
 	int (*get_frequency)(struct dvb_frontend *fe, u32 *frequency);
@@ -179,23 +266,56 @@ struct dvb_tuner_ops {
 	int (*get_rf_strength)(struct dvb_frontend *fe, u16 *strength);
 	int (*get_afc)(struct dvb_frontend *fe, s32 *afc);
 
-	/** These are provided separately from set_params in order to facilitate silicon
-	 * tuners which require sophisticated tuning loops, controlling each parameter separately. */
-	int (*set_frequency)(struct dvb_frontend *fe, u32 frequency);
-	int (*set_bandwidth)(struct dvb_frontend *fe, u32 bandwidth);
+	/*
+	 * This is support for demods like the mt352 - fills out the supplied
+	 * buffer with what to write.
+	 *
+	 * Don't use on newer drivers.
+	 */
+	int (*calc_regs)(struct dvb_frontend *fe, u8 *buf, int buf_len);
 
 	/*
-	 * These are provided separately from set_params in order to facilitate silicon
-	 * tuners which require sophisticated tuning loops, controlling each parameter separately.
+	 * These are provided separately from set_params in order to
+	 * facilitate silicon tuners which require sophisticated tuning loops,
+	 * controlling each parameter separately.
+	 *
+	 * Don't use on newer drivers.
 	 */
-	int (*set_state)(struct dvb_frontend *fe, enum tuner_param param, struct tuner_state *state);
-	int (*get_state)(struct dvb_frontend *fe, enum tuner_param param, struct tuner_state *state);
+	int (*set_frequency)(struct dvb_frontend *fe, u32 frequency);
+	int (*set_bandwidth)(struct dvb_frontend *fe, u32 bandwidth);
 };
 
+/**
+ * struct analog_demod_info - Information struct for analog TV part of the demod
+ *
+ * @name:	Name of the analog TV demodulator
+ */
 struct analog_demod_info {
 	char *name;
 };
 
+/**
+ * struct analog_demod_ops  - Demodulation information and callbacks for
+ *			      analog TV and radio
+ *
+ * @info:		pointer to struct analog_demod_info
+ * @set_params:		callback function used to inform the demod to set the
+ *			demodulator parameters needed to decode an analog or
+ *			radio channel. The properties are passed via
+ *			struct @analog_params;.
+ * @has_signal:		returns 0xffff if has signal, or 0 if it doesn't.
+ * @get_afc:		Used only by analog TV core. Reports the frequency
+ *			drift due to AFC.
+ * @tuner_status:	callback function that returns tuner status bits, e. g.
+ *			TUNER_STATUS_LOCKED and TUNER_STATUS_STEREO.
+ * @standby:		set the tuner to standby mode.
+ * @release:		callback function called when frontend is dettached.
+ *			drivers should free any allocated memory.
+ * @i2c_gate_ctrl:	controls the I2C gate. Newer drivers should use I2C
+ *			mux support instead.
+ * @set_config:		callback function used to send some tuner-specific
+ *			parameters.
+ */
 struct analog_demod_ops {
 
 	struct analog_demod_info info;
@@ -284,6 +404,11 @@ struct dtv_frontend_properties;
  *			FE_ENABLE_HIGH_LNB_VOLTAGE ioctl (only Satellite).
  * @dishnetwork_send_legacy_command: callback function to implement the
  *			FE_DISHNETWORK_SEND_LEGACY_CMD ioctl (only Satellite).
+ *			Drivers should not use this, except when the DVB
+ *			core emulation fails to provide proper support (e.g.
+ *			if set_voltage() takes more than 8ms to work), and
+ *			when backward compatibility with this legacy API is
+ *			required.
  * @i2c_gate_ctrl:	controls the I2C gate. Newer drivers should use I2C
  *			mux support instead.
  * @ts_bus_ctrl:	callback function used to take control of the TS bus.
@@ -316,6 +441,7 @@ struct dvb_frontend_ops {
 		    unsigned int mode_flags,
 		    unsigned int *delay,
 		    enum fe_status *status);
+
 	/* get frontend tuning algorithm from the module */
 	enum dvbfe_algo (*get_frontend_algo)(struct dvb_frontend *fe);
 
@@ -326,7 +452,7 @@ struct dvb_frontend_ops {
 	int (*get_frontend)(struct dvb_frontend *fe,
 			    struct dtv_frontend_properties *props);
 
-	int (*read_status)(struct dvb_frontend* fe, enum fe_status* status);
+	int (*read_status)(struct dvb_frontend *fe, enum fe_status *status);
 	int (*read_ber)(struct dvb_frontend* fe, u32* ber);
 	int (*read_signal_strength)(struct dvb_frontend* fe, u16* strength);
 	int (*read_snr)(struct dvb_frontend* fe, u16* snr);
@@ -346,7 +472,8 @@ struct dvb_frontend_ops {
 	int (*ts_bus_ctrl)(struct dvb_frontend* fe, int acquire);
 	int (*set_lna)(struct dvb_frontend *);
 
-	/* These callbacks are for devices that implement their own
+	/*
+	 * These callbacks are for devices that implement their own
 	 * tuning algorithms, rather than a simple swzigzag
 	 */
 	enum dvbfe_search (*search)(struct dvb_frontend *fe);
@@ -407,7 +534,7 @@ struct dvb_fe_events {
  * @layer.modulation:	per layer modulation;
  * @layer.interleaving:	 per layer interleaving.
  * @stream_id:		If different than zero, enable substream filtering, if
- *			hardware supports (DVB-S2 and DVB-T2).
+ *			hardware supports (DVB-S2/T2/C2 and ISDB-T/S ).
  * @atscmh_fic_ver:	Version number of the FIC (Fast Information Channel)
  *			signaling data (only ATSC-M/H)
  * @atscmh_parade_id:	Parade identification number (only ATSC-M/H)
@@ -527,6 +654,25 @@ struct dtv_frontend_properties {
 #define DVB_FE_DEVICE_REMOVED   2
 #define DVB_FE_DEVICE_RESUME    3
 
+/**
+ * struct dvb_frontend - Frontend structure to be used on drivers.
+ *
+ * @ops:		embedded struct dvb_frontend_ops
+ * @dvb:		pointer to struct dvb_adapter
+ * @demodulator_priv:	demod private data
+ * @tuner_priv:		tuner private data
+ * @frontend_priv:	frontend private data
+ * @sec_priv:		SEC private data
+ * @analog_demod_priv:	Analog demod private data
+ * @dtv_property_cache:	embedded struct dtv_frontend_properties
+ * @callback:		callback function used on some drivers to call
+ *			either the tuner or the demodulator.
+ * @id:			Frontend ID
+ * @exit:		Used to inform the DVB core that the frontend
+ *			thread should exit (usually, means that the hardware
+ *			got disconnected.
+ */
+
 struct dvb_frontend {
 	struct dvb_frontend_ops ops;
 	struct dvb_adapter *dvb;
@@ -543,17 +689,126 @@ struct dvb_frontend {
 	unsigned int exit;
 };
 
-extern int dvb_register_frontend(struct dvb_adapter *dvb,
+/**
+ * dvb_register_frontend() - Registers a DVB frontend at the adapter
+ *
+ * @dvb: pointer to the dvb adapter
+ * @fe: pointer to the frontend struct
+ *
+ * Allocate and initialize the private data needed by the frontend core to
+ * manage the frontend and calls dvb_register_device() to register a new
+ * frontend. It also cleans the property cache that stores the frontend
+ * parameters and selects the first available delivery system.
+ */
+int dvb_register_frontend(struct dvb_adapter *dvb,
 				 struct dvb_frontend *fe);
 
-extern int dvb_unregister_frontend(struct dvb_frontend *fe);
+/**
+ * dvb_unregister_frontend() - Unregisters a DVB frontend
+ *
+ * @fe: pointer to the frontend struct
+ *
+ * Stops the frontend kthread, calls dvb_unregister_device() and frees the
+ * private frontend data allocated by dvb_register_frontend().
+ *
+ * NOTE: This function doesn't frees the memory allocated by the demod,
+ * by the SEC driver and by the tuner. In order to free it, an explicit call to
+ * dvb_frontend_detach() is needed, after calling this function.
+ */
+int dvb_unregister_frontend(struct dvb_frontend *fe);
 
-extern void dvb_frontend_detach(struct dvb_frontend *fe);
+/**
+ * dvb_frontend_detach() - Detaches and frees frontend specific data
+ *
+ * @fe: pointer to the frontend struct
+ *
+ * This function should be called after dvb_unregister_frontend(). It
+ * calls the SEC, tuner and demod release functions:
+ * &dvb_frontend_ops.release_sec, &dvb_frontend_ops.tuner_ops.release,
+ * &dvb_frontend_ops.analog_ops.release and &dvb_frontend_ops.release.
+ *
+ * If the driver is compiled with CONFIG_MEDIA_ATTACH, it also decreases
+ * the module reference count, needed to allow userspace to remove the
+ * previously used DVB frontend modules.
+ */
+void dvb_frontend_detach(struct dvb_frontend *fe);
 
-extern void dvb_frontend_reinitialise(struct dvb_frontend *fe);
-extern int dvb_frontend_suspend(struct dvb_frontend *fe);
-extern int dvb_frontend_resume(struct dvb_frontend *fe);
+/**
+ * dvb_frontend_suspend() - Suspends a Digital TV frontend
+ *
+ * @fe: pointer to the frontend struct
+ *
+ * This function prepares a Digital TV frontend to suspend.
+ *
+ * In order to prepare the tuner to suspend, if
+ * &dvb_frontend_ops.tuner_ops.suspend() is available, it calls it. Otherwise,
+ * it will call &dvb_frontend_ops.tuner_ops.sleep(), if available.
+ *
+ * It will also call &dvb_frontend_ops.sleep() to put the demod to suspend.
+ *
+ * The drivers should also call dvb_frontend_suspend() as part of their
+ * handler for the &device_driver.suspend().
+ */
+int dvb_frontend_suspend(struct dvb_frontend *fe);
 
-extern void dvb_frontend_sleep_until(ktime_t *waketime, u32 add_usec);
+/**
+ * dvb_frontend_resume() - Resumes a Digital TV frontend
+ *
+ * @fe: pointer to the frontend struct
+ *
+ * This function resumes the usual operation of the tuner after resume.
+ *
+ * In order to resume the frontend, it calls the demod &dvb_frontend_ops.init().
+ *
+ * If &dvb_frontend_ops.tuner_ops.resume() is available, It, it calls it.
+ * Otherwise,t will call &dvb_frontend_ops.tuner_ops.init(), if available.
+ *
+ * Once tuner and demods are resumed, it will enforce that the SEC voltage and
+ * tone are restored to their previous values and wake up the frontend's
+ * kthread in order to retune the frontend.
+ *
+ * The drivers should also call dvb_frontend_resume() as part of their
+ * handler for the &device_driver.resume().
+ */
+int dvb_frontend_resume(struct dvb_frontend *fe);
+
+/**
+ * dvb_frontend_reinitialise() - forces a reinitialisation at the frontend
+ *
+ * @fe: pointer to the frontend struct
+ *
+ * Calls &dvb_frontend_ops.init() and &dvb_frontend_ops.tuner_ops.init(),
+ * and resets SEC tone and voltage (for Satellite systems).
+ *
+ * NOTE: Currently, this function is used only by one driver (budget-av).
+ * It seems to be due to address some special issue with that specific
+ * frontend.
+ */
+void dvb_frontend_reinitialise(struct dvb_frontend *fe);
+
+/**
+ * dvb_frontend_sleep_until() - Sleep for the amount of time given by
+ *                      add_usec parameter
+ *
+ * @waketime: pointer to a struct ktime_t
+ * @add_usec: time to sleep, in microseconds
+ *
+ * This function is used to measure the time required for the
+ * %FE_DISHNETWORK_SEND_LEGACY_CMD ioctl to work. It needs to be as precise
+ * as possible, as it affects the detection of the dish tone command at the
+ * satellite subsystem.
+ *
+ * Its used internally by the DVB frontend core, in order to emulate
+ * %FE_DISHNETWORK_SEND_LEGACY_CMD using the &dvb_frontend_ops.set_voltage()
+ * callback.
+ *
+ * NOTE: it should not be used at the drivers, as the emulation for the
+ * legacy callback is provided by the Kernel. The only situation where this
+ * should be at the drivers is when there are some bugs at the hardware that
+ * would prevent the core emulation to work. On such cases, the driver would
+ * be writing a &dvb_frontend_ops.dishnetwork_send_legacy_command() and
+ * calling this function directly.
+ */
+void dvb_frontend_sleep_until(ktime_t *waketime, u32 add_usec);
 
 #endif
