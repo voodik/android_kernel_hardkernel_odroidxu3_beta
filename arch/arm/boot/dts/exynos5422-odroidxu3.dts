@@ -77,6 +77,8 @@
 	dwmmc2@12220000 {
 		status = "okay";
 		num-slots = <1>;
+		extra_tuning;
+		use-fine-tuning;
 		supports-highspeed;
 		cd-type = <1>;
 		sw_data_timeout;
@@ -91,7 +93,7 @@
 		clk_pin = "gpc2-0";
 		clk_addr = "13410000.pinctrl";
 		clk_val = <0x3>;
-		clk_str_num = <4>;
+		clk_str_num = <3>;
 		num-ref-clks = <8>;
 		ciu_clkin = <20812500 41625000 41625000 83250000 166500000 83250000 166500000 333000000>;
 		pinctrl-names = "default";
@@ -193,11 +195,11 @@
 
 				buck10_reg: BUCK10 {
 					regulator-name = "vddf_2v85";
-					regulator-min-microvolt = <2850000>;
-					regulator-max-microvolt = <2850000>;
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
 					regulator-always-on;
 					regulator-boot-on;
-					regulator-ramp-delay = <12000>;
+					regulator-ramp-delay = <24000>;
 					regulator-initial-mode = <1>;
 				};
 
@@ -253,6 +255,7 @@
 					regulator-max-microvolt = <3300000>;
 					regulator-always-on;
 					regulator-boot-on;
+					regulator-ramp-delay = <24000>;
 					regulator-initial-mode = <1>;
 				};
 
@@ -279,7 +282,7 @@
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <3300000>;
 					regulator-boot-on;
-					regulator-ramp-delay = <12000>;
+					regulator-ramp-delay = <24000>;
 					regulator-initial-mode = <1>;
 				};
 
@@ -301,18 +304,20 @@
 
 				ldo18_reg: LDO18 {
 					regulator-name = "vdd_ldo18";
-					regulator-min-microvolt = <1800000>;
-					regulator-max-microvolt = <3300000>;
+					regulator-min-microvolt = <1850000>;
+					regulator-max-microvolt = <1850000>;
 					regulator-always-on;
 					regulator-boot-on;
+					regulator-ramp-delay = <24000>;
 					regulator-initial-mode = <1>;
 				};
 
 				ldo19_reg: LDO19 {
 					regulator-name = "vdd_ldo19";
-					regulator-min-microvolt = <1800000>;
-					regulator-max-microvolt = <2850000>;
+					regulator-min-microvolt = <2800000>;
+					regulator-max-microvolt = <3300000>;
 					regulator-always-on;
+					regulator-ramp-delay = <24000>;
 					regulator-initial-mode = <1>;
 				};
 
