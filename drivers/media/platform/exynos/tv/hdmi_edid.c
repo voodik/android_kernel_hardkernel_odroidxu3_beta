@@ -117,6 +117,7 @@ static struct edid_preset {
 	{ V4L2_DV_BT_DMT_640X480P60,	640,  480,  60, FB_VMODE_NONINTERLACED, "480p@60" },
 	{ V4L2_DV_BT_CEA_720X480P59_94,	720,  480,  59, FB_VMODE_NONINTERLACED, "480p@59.94" },
 	{ V4L2_DV_BT_CEA_720X576P50,	720, 576,  50, FB_VMODE_NONINTERLACED, "576p@50" },
+	{ V4L2_DV_BT_CEA_800X480P54,	800, 480,  54, FB_VMODE_NONINTERLACED, "800x480@54" },
 	{ V4L2_DV_BT_DMT_800X600P60,	800, 600,  60, FB_VMODE_NONINTERLACED, "600@60" },
 	{ V4L2_DV_BT_DMT_1024X768P60,	1024, 768,  60, FB_VMODE_NONINTERLACED, "768@60" },
 	{ V4L2_DV_BT_CEA_1280X720P50,	1280, 720,  50, FB_VMODE_NONINTERLACED, "720p@50" },
@@ -422,30 +423,32 @@ static void edid_bootarg_preset(void)
 	printk("# HDMI PHY Resolution %s #\n", HdmiPHYBootArgs);
 	printk("###########################################\n");
 	if (strncmp(HdmiPHYBootArgs, "1080p60hz", 9) == 0)
-		preferred_preset = hdmi_conf[17].dv_timings;
+		preferred_preset = hdmi_conf[18].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080p50hz", 9) == 0)
-		preferred_preset = hdmi_conf[16].dv_timings;
+		preferred_preset = hdmi_conf[17].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080p30hz", 9) == 0)
-		preferred_preset = hdmi_conf[15].dv_timings;
+		preferred_preset = hdmi_conf[16].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080i60hz", 9) == 0)
-		preferred_preset = hdmi_conf[12].dv_timings;
+		preferred_preset = hdmi_conf[13].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080i50hz", 9) == 0)
-		preferred_preset = hdmi_conf[11].dv_timings;
+		preferred_preset = hdmi_conf[12].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1024p60hz", 9) == 0)
-		preferred_preset = hdmi_conf[10].dv_timings;
+		preferred_preset = hdmi_conf[11].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "900p60hz", 8) == 0)
-		preferred_preset = hdmi_conf[9].dv_timings;
+		preferred_preset = hdmi_conf[10].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "960p60hz", 8) == 0)
-		preferred_preset = hdmi_conf[8].dv_timings;
+		preferred_preset = hdmi_conf[9].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "800p59hz", 8) == 0)
-		preferred_preset = hdmi_conf[7].dv_timings;
+		preferred_preset = hdmi_conf[8].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "720p60hz", 8) == 0)
-		preferred_preset = hdmi_conf[6].dv_timings;
+		preferred_preset = hdmi_conf[7].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "720p50hz", 8) == 0)
-		preferred_preset = hdmi_conf[5].dv_timings;
+		preferred_preset = hdmi_conf[6].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "768p60hz", 8) == 0)
-		preferred_preset = hdmi_conf[4].dv_timings;
+		preferred_preset = hdmi_conf[5].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "600p60hz", 8) == 0)
+		preferred_preset = hdmi_conf[4].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "800x480p54hz", 12) == 0)
 		preferred_preset = hdmi_conf[3].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "576p50hz", 8) == 0)
 		preferred_preset = hdmi_conf[2].dv_timings;
@@ -454,7 +457,7 @@ static void edid_bootarg_preset(void)
 	else if (strncmp(HdmiPHYBootArgs, "480p60hz", 8) == 0)
 		preferred_preset = hdmi_conf[0].dv_timings;
 	else
-		preferred_preset = hdmi_conf[6].dv_timings;
+		preferred_preset = hdmi_conf[7].dv_timings;
 
 	for (i = 0; i < ARRAY_SIZE(edid_presets); i++)
 		edid_presets[i].supported =

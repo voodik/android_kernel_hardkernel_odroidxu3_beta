@@ -42,6 +42,13 @@
 		V4L2_DV_BT_STD_DMT | V4L2_DV_BT_STD_CEA861, 0) \
 }
 
+#define V4L2_DV_BT_CEA_800X480P54 { \
+	.type = V4L2_DV_BT_656_1120, \
+	V4L2_INIT_BT_TIMINGS(800, 480, 0, 0, \
+		27000000, 24, 72, 96, 3, 10, 6, 0, 0, 0, \
+		V4L2_DV_BT_STD_CEA861, 0) \
+}
+
 /* Note: these are the nominal timings, for HDMI links this format is typically
  * double-clocked to meet the minimum pixelclock requirements.  */
 #define V4L2_DV_BT_CEA_720X480I59_94 { \
