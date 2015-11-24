@@ -78,6 +78,8 @@
 #define CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx 20
 #define CX231XX_BOARD_HAUPPAUGE_955Q 21
 #define CX231XX_BOARD_TERRATEC_GRABBY 22
+#define CX231XX_BOARD_TBS_5280 22
+#define CX231XX_BOARD_TBS_5281 23
 
 /* Limits minimum and default number of buffers */
 #define CX231XX_MIN_BUF                 4
@@ -342,6 +344,8 @@ struct cx231xx_board {
 	/* demod related */
 	int demod_addr;
 	u8 demod_xfer_mode;	/* 0 - Serial; 1 - parallel */
+
+	int adap_cnt;
 
 	/* GPIO Pins */
 	struct cx231xx_reg_seq *dvb_gpio;
@@ -671,6 +675,7 @@ struct cx231xx {
 	struct cx231xx_video_mode vbi_mode;
 	struct cx231xx_video_mode sliced_cc_mode;
 	struct cx231xx_video_mode ts1_mode;
+	struct cx231xx_video_mode ts2_mode;
 
 	atomic_t devlist_count;
 
@@ -694,7 +699,7 @@ struct cx231xx {
 
 	enum cx231xx_mode mode;
 
-	struct cx231xx_dvb *dvb;
+	struct cx231xx_dvb *dvb[2];
 
 	/* Cx231xx supported PCB config's */
 	struct pcb_config current_pcb_config;
@@ -884,6 +889,10 @@ int cx231xx_init_isoc(struct cx231xx *dev, int max_packets,
 		      int num_bufs, int max_pkt_size,
 		      int (*isoc_copy) (struct cx231xx *dev,
 					struct urb *urb));
+int cx231xx_init_isoc_ts2(struct cx231xx *dev, int max_packets,
+			int num_bufs, int max_pkt_size,
+			int (*isoc_copy) (struct cx231xx *dev,
+					struct urb *urb));
 int cx231xx_init_bulk(struct cx231xx *dev, int max_packets,
 		      int num_bufs, int max_pkt_size,
 		      int (*bulk_copy) (struct cx231xx *dev,
@@ -891,6 +900,7 @@ int cx231xx_init_bulk(struct cx231xx *dev, int max_packets,
 void cx231xx_stop_TS1(struct cx231xx *dev);
 void cx231xx_start_TS1(struct cx231xx *dev);
 void cx231xx_uninit_isoc(struct cx231xx *dev);
+void cx231xx_uninit_isoc_ts2(struct cx231xx *dev);
 void cx231xx_uninit_bulk(struct cx231xx *dev);
 int cx231xx_set_mode(struct cx231xx *dev, enum cx231xx_mode set_mode);
 int cx231xx_unmute_audio(struct cx231xx *dev);

@@ -178,10 +178,6 @@ static int tbs5220_frontend_attach(struct dvb_usb_adapter *adap)
 	struct si2168_config si2168_config;
 	struct si2157_config si2157_config;
 	u8 buf[20];
-	
-// 	st->i2c_client_demod = 0;	
-// 	st->i2c_client_tuner = 0;
-
 
 	/* attach frontend */
 	si2168_config.i2c_adapter = &adapter;
@@ -224,7 +220,7 @@ static int tbs5220_frontend_attach(struct dvb_usb_adapter *adap)
 		return -ENODEV;
 	}
 
-	st->i2c_client_demod = client_demod;	
+	st->i2c_client_demod = client_demod;
 	st->i2c_client_tuner = client_tuner;
 
 	buf[0] = 0;
@@ -240,7 +236,7 @@ static int tbs5220_frontend_attach(struct dvb_usb_adapter *adap)
 	buf[1] = 1;
 	tbs5220_op_rw(d->udev, 0x8a, 0, 0,
 			buf, 2, TBS5220_WRITE_MSG);
-
+\
 	buf[0] = 6;
 	buf[1] = 1;
 	tbs5220_op_rw(d->udev, 0x8a, 0, 0,
