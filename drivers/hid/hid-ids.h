@@ -451,6 +451,7 @@
 
 #define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
 #define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
+#define USB_DEVICE_ID_IRTOUCH_TOUCH	0x0001
 
 #define USB_VENDOR_ID_JESS		0x0c45
 #define USB_DEVICE_ID_JESS_YUREX	0x1010
@@ -914,3 +915,32 @@
 #define USB_VENDOR_ID_FOCALTECH 0x2808
 #define USB_DEVICE_ID_FOCALTECH_TOUCH   0x81C9
 #endif
+
+/* Silicon Integrated Systems Corp */
+#define USB_VENDOR_ID_SILICON     0x0457
+#define USB_DEVICE_ID_SILICON_TOUCH     0x1057
+
+/* Chalkboard Electronics 10" HDMI/USB Multitouch Screen */
+#define USB_VENDOR_ID_ELECTRONICS 0x04D8
+#define USB_DEVICE_ID_CHALKBOARD_10_TOUCH 0xF724
+
+/* Acer UT220HQL tbmjz HDMI/USB Multitouch Screen */
+#define USB_VENDOR_ID_ACER 0x25AA
+#define USB_DEVICE_ID_UT220HQL_TOUCH 0x8882
+
+/* eGalax Capacitive Multi-touch Screen */
+#define USB_VENDOR_ID_EGALAX 0x0EEF
+/* Xenarc 700CSH */
+#define USB_DEVICE_ID_700CSH_TOUCH 0x7200
+/* D_WAV Scientific Co.,Ltd  */
+#define USB_DEVICE_ID_AT070TN90_TOUCH 0x0001
+/* Chalkboard Electronics 14" */
+#define USB_DEVICE_ID_CHALKBOARD_14_TOUCH 0xA107
+
+/* SINGWAY XWC1359 7'' USB capacitive Screen */
+#define USB_VENDOR_ID_SINGWAY 0x266E
+#define USB_DEVICE_ID_XWC1359_7_TOUCH 0x0101
+
+/* Dell P2314T USB capacitive Screen */
+#define USB_VENDOR_ID_DELL	0x2149
+#define USB_DEVICE_ID_P2314T_TOUCH	0x2316

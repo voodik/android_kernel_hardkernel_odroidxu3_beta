@@ -1261,6 +1261,9 @@ static const struct hid_device_id mt_devices[] = {
 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
 		MT_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,
 			USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+		HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,
+			USB_DEVICE_ID_IRTOUCH_TOUCH) },
 
 	/* LG Display panels */
 	{ .driver_data = MT_CLS_DEFAULT,
@@ -1405,6 +1408,47 @@ static const struct hid_device_id mt_devices[] = {
 	{ .driver_data = MT_CLS_SERIAL,
 		MT_USB_DEVICE(USB_VENDOR_ID_ZYTRONIC,
 			USB_DEVICE_ID_ZYTRONIC_ZXY100) },
+
+	 /* Silicon Integrated Systems Corp */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_SILICON,
+				USB_DEVICE_ID_SILICON_TOUCH) },
+
+	 /* Chalkboard Electronics 10" HDMI/USB Multitouch Screen */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_ELECTRONICS,
+				USB_DEVICE_ID_CHALKBOARD_10_TOUCH) },
+
+	 /* Acer UT220HQL tbmjz HDMI/USB Multitouch Screen */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_ACER,
+				USB_DEVICE_ID_UT220HQL_TOUCH) },
+
+	 /* eGalax Capacitive Multi-touch Screen */
+	 /* Xenarc 700CSH */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_EGALAX,
+				USB_DEVICE_ID_700CSH_TOUCH) },
+
+	 /* Chalkboard Electronics 14" */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_EGALAX,
+				USB_DEVICE_ID_AT070TN90_TOUCH) },
+
+	 /* D_WAV Scientific Co.,Ltd  */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_EGALAX,
+				USB_DEVICE_ID_CHALKBOARD_14_TOUCH) },
+
+	 /* SINGWAY XWC1359 7'' USB capacitive Screen */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_SINGWAY,
+				USB_DEVICE_ID_XWC1359_7_TOUCH) },
+
+	 /* Dell P2314T USB capacitive Screen */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_DELL,
+				USB_DEVICE_ID_P2314T_TOUCH) },
 
 	/* Generic MT device */
 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
