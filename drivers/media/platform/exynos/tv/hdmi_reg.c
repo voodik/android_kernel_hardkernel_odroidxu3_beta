@@ -1085,7 +1085,7 @@ static const struct hdmi_timings hdmi_conf_480p60 = {
 	.vic = 1,
 };
 
-static const struct hdmi_timings hdmi_conf_800x480p54 = {
+static const struct hdmi_timings hdmi_conf_800x480p60 = {
 	.core = {
 		.h_blank = {0xc0, 0x00},
 		.v2_blank = {0xf3, 0x01},
@@ -2068,7 +2068,7 @@ const struct hdmi_conf hdmi_conf[] = {
 	{ V4L2_DV_BT_DMT_640X480P60,	   &hdmi_conf_480p60,	&info_2d },
 	{ V4L2_DV_BT_CEA_720X480P59_94,	   &hdmi_conf_480p59_94,	&info_2d },
 	{ V4L2_DV_BT_CEA_720X576P50,	   &hdmi_conf_576p50,		&info_2d },
-	{ V4L2_DV_BT_CEA_800X480P54,	   &hdmi_conf_800x480p54,	&info_2d },
+	{ V4L2_DV_BT_CEA_800X480P60,	   &hdmi_conf_800x480p60,	&info_2d },
 	{ V4L2_DV_BT_DMT_800X600P60,	   &hdmi_conf_600p60,		&info_2d },
 	{ V4L2_DV_BT_DMT_1024X768P60,	   &hdmi_conf_768p60,		&info_2d },
 	{ V4L2_DV_BT_CEA_1280X720P50,	   &hdmi_conf_720p50,		&info_2d },
