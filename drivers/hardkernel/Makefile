@@ -7,3 +7,5 @@ obj-$(CONFIG_ODROID_EXYNOS5_IOBOARD)  += ioboard-bh1780.o ioboard-bmp180.o ioboa
 obj-$(CONFIG_ODROID_EXYNOS5_IOBOARD)  += ioboard-spi-flash.o
 ioboard-spi-flash-y := ioboard-spi.o ioboard-spi-misc.o
 obj-$(CONFIG_ODROID_EXYNOS5_SYSFS)    += odroid-sysfs.o
+obj-$(CONFIG_ODROID_USBIO_SENSOR)     += odroid-usbio.o
+odroid-usbio-y := odroid-usbio-sensor.o odroid-usbio-mouse.o odroid-usbio-keypad.o odroid-usbio-setup.o
