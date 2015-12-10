@@ -2609,7 +2609,7 @@ static int smiapp_registered(struct v4l2_subdev *subdev)
 
 	dev_dbg(&client->dev, "profile %d\n", sensor->minfo.smiapp_profile);
 
-	sensor->pixel_array->sd.entity.function = MEDIA_ENT_T_V4L2_SUBDEV_SENSOR;
+	sensor->pixel_array->sd.entity.function = MEDIA_ENT_F_CAM_SENSOR;
 
 	/* final steps */
 	smiapp_read_frame_fmt(sensor);
