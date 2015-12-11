@@ -39,16 +39,15 @@ static void usbio_keypad_close (struct input_dev *input)
 }
 
 //[*]-------------------------------------------------------------------------[*]
-void usbio_keypad_process (struct usbio *usbio, unsigned short keypad_raw)
+static void usbio_keypad_touch_process
+		(struct usbio *usbio, unsigned short keypad_raw)
 {
-	unsigned short	key_press, key_release, i;
+	unsigned short i, key_release;
 
-	key_press   = (keypad_raw ^ usbio->keypad->raw_old) & keypad_raw;
 	key_release = (keypad_raw ^ usbio->keypad->raw_old) & usbio->keypad->raw_old;
 
-	i = 0;
-	while (key_press) {
-		if ((key_press & 0x0001) && BUTTON[i].use) {
+	for (i = 0; i < NUM_OF_KEYS; i++) {
+		if (BUTTON[i].use && (keypad_raw & 0x0001)) {
 			if (BUTTON[i].type == BUTTON_TYPE_TOUCH) {
 				input_mt_slot(usbio->keypad->input, i);
 				input_mt_report_slot_state(usbio->keypad->input,
@@ -60,7 +59,34 @@ void usbio_keypad_process (struct usbio *usbio, unsigned short keypad_raw)
 						 ABS_MT_POSITION_Y,
 						 BUTTON[i].y);
 			}
-			else if (BUTTON[i].type == BUTTON_TYPE_KEY) {
+		}
+
+		if (BUTTON[i].use && (key_release & 0x0001)) {
+			if (BUTTON[i].type == BUTTON_TYPE_TOUCH) {
+				input_mt_slot(usbio->keypad->input, i);
+				input_mt_report_slot_state(usbio->keypad->input,
+							   MT_TOOL_FINGER, false);
+			}
+		}
+		keypad_raw >>= 1;
+		key_release >>= 1;
+	}
+}
+
+//[*]-------------------------------------------------------------------------[*]
+void usbio_keypad_process (struct usbio *usbio, unsigned short keypad_raw)
+{
+	unsigned short	key_press, key_release, i;
+
+	usbio_keypad_touch_process(usbio, keypad_raw);
+
+	key_press   = (keypad_raw ^ usbio->keypad->raw_old) & keypad_raw;
+	key_release = (keypad_raw ^ usbio->keypad->raw_old) & usbio->keypad->raw_old;
+
+	i = 0;
+	while (key_press) {
+		if ((key_press & 0x0001) && BUTTON[i].use) {
+			if (BUTTON[i].type == BUTTON_TYPE_KEY) {
 				input_report_key(usbio->keypad->input,
 						 BUTTON[i].code,
 						 KEY_PRESS);
@@ -72,12 +98,7 @@ void usbio_keypad_process (struct usbio *usbio, unsigned short keypad_raw)
 	i = 0;
 	while (key_release) {
 		if ((key_release & 0x0001) && BUTTON[i].use) {
-			if (BUTTON[i].type == BUTTON_TYPE_TOUCH) {
-				input_mt_slot(usbio->keypad->input, i);
-				input_mt_report_slot_state(usbio->keypad->input,
-							   MT_TOOL_FINGER, false);
-			}
-			else if (BUTTON[i].type == BUTTON_TYPE_KEY) {
+			if (BUTTON[i].type == BUTTON_TYPE_KEY) {
 				input_report_key(usbio->keypad->input,
 						 BUTTON[i].code,
 						 KEY_RELEASE);
