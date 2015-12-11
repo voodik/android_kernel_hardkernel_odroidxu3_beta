@@ -57,6 +57,8 @@ static int mdev_probe(struct platform_device *pdev)
 	snprintf(v4l2_dev->name, sizeof(v4l2_dev->name), "%s",
 		 dev_name(&pdev->dev));
 
+        media_device_init(&mdev->media_dev);
+
 	ret = v4l2_device_register(&pdev->dev, &mdev->v4l2_dev);
 	if (ret < 0) {
 		v4l2_err(v4l2_dev, "Failed to register v4l2_device: %d\n", ret);

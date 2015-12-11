@@ -306,7 +306,7 @@ static void camif_unregister_media_entities(struct camif_dev *camif)
 /*
  * Media device
  */
-static int camif_media_dev_register(struct camif_dev *camif)
+static int camif_media_dev_init(struct camif_dev *camif)
 {
 	struct media_device *md = &camif->media_dev;
 	struct v4l2_device *v4l2_dev = &camif->v4l2_dev;
@@ -329,9 +329,7 @@ static int camif_media_dev_register(struct camif_dev *camif)
 	if (ret < 0)
 		return ret;
 
-	ret = media_device_register(md);
-	if (ret < 0)
-		v4l2_device_unregister(v4l2_dev);
+	media_device_init(md);
 
 	return ret;
 }
@@ -480,7 +478,7 @@ static int s3c_camif_probe(struct platform_device *pdev)
 		goto err_alloc;
 	}
 
-	ret = camif_media_dev_register(camif);
+	ret = camif_media_dev_init(camif);
 	if (ret < 0)
 		goto err_mdev;
 
@@ -507,6 +505,11 @@ static int s3c_camif_probe(struct platform_device *pdev)
 		goto err_unlock;
 
 	mutex_unlock(&camif->media_dev.graph_mutex);
+
+	ret = media_device_register(&camif->media_dev);
+	if (ret < 0)
+		goto err_sens;
+
 	pm_runtime_put(dev);
 	return 0;
 
@@ -515,6 +518,7 @@ err_unlock:
 err_sens:
 	v4l2_device_unregister(&camif->v4l2_dev);
 	media_device_unregister(&camif->media_dev);
+	media_device_cleanup(&camif->media_dev);
 	camif_unregister_media_entities(camif);
 err_mdev:
 	vb2_dma_contig_cleanup_ctx(camif->alloc_ctx);
@@ -536,6 +540,7 @@ static int s3c_camif_remove(struct platform_device *pdev)
 	struct s3c_camif_plat_data *pdata = &camif->pdata;
 
 	media_device_unregister(&camif->media_dev);
+	media_device_cleanup(&camif->media_dev);
 	camif_unregister_media_entities(camif);
 	v4l2_device_unregister(&camif->v4l2_dev);
 

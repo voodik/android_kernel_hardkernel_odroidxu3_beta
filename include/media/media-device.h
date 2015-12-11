@@ -106,6 +106,79 @@ struct media_device {
 /* media_devnode to media_device */
 #define to_media_device(node) container_of(node, struct media_device, devnode)
 
+/**
+ * media_device_init() - Initializes a media device element
+ *
+ * @mdev:	pointer to struct &media_device
+ *
+ * This function initializes the media device prior to its registration.
+ * The media device initialization and registration is split in two functions
+ * to avoid race conditions and make the media device available to user-space
+ * before the media graph has been completed.
+ *
+ * So drivers need to first initialize the media device, register any entity
+ * within the media device, create pad to pad links and then finally register
+ * the media device by calling media_device_register() as a final step.
+ */
+void media_device_init(struct media_device *mdev);
+
+/**
+ * media_device_cleanup() - Cleanups a media device element
+ *
+ * @mdev:	pointer to struct &media_device
+ *
+ * This function that will destroy the graph_mutex that is
+ * initialized in media_device_init().
+ */
+void media_device_cleanup(struct media_device *mdev);
+
+/**
+ * __media_device_register() - Registers a media device element
+ *
+ * @mdev:	pointer to struct &media_device
+ * @owner:	should be filled with %THIS_MODULE
+ *
+ * Users, should, instead, call the media_device_register() macro.
+ *
+ * The caller is responsible for initializing the media_device structure before
+ * registration. The following fields must be set:
+ *
+ *  - dev must point to the parent device (usually a &pci_dev, &usb_interface or
+ *    &platform_device instance).
+ *
+ *  - model must be filled with the device model name as a NUL-terminated UTF-8
+ *    string. The device/model revision must not be stored in this field.
+ *
+ * The following fields are optional:
+ *
+ *  - serial is a unique serial number stored as a NUL-terminated ASCII string.
+ *    The field is big enough to store a GUID in text form. If the hardware
+ *    doesn't provide a unique serial number this field must be left empty.
+ *
+ *  - bus_info represents the location of the device in the system as a
+ *    NUL-terminated ASCII string. For PCI/PCIe devices bus_info must be set to
+ *    "PCI:" (or "PCIe:") followed by the value of pci_name(). For USB devices,
+ *    the usb_make_path() function must be used. This field is used by
+ *    applications to distinguish between otherwise identical devices that don't
+ *    provide a serial number.
+ *
+ *  - hw_revision is the hardware device revision in a driver-specific format.
+ *    When possible the revision should be formatted with the KERNEL_VERSION
+ *    macro.
+ *
+ *  - driver_version is formatted with the KERNEL_VERSION macro. The version
+ *    minor must be incremented when new features are added to the userspace API
+ *    without breaking binary compatibility. The version major must be
+ *    incremented when binary compatibility is broken.
+ *
+ * Notes:
+ *
+ * Upon successful registration a character device named media[0-9]+ is created.
+ * The device major and minor numbers are dynamic. The model name is exported as
+ * a sysfs attribute.
+ *
+ * Unregistering a media device that hasn't been registered is *NOT* safe.
+ */
 int __must_check __media_device_register(struct media_device *mdev,
 					 struct module *owner);
 #define media_device_register(mdev) __media_device_register(mdev, THIS_MODULE)
