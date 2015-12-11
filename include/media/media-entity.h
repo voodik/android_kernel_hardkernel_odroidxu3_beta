@@ -350,10 +350,10 @@ struct media_entity_graph {
 #define intf_to_devnode(intf) \
 		container_of(intf, struct media_intf_devnode, intf)
 
-void media_gobj_init(struct media_device *mdev,
+void media_gobj_create(struct media_device *mdev,
 		    enum media_gobj_type type,
 		    struct media_gobj *gobj);
-void media_gobj_remove(struct media_gobj *gobj);
+void media_gobj_destroy(struct media_gobj *gobj);
 
 int media_entity_pads_init(struct media_entity *entity, u16 num_pads,
 		struct media_pad *pads, u16 extra_links);
