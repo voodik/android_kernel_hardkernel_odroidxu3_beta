@@ -521,86 +521,8 @@ static DEVICE_ATTR(model, S_IRUGO, show_model, NULL);
 
 static void media_device_release(struct media_devnode *mdev)
 {
+	dev_dbg(mdev->parent, "Media device released\n");
 }
-
-/**
- * media_device_register - register a media device
- * @mdev:	The media device
- *
- * The caller is responsible for initializing the media device before
- * registration. The following fields must be set:
- *
- * - dev must point to the parent device
- * - model must be filled with the device model name
- */
-int __must_check __media_device_register(struct media_device *mdev,
-					 struct module *owner)
-{
-	int ret;
-
-	if (WARN_ON(mdev->dev == NULL || mdev->model[0] == 0))
-		return -EINVAL;
-
-	INIT_LIST_HEAD(&mdev->entities);
-	INIT_LIST_HEAD(&mdev->interfaces);
-	INIT_LIST_HEAD(&mdev->pads);
-	INIT_LIST_HEAD(&mdev->links);
-	spin_lock_init(&mdev->lock);
-	mutex_init(&mdev->graph_mutex);
-
-	/* Register the device node. */
-	mdev->devnode.fops = &media_device_fops;
-	mdev->devnode.parent = mdev->dev;
-	mdev->devnode.release = media_device_release;
-	ret = media_devnode_register(&mdev->devnode, owner);
-	if (ret < 0)
-		return ret;
-
-	ret = device_create_file(&mdev->devnode.dev, &dev_attr_model);
-	if (ret < 0) {
-		media_devnode_unregister(&mdev->devnode);
-		return ret;
-	}
-
-	return 0;
-}
-EXPORT_SYMBOL_GPL(__media_device_register);
-
-/**
- * media_device_unregister - unregister a media device
- * @mdev:	The media device
- *
- * It is safe to call this function on an unregistered
- * (but initialised) media device.
- */
-void media_device_unregister(struct media_device *mdev)
-{
-	struct media_entity *entity;
-	struct media_entity *next;
-	struct media_interface *intf, *tmp_intf;
-
-	/* Check if mdev was ever registered at all */
-	if (!media_devnode_is_registered(&mdev->devnode))
-		return;
-
-	/* Remove all entities from the media device */
-	list_for_each_entry_safe(entity, next, &mdev->entities, graph_obj.list)
-		media_device_unregister_entity(entity);
-
-	/* Remove all interfaces from the media device */
-	spin_lock(&mdev->lock);
-	list_for_each_entry_safe(intf, tmp_intf, &mdev->interfaces,
-				 graph_obj.list) {
-		__media_remove_intf_links(intf);
-		media_gobj_destroy(&intf->graph_obj);
-		kfree(intf);
-	}
-	spin_unlock(&mdev->lock);
-
-	device_remove_file(&mdev->devnode.dev, &dev_attr_model);
-	media_devnode_unregister(&mdev->devnode);
-}
-EXPORT_SYMBOL_GPL(media_device_unregister);
 
 /**
  * media_device_register_entity - Register an entity with a media device
@@ -622,6 +544,8 @@ int __must_check media_device_register_entity(struct media_device *mdev,
 	WARN_ON(entity->graph_obj.mdev != NULL);
 	entity->graph_obj.mdev = mdev;
 	INIT_LIST_HEAD(&entity->links);
+	entity->num_links = 0;
+	entity->num_backlinks = 0;
 
 	spin_lock(&mdev->lock);
 	/* Initialize media_gobj embedded at the entity */
@@ -679,6 +603,89 @@ void media_device_unregister_entity(struct media_entity *entity)
 	entity->graph_obj.mdev = NULL;
 }
 EXPORT_SYMBOL_GPL(media_device_unregister_entity);
+
+/**
+ * media_device_register - register a media device
+ * @mdev:	The media device
+ *
+ * The caller is responsible for initializing the media device before
+ * registration. The following fields must be set:
+ *
+ * - dev must point to the parent device
+ * - model must be filled with the device model name
+ */
+int __must_check __media_device_register(struct media_device *mdev,
+					 struct module *owner)
+{
+	int ret;
+
+	if (WARN_ON(mdev->dev == NULL || mdev->model[0] == 0))
+		return -EINVAL;
+
+	INIT_LIST_HEAD(&mdev->entities);
+	INIT_LIST_HEAD(&mdev->interfaces);
+	INIT_LIST_HEAD(&mdev->pads);
+	INIT_LIST_HEAD(&mdev->links);
+	spin_lock_init(&mdev->lock);
+	mutex_init(&mdev->graph_mutex);
+
+	/* Register the device node. */
+	mdev->devnode.fops = &media_device_fops;
+	mdev->devnode.parent = mdev->dev;
+	mdev->devnode.release = media_device_release;
+	ret = media_devnode_register(&mdev->devnode, owner);
+	if (ret < 0)
+		return ret;
+
+	ret = device_create_file(&mdev->devnode.dev, &dev_attr_model);
+	if (ret < 0) {
+		media_devnode_unregister(&mdev->devnode);
+		return ret;
+	}
+
+	dev_dbg(mdev->dev, "Media device registered\n");
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(__media_device_register);
+
+/**
+ * media_device_unregister - unregister a media device
+ * @mdev:	The media device
+ *
+ * It is safe to call this function on an unregistered
+ * (but initialised) media device.
+ */
+void media_device_unregister(struct media_device *mdev)
+{
+	struct media_entity *entity;
+	struct media_entity *next;
+	struct media_interface *intf, *tmp_intf;
+
+	/* Check if mdev was ever registered at all */
+	if (!media_devnode_is_registered(&mdev->devnode))
+		return;
+
+	/* Remove all entities from the media device */
+	list_for_each_entry_safe(entity, next, &mdev->entities, graph_obj.list)
+		media_device_unregister_entity(entity);
+
+	/* Remove all interfaces from the media device */
+	spin_lock(&mdev->lock);
+	list_for_each_entry_safe(intf, tmp_intf, &mdev->interfaces,
+				 graph_obj.list) {
+		__media_remove_intf_links(intf);
+		media_gobj_destroy(&intf->graph_obj);
+		kfree(intf);
+	}
+	spin_unlock(&mdev->lock);
+
+	device_remove_file(&mdev->devnode.dev, &dev_attr_model);
+	media_devnode_unregister(&mdev->devnode);
+
+	dev_dbg(mdev->dev, "Media device unregistered\n");
+}
+EXPORT_SYMBOL_GPL(media_device_unregister);
 
 static void media_device_release_devres(struct device *dev, void *res)
 {
