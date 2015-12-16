@@ -353,9 +353,23 @@ static inline bool is_media_entity_v4l2_subdev(struct media_entity *entity)
 	}
 }
 
+/**
+ * __media_entity_enum_init - Initialise an entity enumeration
+ *
+ * @ent_enum: Entity enumeration to be initialised
+ * @idx_max: Maximum number of entities in the enumeration
+ *
+ * Return: Returns zero on success or a negative error code.
+ */
 __must_check int __media_entity_enum_init(struct media_entity_enum *ent_enum,
 					  int idx_max);
-void media_entity_enum_cleanup(struct media_entity_enum *e);
+
+/**
+ * media_entity_enum_cleanup - Release resources of an entity enumeration
+ *
+ * @ent_enum: Entity enumeration to be released
+ */
+void media_entity_enum_cleanup(struct media_entity_enum *ent_enum);
 
 /**
  * media_entity_enum_zero - Clear the entire enum
@@ -577,8 +591,20 @@ __must_check media_create_intf_link(struct media_entity *entity,
 void __media_remove_intf_link(struct media_link *link);
 void media_remove_intf_link(struct media_link *link);
 void __media_remove_intf_links(struct media_interface *intf);
-void media_remove_intf_links(struct media_interface *intf);
 
+/**
+ * media_remove_intf_links() - remove all links associated with an interface
+ *
+ * @intf:	pointer to &media_interface
+ *
+ * Notes:
+ *
+ * this is called automatically when an entity is unregistered via
+ * media_device_register_entity() and by media_devnode_remove().
+ *
+ * Prefer to use this one, instead of __media_remove_intf_links().
+ */
+void media_remove_intf_links(struct media_interface *intf);
 
 #define media_entity_call(entity, operation, args...)			\
 	(((entity)->ops && (entity)->ops->operation) ?			\
