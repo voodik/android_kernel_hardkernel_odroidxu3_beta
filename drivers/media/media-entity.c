@@ -466,10 +466,10 @@ __must_check int media_entity_pipeline_start(struct media_entity *entity,
 
 	mutex_lock(&mdev->graph_mutex);
 
-	ret = media_entity_graph_walk_init(&pipe->graph, mdev);
-	if (ret) {
-		mutex_unlock(&mdev->graph_mutex);
-		return ret;
+	if (!pipe->streaming_count++) {
+		ret = media_entity_graph_walk_init(&pipe->graph, mdev);
+		if (ret)
+			goto error_graph_walk_start;
 	}
 
 	media_entity_graph_walk_start(&pipe->graph, entity);
@@ -570,7 +570,9 @@ error:
 			break;
 	}
 
-	media_entity_graph_walk_cleanup(graph);
+error_graph_walk_start:
+	if (!--pipe->streaming_count)
+		media_entity_graph_walk_cleanup(graph);
 
 	mutex_unlock(&mdev->graph_mutex);
 
@@ -594,9 +596,11 @@ void media_entity_pipeline_stop(struct media_entity *entity)
 {
 	struct media_device *mdev = entity->graph_obj.mdev;
 	struct media_entity_graph *graph = &entity->pipe->graph;
+	struct media_pipeline *pipe = entity->pipe;
 
 	mutex_lock(&mdev->graph_mutex);
 
+	WARN_ON(!pipe->streaming_count);
 	media_entity_graph_walk_start(graph, entity);
 
 	while ((entity = media_entity_graph_walk_next(graph))) {
@@ -605,7 +609,8 @@ void media_entity_pipeline_stop(struct media_entity *entity)
 			entity->pipe = NULL;
 	}
 
-	media_entity_graph_walk_cleanup(graph);
+	if (!--pipe->streaming_count)
+		media_entity_graph_walk_cleanup(graph);
 
 	mutex_unlock(&mdev->graph_mutex);
 }
