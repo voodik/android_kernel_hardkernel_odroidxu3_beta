@@ -637,7 +637,7 @@ int dvb_create_media_graph(struct dvb_adapter *adap,
 		conn->name = connector_name;
 		adap->conn_pads->flags = MEDIA_PAD_FL_SOURCE;
 
-		ret = media_entity_pads_init(conn, 1, adap->conn_pads);
+		ret = media_entity_pads_init(conn, 1, adap->conn_pads, 0);
 		if (ret)
 			return ret;
 
