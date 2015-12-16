@@ -343,15 +343,32 @@ static struct media_entity *stack_pop(struct media_entity_graph *graph)
 #define stack_top(en)	((en)->stack[(en)->top].entity)
 
 /**
- * media_entity_graph_walk_start - Start walking the media graph at a given entity
+ * media_entity_graph_walk_init - Allocate resources for graph walk
  * @graph: Media graph structure that will be used to walk the graph
- * @entity: Starting entity
+ * @mdev: Media device
  *
- * This function initializes the graph traversal structure to walk the entities
- * graph starting at the given entity. The traversal structure must not be
- * modified by the caller during graph traversal. When done the structure can
- * safely be freed.
+ * Reserve resources for graph walk in media device's current
+ * state. The memory must be released using
+ * media_entity_graph_walk_free().
+ *
+ * Returns error on failure, zero on success.
  */
+__must_check int media_entity_graph_walk_init(
+	struct media_entity_graph *graph, struct media_device *mdev)
+{
+	return 0;
+}
+EXPORT_SYMBOL_GPL(media_entity_graph_walk_init);
+
+/**
+ * media_entity_graph_walk_cleanup - Release resources related to graph walking
+ * @graph: Media graph structure that was used to walk the graph
+ */
+void media_entity_graph_walk_cleanup(struct media_entity_graph *graph)
+{
+}
+EXPORT_SYMBOL_GPL(media_entity_graph_walk_cleanup);
+
 void media_entity_graph_walk_start(struct media_entity_graph *graph,
 				   struct media_entity *entity)
 {
