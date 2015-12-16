@@ -95,7 +95,32 @@ struct media_entity_enum {
 	int idx_max;
 };
 
+/**
+ * struct media_entity_graph - Media graph traversal state
+ *
+ * @stack:		Graph traversal stack; the stack contains information
+ *			on the path the media entities to be walked and the
+ *			links through which they were reached.
+ * @entities:		Visited entities
+ * @top:		The top of the stack
+ */
+struct media_entity_graph {
+	struct {
+		struct media_entity *entity;
+		struct list_head *link;
+	} stack[MEDIA_ENTITY_ENUM_MAX_DEPTH];
+
+	DECLARE_BITMAP(entities, MEDIA_ENTITY_ENUM_MAX_ID);
+	int top;
+};
+
+/*
+ * struct media_pipeline - Media pipeline related information
+ *
+ * @graph:	Media graph walk during pipeline start / stop
+ */
 struct media_pipeline {
+	struct media_entity_graph graph;
 };
 
 /**
