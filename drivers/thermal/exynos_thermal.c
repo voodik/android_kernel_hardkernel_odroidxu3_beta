@@ -1145,6 +1145,22 @@ static void exynos_tmu_control(struct platform_device *pdev, int id, bool on)
 	struct exynos_tmu_data *data = platform_get_drvdata(pdev);
 	struct exynos_tmu_platform_data *pdata = data->pdata;
 	unsigned int con, interrupt_en;
+	int status, timeout = 20000;
+
+	while (1) {
+		status = readl(data->base[id] + EXYNOS_TMU_REG_STATUS);
+		if (status & 0x01)
+			break;
+
+		timeout--;
+		if (!timeout) {
+			pr_err("%s: timeout TMU busy\n", __func__);
+			break;
+		}
+
+		cpu_relax();
+		usleep_range(1, 2);
+	};
 
 	mutex_lock(&data->lock);
 	clk_enable(data->clk[0]);
@@ -1197,31 +1213,15 @@ static void exynos_tmu_control(struct platform_device *pdev, int id, bool on)
 
 static int exynos_tmu_read(struct exynos_tmu_data *data)
 {
-	u8 temp_code, status;
+	u8 temp_code;
 	int temp, i, max = INT_MIN, min = INT_MAX, gpu_temp = 0;
 	int alltemp[EXYNOS_TMU_COUNT] = {0, };
-	int timeout = 20000;
 
 	mutex_lock(&data->lock);
 	clk_enable(data->clk[0]);
 	clk_enable(data->clk[1]);
 
 	for (i = 0; i < EXYNOS_TMU_COUNT; i++) {
-		while (1) {
-			status = readb(data->base[i] + EXYNOS_TMU_REG_STATUS);
-			if (status)
-				break;
-
-			timeout--;
-			if (!timeout) {
-				pr_err("%s: timeout TMU busy\n", __func__);
-				break;
-			}
-
-			cpu_relax();
-			usleep_range(1, 2);
-		};
-
 		temp_code = readb(data->base[i] + EXYNOS_TMU_REG_CURRENT_TEMP);
 		temp = code_to_temp(data, temp_code, i);
 		alltemp[i] = temp;
