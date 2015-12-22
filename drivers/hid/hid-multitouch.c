@@ -1440,6 +1440,11 @@ static const struct hid_device_id mt_devices[] = {
 		HID_USB_DEVICE(USB_VENDOR_ID_EGALAX,
 				USB_DEVICE_ID_CHALKBOARD_14_TOUCH) },
 
+	 /* IEI EGLAX 21" */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_EGALAX,
+				USB_DEVICE_ID_IEI_EGLAX_21_TOUCH) },
+
 	 /* SINGWAY XWC1359 7'' USB capacitive Screen */
 	{ .driver_data = MT_CLS_DEFAULT,
 		HID_USB_DEVICE(USB_VENDOR_ID_SINGWAY,
