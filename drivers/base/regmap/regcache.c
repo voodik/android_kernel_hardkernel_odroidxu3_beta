@@ -65,7 +65,7 @@ static int regcache_hw_init(struct regmap *map)
 			goto err_free;
 		}
 		ret = regmap_raw_read(map, 0, tmp_buf,
-				      map->num_reg_defaults_raw);
+				      map->cache_size_raw);
 		map->cache_bypass = cache_bypass;
 		if (ret < 0)
 			goto err_cache_free;
