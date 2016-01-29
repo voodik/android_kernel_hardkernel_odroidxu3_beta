@@ -500,8 +500,7 @@ static int tbs5881_frontend_attach(struct dvb_usb_adapter *adap)
 	/* attach frontend */
 	si2168_config.i2c_adapter = &adapter;
 	si2168_config.fe = &adap->fe_adap[0].fe;
-	si2168_config.ts_mode = SI2168_TS_PARALLEL;
-	si2168_config.ts_clock_gapped = true;
+	si2168_config.ts_mode = SI2168_TS_SERIAL;
 	memset(&info, 0, sizeof(struct i2c_board_info));
 	strlcpy(info.type, "si2168", I2C_NAME_SIZE);
 	info.addr = 0x64;
