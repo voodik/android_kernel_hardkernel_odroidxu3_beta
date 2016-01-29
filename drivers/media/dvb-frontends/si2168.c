@@ -402,6 +402,9 @@ static int si2168_init(struct dvb_frontend *fe)
 	unsigned int chip_id;
 
 	dev_dbg(&client->dev, "\n");
+	
+	if (dev->active)
+		return 0;	
 
 	/* initialize */
 	memcpy(cmd.args, "\xc0\x12\x00\x0c\x00\x0d\x16\x00\x00\x00\x00\x00\x00", 13);
