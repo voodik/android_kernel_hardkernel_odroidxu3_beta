@@ -14,23 +14,31 @@
  *    GNU General Public License for more details.
  */
 
-#ifndef MN88473_PRIV_H
-#define MN88473_PRIV_H
+#ifndef MN88473_H
+#define MN88473_H
 
-#include "dvb_frontend.h"
-#include "mn88473.h"
-#include <linux/firmware.h>
-#include <linux/regmap.h>
+#include <linux/dvb/frontend.h>
 
-#define MN88473_FIRMWARE "dvb-demod-mn88473-01.fw"
-
-struct mn88473_dev {
-	struct i2c_client *client[3];
-	struct regmap *regmap[3];
-	struct dvb_frontend frontend;
+struct mn88473_config {
+	/*
+	 * Max num of bytes given I2C adapter could write at once.
+	 * Default: unlimited
+	 */
 	u16 i2c_wr_max;
-	bool active;
-	u32 clk;
+
+	/*
+	 * Xtal frequency Hz.
+	 * Default: 25000000
+	 */
+	u32 xtal;
+
+
+	/* Everything after that is returned by the driver. */
+
+	/*
+	 * DVB frontend.
+	 */
+	struct dvb_frontend **fe;
 };
 
 #endif
