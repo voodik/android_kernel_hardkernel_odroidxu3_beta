@@ -1360,7 +1360,7 @@ static int dtv_get_frontend(struct dvb_frontend *fe,
 	int r;
 
 	if (fe->ops.get_frontend) {
-		r = fe->ops.get_frontend(fe);
+		r = fe->ops.get_frontend(fe, c);
 		if (unlikely(r < 0))
 			return r;
 		if (p_out)
