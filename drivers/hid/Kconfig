@@ -596,6 +596,8 @@ config HID_SAMSUNG
 config HID_SONY
 	tristate "Sony PS3 controller"
 	depends on USB_HID
+	depends on NEW_LEDS
+	depends on LEDS_CLASS
 	---help---
 	Support for Sony PS3 6-axis controllers.
 
