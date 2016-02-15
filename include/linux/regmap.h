@@ -721,6 +721,9 @@ int regmap_fields_read(struct regmap_field *field, unsigned int id,
 		       unsigned int *val);
 int regmap_fields_update_bits(struct regmap_field *field,  unsigned int id,
 			      unsigned int mask, unsigned int val);
+int regmap_fields_update_bits_base(struct regmap_field *field,  unsigned int id,
+				   unsigned int mask, unsigned int val,
+				   bool *change, bool async, bool force);
 
 /**
  * Description of an IRQ for the generic regmap irq_chip.
@@ -899,6 +902,15 @@ static inline int regmap_write_bits(struct regmap *map, unsigned int reg,
 static inline int regmap_field_update_bits_base(struct regmap_field *field,
 					unsigned int mask, unsigned int val,
 					bool *change, bool async, bool force)
+{
+	WARN_ONCE(1, "regmap API is disabled");
+	return -EINVAL;
+}
+
+static inline int regmap_fields_update_bits_base(struct regmap_field *field,
+				   unsigned int id,
+				   unsigned int mask, unsigned int val,
+				   bool *change, bool async, bool force)
 {
 	WARN_ONCE(1, "regmap API is disabled");
 	return -EINVAL;
