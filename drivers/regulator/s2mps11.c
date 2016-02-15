@@ -509,12 +509,17 @@ static void s2mps11_pmic_shutdown(struct platform_device *pdev)
     if(sec_reg_update(iodev, S2MPS11_REG_L19CTRL, 0x00, 0x3F))
         printk(KERN_EMERG "%s : S2MPS11 LDO CTRL19 Error!!\n", __func__);
 
+	s2mps11_pmic_ethonoff(0);
+
     mdelay(10);
 
     if(sec_reg_update(iodev, S2MPS11_REG_L19CTRL, reg_ctrl1, 0x3F))
         printk(KERN_EMERG "%s : S2MPS11 LDO CTRL19 Error!!\n", __func__);
     if(sec_reg_update(iodev, S2MPS11_REG_L13CTRL, 0xE8, 0xFF))
         printk(KERN_EMERG "%s : S2MPS11 LDO CTRL13 Error!!\n", __func__);
+
+	s2mps11_pmic_ethonoff(1);
+
 }
 #endif
 
