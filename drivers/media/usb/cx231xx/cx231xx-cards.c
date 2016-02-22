@@ -959,6 +959,8 @@ static void cx231xx_media_device_register(struct cx231xx *dev,
 		return;
 	}
 
+	media_device_usb_init(mdev, udev, dev->board.name);
+
 	dev->media_dev = mdev;
 #endif
 }
