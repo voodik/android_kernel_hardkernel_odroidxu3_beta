@@ -663,7 +663,6 @@ static inline void media_device_pci_init(struct media_device *mdev,
 					 struct pci_dev *pci_dev,
 					 char *name)
 {
-	return NULL;
 }
 
 static inline void __media_device_usb_init(struct media_device *mdev,
@@ -671,7 +670,6 @@ static inline void __media_device_usb_init(struct media_device *mdev,
 					   char *board_name,
 					   char *driver_name)
 {
-	return NULL;
 }
 
 #endif /* CONFIG_MEDIA_CONTROLLER */
