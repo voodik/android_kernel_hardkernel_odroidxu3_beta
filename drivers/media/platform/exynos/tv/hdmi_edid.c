@@ -448,7 +448,7 @@ static void edid_bootarg_preset(void)
 		preferred_preset = hdmi_conf[5].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "600p60hz", 8) == 0)
 		preferred_preset = hdmi_conf[4].dv_timings;
-	else if (strncmp(HdmiPHYBootArgs, "800x480p54hz", 12) == 0)
+	else if (strncmp(HdmiPHYBootArgs, "800x480p60hz", 12) == 0)
 		preferred_preset = hdmi_conf[3].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "576p50hz", 8) == 0)
 		preferred_preset = hdmi_conf[2].dv_timings;
