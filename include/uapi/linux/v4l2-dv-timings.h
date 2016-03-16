@@ -301,6 +301,14 @@
 		V4L2_DV_BT_STD_DMT, 0) \
 }
 
+#define V4L2_DV_BT_DMT_1024X600P43 { \
+	.type = V4L2_DV_BT_656_1120, \
+	V4L2_INIT_BT_TIMINGS(1024, 600, 0, \
+		V4L2_DV_HSYNC_POS_POL | V4L2_DV_VSYNC_POS_POL, \
+		32000000, 40, 40, 48, 29, 13, 3, 0, 0, 0, \
+		V4L2_DV_BT_STD_DMT, 0) \
+}
+
 /* XGA resolutions */
 #define V4L2_DV_BT_DMT_1024X768P60 { \
 	.type = V4L2_DV_BT_656_1120, \

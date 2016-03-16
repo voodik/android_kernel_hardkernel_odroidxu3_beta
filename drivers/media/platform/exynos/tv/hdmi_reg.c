@@ -579,6 +579,64 @@ static const struct hdmi_timings hdmi_conf_600p60 = {
 	.vic = 0,
 };
 
+static const struct hdmi_timings hdmi_conf_1024x600p43 = {
+	.core = {
+		.h_blank = {0x80, 0x00},
+		.v2_blank = {0x85, 0x02},
+		.v1_blank = {0x2d, 0x00},
+		.v_line = {0x85, 0x02},
+		.h_line = {0x80, 0x04},
+		.hsync_pol = {0x01},
+		.vsync_pol = {0x01},
+		.int_pro_mode = {0x00},
+		.v_blank_f0 = {0xff, 0xff},
+		.v_blank_f1 = {0xff, 0xff},
+		.h_sync_start = {0x26, 0x00},
+		.h_sync_end = {0x56, 0x00},
+		.v_sync_line_bef_2 = {0x10, 0x00},
+		.v_sync_line_bef_1 = {0x0d, 0x00},
+		.v_sync_line_aft_2 = {0xff, 0xff},
+		.v_sync_line_aft_1 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_2 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_1 = {0xff, 0xff},
+		.v_blank_f2 = {0xff, 0xff},
+		.v_blank_f3 = {0xff, 0xff},
+		.v_blank_f4 = {0xff, 0xff},
+		.v_blank_f5 = {0xff, 0xff},
+		.v_sync_line_aft_3 = {0xff, 0xff},
+		.v_sync_line_aft_4 = {0xff, 0xff},
+		.v_sync_line_aft_5 = {0xff, 0xff},
+		.v_sync_line_aft_6 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_3 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_4 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_5 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_6 = {0xff, 0xff},
+		/* other don't care */
+	},
+	.tg = {
+		0x00, /* cmd */
+		0x80, 0x04, /* h_fsz */
+		0x80, 0x00, 0x00, 0x04, /* hact */
+		0x85, 0x02, /* v_fsz */
+		0x01, 0x00, 0x33, 0x02, /* vsync */
+		0x2d, 0x00, 0x58, 0x02, /* vact */
+		0x33, 0x02, /* field_chg */
+		0x48, 0x02, /* vact_st2 */
+		0x7b, 0x04, /* vact_st3 */
+		0xae, 0x06, /* vact_st4 */
+		0x01, 0x00, 0x33, 0x02, /* vsync top/bot */
+		0x01, 0x00, 0x33, 0x02, /* field top/bot */
+		0x00, /* 3d FP */
+	},
+	.mbus_fmt = {
+		.width = 1024,
+		.height = 600,
+		.code = V4L2_MBUS_FMT_FIXED, /* means RGB888 */
+		.field = V4L2_FIELD_NONE,
+	},
+	.vic = 0,
+};
+
 static const struct hdmi_timings hdmi_conf_768p60 = {
 	.core = {
 		.h_blank = {0x40, 0x01},
@@ -2070,6 +2128,7 @@ const struct hdmi_conf hdmi_conf[] = {
 	{ V4L2_DV_BT_CEA_720X576P50,	   &hdmi_conf_576p50,		&info_2d },
 	{ V4L2_DV_BT_CEA_800X480P60,	   &hdmi_conf_800x480p60,	&info_2d },
 	{ V4L2_DV_BT_DMT_800X600P60,	   &hdmi_conf_600p60,		&info_2d },
+	{ V4L2_DV_BT_DMT_1024X600P43,	   &hdmi_conf_1024x600p43,		&info_2d },
 	{ V4L2_DV_BT_DMT_1024X768P60,	   &hdmi_conf_768p60,		&info_2d },
 	{ V4L2_DV_BT_CEA_1280X720P50,	   &hdmi_conf_720p50,		&info_2d },
 	{ V4L2_DV_BT_CEA_1280X720P60,	   &hdmi_conf_720p60,		&info_2d },
