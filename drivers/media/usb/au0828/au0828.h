@@ -54,7 +54,6 @@
 #define NTSC_STD_H      480
 
 #define AU0828_INTERLACED_DEFAULT       1
-#define V4L2_CID_PRIVATE_SHARPNESS  (V4L2_CID_PRIVATE_BASE + 0)
 
 /* Defination for AU0828 USB transfer */
 #define AU0828_MAX_ISO_BUFS    12  /* maybe resize this value in the future */
