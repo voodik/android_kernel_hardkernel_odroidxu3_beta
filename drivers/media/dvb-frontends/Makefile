@@ -116,4 +116,4 @@ obj-$(CONFIG_DVB_RTL2832_SDR) += rtl2832_sdr.o
 obj-$(CONFIG_DVB_M88RS2000) += m88rs2000.o
 obj-$(CONFIG_DVB_AF9033) += af9033.o
 obj-$(CONFIG_DVB_TAS2101) += tas2101.o
-
+obj-$(CONFIG_DVB_AVL6882) += avl6882.o

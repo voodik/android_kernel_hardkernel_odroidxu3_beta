@@ -829,6 +829,13 @@ config DVB_TAS2101
 	  A DVB-S demod and tuner module.
 	  Say Y when you want to support this frontend.
 
+config DVB_AVL6882
+	tristate "Availink AVL6882 DVB-T/T2/C/S/S2 demodulator"
+	depends on DVB_CORE && I2C
+	default m if !MEDIA_SUBDRV_AUTOSELECT
+	help
+	  Say Y when you want to support this frontend.
+
 comment "Tools to develop new frontends"
 
 config DVB_DUMMY_FE
