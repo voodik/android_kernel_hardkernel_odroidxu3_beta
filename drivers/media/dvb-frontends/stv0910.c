@@ -1195,12 +1195,6 @@ static int read_status(struct dvb_frontend *fe, enum fe_status *status)
 	u16 val;
 	u32 ber;
 	
-	read_signal_strength(fe, &val);
-
-	read_snr(fe, &val);
-	
-	read_ber(fe, &ber);
-	
 	read_reg(state, RSTV0910_P2_DMDSTATE + state->regoff, &DmdState);
 
 	if (DmdState & 0x40) {
@@ -1214,7 +1208,9 @@ static int read_status(struct dvb_frontend *fe, enum fe_status *status)
 		return 0;
 	}
 
-	*status |= 0x0f;
+	*status = FE_HAS_SIGNAL | FE_HAS_CARRIER | FE_HAS_VITERBI | FE_HAS_SYNC;
+	read_signal_strength(fe, &val);
+
 	if (state->ReceiveMode == Mode_None) {
 		state->ReceiveMode = CurReceiveMode;
 		state->DemodLockTime = jiffies;
@@ -1247,7 +1243,7 @@ static int read_status(struct dvb_frontend *fe, enum fe_status *status)
 	if (!FECLock)
 		return 0;
 
-	*status |= 0x10;
+	*status |= FE_HAS_LOCK;
 
 	if (state->FirstTimeLock) {
 		u8 tmp;
@@ -1294,6 +1290,10 @@ static int read_status(struct dvb_frontend *fe, enum fe_status *status)
 
 		TrackingOptimization(state);
 	}
+
+	read_snr(fe, &val);
+	read_ber(fe, &ber);
+
 	return 0;
 }
 
