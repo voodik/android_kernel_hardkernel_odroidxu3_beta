@@ -25,7 +25,6 @@ struct stv6120_config {
 	u8	addr;
 	u32	refclk;
 	u8	clk_div; /* divisor value for the output clock */
-	u8	tuner;
 	u8      bbgain;
 };
 
@@ -35,9 +34,9 @@ enum tuner_number {
 };
 
 #if IS_ENABLED(CONFIG_MEDIA_TUNER_STV6120)
-extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, struct i2c_adapter *i2c);
+extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, u8 tuner, struct i2c_adapter *i2c);
 #else
-extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, struct i2c_adapter *i2c)
+extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, u8 tuner, struct i2c_adapter *i2c)
 {
 	pr_info("%s: driver disabled by Kconfig\n", __func__);
 	return NULL;

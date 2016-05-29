@@ -502,8 +502,7 @@ static int stv6120_set_mode(struct dvb_frontend *fe, enum tuner_mode mode)
 //		}
 		break;
 	case TUNER_WAKE:
-		pr_warn("%s: tuner: %d TUNER_WAKE\n", __func__, state->tuner);
-
+//		pr_warn("%s: tuner: %d TUNER_WAKE\n", __func__, state->tuner);
 //		stv6120_write_field(state, LNABON, 1);
 //		stv6120_write_field(state, LNACON, 1);
 
@@ -515,8 +514,7 @@ static int stv6120_set_mode(struct dvb_frontend *fe, enum tuner_mode mode)
 //		stv6120_write_field(state, PATHON_2, 1);
 		break;
 	case TUNER_SLEEP: // This actually TUNER_WAKE up the tuner, fix this
-		pr_warn("%s: tuner: %d TUNER_SLEEP\n", __func__, state->tuner);
-
+//		pr_warn("%s: tuner: %d TUNER_SLEEP\n", __func__, state->tuner);
 //		stv6120_write_field(state, SYN_1, 1);
 //		stv6120_write_field(state, SDOFF_1, 0);
 //		stv6120_write_field(state, PATHON_1, 1);
@@ -627,7 +625,7 @@ static struct dvb_tuner_ops stv6120_ops = {
 	.get_rf_strength = stv6120_get_rf_strength,
 };
 
-extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, struct i2c_adapter *i2c)
+extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, u8 tuner, struct i2c_adapter *i2c)
 {
 	struct stv6120_state *state;
 
@@ -637,7 +635,7 @@ extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct
 
 	state->i2c    = i2c;
 	state->config = config;
-	state->tuner  = config->tuner;
+	state->tuner  = tuner;
 	state->bbgain  = config->bbgain;
 
 	fe->tuner_priv    = state;
