@@ -40,6 +40,8 @@ obj-$(CONFIG_MEDIA_TUNER_R820T) += r820t.o
 obj-$(CONFIG_MEDIA_TUNER_MXL301RF) += mxl301rf.o
 obj-$(CONFIG_MEDIA_TUNER_QM1D1C0042) += qm1d1c0042.o
 obj-$(CONFIG_MEDIA_TUNER_AV201X) += av201x.o
+obj-$(CONFIG_MEDIA_TUNER_R848) += r848.o
+obj-$(CONFIG_MEDIA_TUNER_STV6120) += stv6120.o
 
 ccflags-y += -I$(srctree)/drivers/media/dvb-core
 ccflags-y += -I$(srctree)/drivers/media/dvb-frontends

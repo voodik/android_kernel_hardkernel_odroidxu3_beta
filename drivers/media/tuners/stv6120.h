@@ -34,7 +34,7 @@ enum tuner_number {
 	TUNER_2,
 };
 
-#if IS_REACHABLE(CONFIG_DVB_STV6120)
+#if IS_ENABLED(CONFIG_MEDIA_TUNER_STV6120)
 extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, struct i2c_adapter *i2c);
 #else
 extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, struct i2c_adapter *i2c)

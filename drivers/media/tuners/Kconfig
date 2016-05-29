@@ -268,9 +268,15 @@ config MEDIA_TUNER_AV201X
 	help
 	  Airoha Technology AV201x silicon tuner driver.
 
+config MEDIA_TUNER_STV6120
+	tristate "ST Microelectronics STV6120 dual silicon tuner"
+	depends on MEDIA_SUPPORT && I2C
+	default m if !MEDIA_SUBDRV_AUTOSELECT
+	help
+	 ST Microelectronics STV6120 dual silicon tuner driver.
+
 config MEDIA_TUNER_R848
 	tristate "Rafael Micro R848 silicon tuner"
-	depends on MEDIA_SUPPORT && I2C
 	default m if !MEDIA_SUBDRV_AUTOSELECT
 	select BITREVERSE
 	help

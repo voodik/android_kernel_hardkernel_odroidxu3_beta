@@ -844,13 +844,13 @@ config DVB_STV0910
 	  DVB-S/S2/DSS Multistandard Professional/Broadcast demodulators.
 	  Say Y when you want to support these frontends.
 
-config DVB_STV6120
-	tristate "STV6120 based tuners"
+config DVB_MXL5XX
+	tristate "MaxLinear MXL5XX based"
 	depends on DVB_CORE && I2C
 	default m if !MEDIA_SUBDRV_AUTOSELECT
 	help
-	  A Silicon tuner from ST used in conjunction with the STV0910
-	  demodulator. Say Y when you want to support this tuner.
+	  A DVB-S demod and tuner module.
+	  Say Y when you want to support this frontend.
 
 comment "Tools to develop new frontends"
 

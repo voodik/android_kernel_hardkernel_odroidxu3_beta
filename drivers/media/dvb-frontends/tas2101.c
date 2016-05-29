@@ -723,11 +723,10 @@ static int tas2101_set_frontend(struct dvb_frontend *fe)
 	return -EINVAL;
 }
 
-/* unimplemented */
-static int tas2101_get_frontend(struct dvb_frontend *fe)
+static int tas2101_get_frontend(struct dvb_frontend *fe,
+				struct dtv_frontend_properties *c)
 {
 	struct tas2101_priv *priv = fe->demodulator_priv;
-	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
 	int ret;
 	u8 reg, buf[2];
 
