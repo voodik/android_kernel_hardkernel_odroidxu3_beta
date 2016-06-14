@@ -1418,16 +1418,17 @@ static int read_snr(struct dvb_frontend *fe, u16 *snr)
 {
 	struct stv *state = fe->demodulator_priv;
 	struct dtv_frontend_properties *p = &fe->dtv_property_cache;
-	s32 SNR;
+	s32 val;
 
-	if (GetSignalToNoise(state, &SNR))
+	if (GetSignalToNoise(state, &val))
 		return -EIO;
 
 	p->cnr.len = 1;
 	p->cnr.stat[0].scale = FE_SCALE_DECIBEL;
-	p->cnr.stat[0].uvalue = 100 * (s64) SNR;
+	p->cnr.stat[0].uvalue = 100 * (s64) val;
 
-	*snr = SNR * 328; /* 20dB = 100% */
+	if (val > 200) val = 200;
+	*snr = val * 328; /* 20dB = 100% */
 
 	return 0;
 }

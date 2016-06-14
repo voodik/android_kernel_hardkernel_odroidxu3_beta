@@ -461,8 +461,9 @@ static int read_snr(struct dvb_frontend *fe, u16 *snr)
 	p->cnr.len = 1;
 	p->cnr.stat[0].scale = FE_SCALE_DECIBEL;
 	p->cnr.stat[0].svalue = (s16)regData * 10;
-	
-	*snr = (s16)regData * 328; /* 20dB = 100% */
+
+	if (regData > 2000) regData = 2000;
+	*snr = (s16)(regData/10) * 328; /* 20dB = 100% */
 	return stat;
 }
 

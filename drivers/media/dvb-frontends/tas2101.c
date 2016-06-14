@@ -142,34 +142,6 @@ static int tas2101_wrtable(struct tas2101_priv *priv,
 	return 0;
 }
 
-static int tas2101_read_status(struct dvb_frontend *fe, enum fe_status *status)
-{
-	struct tas2101_priv *priv = fe->demodulator_priv;
-	int ret;
-	u8 reg;
-
-	*status = 0;
-
-	ret = tas2101_rd(priv, DEMOD_STATUS, &reg);
-	if (ret)
-		return ret;
-
-	reg &= DEMOD_STATUS_MASK;
-	if (reg == DEMOD_LOCKED) {
-		*status = FE_HAS_SIGNAL | FE_HAS_CARRIER |
-			FE_HAS_VITERBI | FE_HAS_SYNC | FE_HAS_LOCK;
-
-		ret = tas2101_rd(priv, REG_04, &reg);
-		if (ret)
-			return ret;
-		if (reg & 0x08)
-			ret = tas2101_wr(priv, REG_04, reg & ~0x08);
-	}
-
-	dev_dbg(&priv->i2c->dev, "%s() status = 0x%02x\n", __func__, *status);
-	return ret;
-}
-
 static int tas2101_read_ber(struct dvb_frontend *fe, u32 *ber)
 {
 	struct tas2101_priv *priv = fe->demodulator_priv;
@@ -210,6 +182,7 @@ static int tas2101_read_signal_strength(struct dvb_frontend *fe,
 	u16 *signal_strength)
 {
 	struct tas2101_priv *priv = fe->demodulator_priv;
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
 	int ret, i;
 	long val, dbm_raw;
 	u8 buf[2];
@@ -244,6 +217,7 @@ static int tas2101_read_signal_strength(struct dvb_frontend *fe,
 static int tas2101_read_snr(struct dvb_frontend *fe, u16 *snr)
 {
 	struct tas2101_priv *priv = fe->demodulator_priv;
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
 	int ret, i;
 	long val;
 	u16 snr_raw;
@@ -260,16 +234,20 @@ static int tas2101_read_snr(struct dvb_frontend *fe, u16 *snr)
 			break;
 
 	if( i == 0 )
-		*snr = tas2101_snrtable[i].snr;
+		val = tas2101_snrtable[i].snr;
 	else
 	{
 		/* linear interpolation between two calibrated values */
 		val = (snr_raw - tas2101_snrtable[i].raw) * tas2101_snrtable[i-1].snr;
 		val += (tas2101_snrtable[i-1].raw - snr_raw) * tas2101_snrtable[i].snr;
 		val /= (tas2101_snrtable[i-1].raw - tas2101_snrtable[i].raw);
-
-		*snr = (u16) val; /* dB / 10 */
 	}
+
+	c->cnr.len = 1;
+	c->cnr.stat[0].scale = FE_SCALE_DECIBEL;
+	c->cnr.stat[0].uvalue = 100 * (s64) val;
+
+	*snr = (u16) val * 328; /* 20dB = 100% */
 
 	dev_dbg(&priv->i2c->dev, "%s() snr = 0x%04x\n",
 		__func__, *snr);
@@ -284,6 +262,37 @@ static int tas2101_read_ucblocks(struct dvb_frontend *fe, u32 *ucblocks)
 	dev_dbg(&priv->i2c->dev, "%s()\n", __func__);
 	*ucblocks = 0;
 	return 0;
+}
+
+static int tas2101_read_status(struct dvb_frontend *fe, enum fe_status *status)
+{
+	struct tas2101_priv *priv = fe->demodulator_priv;
+	int ret;
+	u8 reg;
+	u16 snr;
+
+	*status = 0;
+
+	ret = tas2101_rd(priv, DEMOD_STATUS, &reg);
+	if (ret)
+		return ret;
+
+	reg &= DEMOD_STATUS_MASK;
+	if (reg == DEMOD_LOCKED) {
+		*status = FE_HAS_SIGNAL | FE_HAS_CARRIER |
+			FE_HAS_VITERBI | FE_HAS_SYNC | FE_HAS_LOCK;
+
+		ret = tas2101_rd(priv, REG_04, &reg);
+		if (ret)
+			return ret;
+		if (reg & 0x08)
+			ret = tas2101_wr(priv, REG_04, reg & ~0x08);
+		
+		tas2101_read_snr(fe, &snr);
+	}
+
+	dev_dbg(&priv->i2c->dev, "%s() status = 0x%02x\n", __func__, *status);
+	return ret;
 }
 
 static int tas2101_set_voltage(struct dvb_frontend *fe,
