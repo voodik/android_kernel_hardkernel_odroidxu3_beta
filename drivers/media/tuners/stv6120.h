@@ -34,9 +34,9 @@ enum tuner_number {
 };
 
 #if IS_ENABLED(CONFIG_MEDIA_TUNER_STV6120)
-extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, u8 tuner, struct i2c_adapter *i2c);
+extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, struct i2c_adapter *i2c, const struct stv6120_config *config, u8 tuner);
 #else
-extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, u8 tuner, struct i2c_adapter *i2c)
+extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, struct i2c_adapter *i2c, const struct stv6120_config *config, u8 tuner)
 {
 	pr_info("%s: driver disabled by Kconfig\n", __func__);
 	return NULL;

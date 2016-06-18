@@ -625,7 +625,7 @@ static struct dvb_tuner_ops stv6120_ops = {
 	.get_rf_strength = stv6120_get_rf_strength,
 };
 
-extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, const struct stv6120_config *config, u8 tuner, struct i2c_adapter *i2c)
+extern struct dvb_frontend *stv6120_attach(struct dvb_frontend *fe, struct i2c_adapter *i2c, const struct stv6120_config *config, u8 tuner)
 {
 	struct stv6120_state *state;
 
