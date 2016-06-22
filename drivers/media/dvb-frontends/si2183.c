@@ -26,6 +26,8 @@
 #define SI2183_PROP_DVBT2_MODE	0x1304
 #define SI2183_PROP_DVBS2_SR	0x1401
 #define SI2183_PROP_DVBS_SR	0x1501
+#define SI2183_PROP_MCNS_CONST	0x1601
+#define SI2183_PROP_MCNS_SR	0x1602
 
 #define SI2183_ARGLEN      30
 struct si2183_cmd {
@@ -232,6 +234,11 @@ static int si2183_read_status(struct dvb_frontend *fe, enum fe_status *status)
 		cmd.wlen = 2;
 		cmd.rlen = 9;
 		break;
+	case SYS_DVBC_ANNEX_B:
+		memcpy(cmd.args, "\x98\x01", 2);
+		cmd.wlen = 2;
+		cmd.rlen = 10;
+		break;
 	case SYS_DVBT2:
 		memcpy(cmd.args, "\x50\x01", 2);
 		cmd.wlen = 2;
@@ -265,9 +272,13 @@ static int si2183_read_status(struct dvb_frontend *fe, enum fe_status *status)
 	case 0x03:
 		*status = FE_HAS_SIGNAL | FE_HAS_CARRIER | FE_HAS_VITERBI |
 				FE_HAS_SYNC | FE_HAS_LOCK;
-		c->cnr.stat[0].svalue = cmd.args[3] * 1000 / 4;
+		c->cnr.len = 1;
+		c->cnr.stat[0].scale = FE_SCALE_DECIBEL;			
+		c->cnr.stat[0].svalue = (s64) cmd.args[3] * 250;
 		break;
 	default:
+		c->cnr.len = 1;
+		c->cnr.stat[0].scale = FE_SCALE_DECIBEL;			
 		c->cnr.stat[0].svalue = 0;
 		break;
 	}
@@ -337,6 +348,59 @@ static int si2183_set_dvbc(struct dvb_frontend *fe)
 	return 0;
 }
 
+static int si2183_set_mcns(struct dvb_frontend *fe)
+{
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+	struct i2c_client *client = fe->demodulator_priv;
+	struct si2183_cmd cmd;
+	int ret;
+	u16 prop;
+
+	/* mcns mode */
+	prop = 0x16;
+	ret = si2183_set_prop(client, SI2183_PROP_MODE, &prop);
+	if (ret) {
+		dev_err(&client->dev, "err set mcns mode\n");
+		return ret;
+	}
+
+	switch (c->modulation) {
+	default:
+	case QAM_AUTO:
+		prop = 0;
+		break;
+	case QAM_16:
+		prop = 7;
+		break;
+	case QAM_32:
+		prop = 8;
+		break;
+	case QAM_64:
+		prop = 9;
+		break;
+	case QAM_128:
+		prop = 10;
+		break;
+	case QAM_256:
+		prop = 11;
+		break;
+	}
+	ret = si2183_set_prop(client, SI2183_PROP_MCNS_CONST, &prop);
+	if (ret) {
+		dev_err(&client->dev, "err set mcns constelation\n");
+		return ret;
+	}
+
+	/* symbol rate */
+	prop = c->symbol_rate / 1000;
+	ret = si2183_set_prop(client, SI2183_PROP_MCNS_SR, &prop);
+	if (ret) {
+		dev_err(&client->dev, "err set mcns symbol rate\n");
+		return ret;
+	}
+
+	return 0;
+}
 
 static int si2183_set_dvbs(struct dvb_frontend *fe)
 {
@@ -498,6 +562,9 @@ static int si2183_set_frontend(struct dvb_frontend *fe)
 	case SYS_DVBC_ANNEX_A:
 		ret = si2183_set_dvbc(fe);
 		break;
+	case SYS_DVBC_ANNEX_B:
+		ret = si2183_set_mcns(fe);
+		break;
 	case SYS_DVBS:
 	case SYS_DVBS2:
 	case SYS_DSS:
@@ -543,9 +610,6 @@ static int si2183_init(struct dvb_frontend *fe)
 		dev->active_fe |= (1 << fe->id);
 		return 0;
 	}
-
-	c->cnr.len = 1;
-	c->cnr.stat[0].scale = FE_SCALE_DECIBEL;
 
 	/* initialize */
 	memcpy(cmd.args, "\xc0\x12\x00\x0c\x00\x0d\x16\x00\x00\x00\x00\x00\x00", 13);
@@ -864,6 +928,7 @@ static int si2183_set_property(struct dvb_frontend *fe,
 			fe->ops.info.frequency_stepsize = 0;
 			break;
 		case SYS_DVBC_ANNEX_A:
+		case SYS_DVBC_ANNEX_B:
 			fe->ops.info.frequency_min = 47000000;
 			fe->ops.info.frequency_max = 862000000;
 			fe->ops.info.frequency_stepsize = 62500;
@@ -884,7 +949,7 @@ static int si2183_set_property(struct dvb_frontend *fe,
 	return ret;
 }
 
-static int set_tone(struct dvb_frontend *fe, enum fe_sec_tone_mode tone)
+static int si2183_set_tone(struct dvb_frontend *fe, enum fe_sec_tone_mode tone)
 {
 	struct i2c_client *client = fe->demodulator_priv;
 	int ret;
@@ -920,12 +985,88 @@ static int set_tone(struct dvb_frontend *fe, enum fe_sec_tone_mode tone)
 
 	return 0;
 err:
-	dev_err(&client->dev, "set_tone failed=%d\n", ret);
+	dev_err(&client->dev, "si2183_set_tone failed=%d\n", ret);
 	return ret;
 }
 
+static int si2183_send_diseqc_msg(struct dvb_frontend *fe,
+	struct dvb_diseqc_master_cmd *d)
+{
+	struct i2c_client *client = fe->demodulator_priv;
+	int i, ret;
+	struct si2183_cmd cmd;
+
+	u8	enable = 1,
+		cont_tone = 0,
+		tone_burst = 0,
+		burst_sel = 0,
+		end_seq = 1,
+		msg_len = d->msg_len;
+	
+	if (msg_len > 6) msg_len = 6;	
+
+	dev_dbg(&client->dev, "\n");
+
+	memcpy(cmd.args, "\x8c\x00\x00\x00\x00\x00\x00\x00", 8);
+	for (i=0; i<msg_len; i++)
+		cmd.args[i+2] = d->msg[i];	  
+	cmd.args[1] |= enable | (cont_tone << 1) | (tone_burst << 2) | (burst_sel << 3) | (end_seq << 4) | (msg_len << 5);
+	cmd.wlen = 8;
+	cmd.rlen = 1;
+	ret = si2183_cmd_execute(client, &cmd);
+	if (ret)
+		goto err;
+
+	return 0;
+err:
+	dev_err(&client->dev, "si2183_send_diseqc_msg failed=%d\n", ret);
+	return ret;
+}
+
+static int si2183_diseqc_send_burst(struct dvb_frontend *fe,
+	enum fe_sec_mini_cmd burst)
+{
+	struct i2c_client *client = fe->demodulator_priv;
+	int ret;
+	struct si2183_cmd cmd;
+
+	u8	enable = 1,
+		cont_tone = 0,
+		tone_burst = 0,
+		burst_sel = 1,
+		end_seq = 1,
+		msg_len = 0;
+
+	dev_dbg(&client->dev, "\n");
+
+	switch(burst) {
+	case SEC_MINI_B:
+		burst_sel = 1;
+		break;
+	case SEC_MINI_A:
+		burst_sel = 0;
+		break;
+	default:
+		return -EINVAL;
+	}
+	
+	memcpy(cmd.args, "\x8c\x00\x00\x00\x00\x00\x00\x00", 8);
+	cmd.args[1] |= enable | (cont_tone << 1) | (tone_burst << 2) | (burst_sel << 3) | (end_seq << 4) | (msg_len << 5);
+	cmd.wlen = 8;
+	cmd.rlen = 1;
+	ret = si2183_cmd_execute(client, &cmd);
+	if (ret)
+		goto err;
+
+	return 0;
+err:
+	dev_err(&client->dev, "si2183_diseqc_send_burst failed=%d\n", ret);
+	return ret;
+}
+
+
 static const struct dvb_frontend_ops si2183_ops = {
-	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A, SYS_DVBS, SYS_DVBS2, SYS_DSS},
+	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A, SYS_DVBC_ANNEX_B, SYS_DVBS, SYS_DVBS2, SYS_DSS},
 	.info = {
 		.name = "Silicon Labs Si2183",
 		.symbol_rate_min = 1000000,
@@ -964,7 +1105,10 @@ static const struct dvb_frontend_ops si2183_ops = {
 	.tune = si2183_tune,
 
 	.set_property			= si2183_set_property,
-	.set_tone			= set_tone,
+	.set_tone			= si2183_set_tone,
+	.diseqc_send_master_cmd = si2183_send_diseqc_msg,
+	.diseqc_send_burst = si2183_diseqc_send_burst,
+	
 };
 
 
