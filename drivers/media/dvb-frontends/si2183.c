@@ -527,6 +527,42 @@ static int si2183_set_dvbt(struct dvb_frontend *fe)
 	return 0;
 }
 
+static int si2183_set_isdbt(struct dvb_frontend *fe)
+{
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+	struct i2c_client *client = fe->demodulator_priv;
+	int ret;
+	u16 prop;
+
+	if (c->bandwidth_hz == 0) {
+		return -EINVAL;
+	} else if (c->bandwidth_hz <= 2000000)
+		prop = 0x02;
+	else if (c->bandwidth_hz <= 5000000)
+		prop = 0x05;
+	else if (c->bandwidth_hz <= 6000000)
+		prop = 0x06;
+	else if (c->bandwidth_hz <= 7000000)
+		prop = 0x07;
+	else if (c->bandwidth_hz <= 8000000)
+		prop = 0x08;
+	else if (c->bandwidth_hz <= 9000000)
+		prop = 0x09;
+	else if (c->bandwidth_hz <= 10000000)
+		prop = 0x0a;
+	else
+		prop = 0x0f;
+
+	/* ISDB-T mode */
+	prop |= 0x40;
+	ret = si2183_set_prop(client, SI2183_PROP_MODE, &prop);
+	if (ret) {
+		dev_err(&client->dev, "err set dvb-t mode\n");
+		return ret;
+	}
+	return 0;
+}
+
 static int si2183_set_frontend(struct dvb_frontend *fe)
 {
 	struct i2c_client *client = fe->demodulator_priv;
@@ -564,6 +600,9 @@ static int si2183_set_frontend(struct dvb_frontend *fe)
 		break;
 	case SYS_DVBC_ANNEX_B:
 		ret = si2183_set_mcns(fe);
+		break;
+	case SYS_ISDBT:
+		ret = si2183_set_isdbt(fe);
 		break;
 	case SYS_DVBS:
 	case SYS_DVBS2:
@@ -1064,9 +1103,10 @@ err:
 	return ret;
 }
 
-
 static const struct dvb_frontend_ops si2183_ops = {
-	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A, SYS_DVBC_ANNEX_B, SYS_DVBS, SYS_DVBS2, SYS_DSS},
+	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_ISDBT,	  
+			SYS_DVBC_ANNEX_A, SYS_DVBC_ANNEX_B, 
+			SYS_DVBS, SYS_DVBS2, SYS_DSS},
 	.info = {
 		.name = "Silicon Labs Si2183",
 		.symbol_rate_min = 1000000,
