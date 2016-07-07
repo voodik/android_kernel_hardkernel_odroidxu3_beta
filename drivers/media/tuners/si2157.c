@@ -40,7 +40,7 @@ static int si2157_cmd_execute(struct i2c_client *client, struct si2157_cmd *cmd)
 
 	if (cmd->rlen) {
 		/* wait cmd execution terminate */
-		#define TIMEOUT 80
+		#define TIMEOUT 500
 		timeout = jiffies + msecs_to_jiffies(TIMEOUT);
 		while (!time_after(jiffies, timeout)) {
 			ret = i2c_master_recv(client, cmd->args, cmd->rlen);
