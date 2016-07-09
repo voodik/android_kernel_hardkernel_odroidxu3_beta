@@ -175,6 +175,18 @@ enum fe_modulation {
 	APSK_32,
 	DQPSK,
 	QAM_4_NR,
+	QAM_512,
+	QAM_1024,
+	QAM_4096,
+	APSK_64,
+	APSK_128,
+	APSK_256,
+	APSK_8L,
+	APSK_16L,
+	APSK_32L,
+	APSK_64L,
+	APSK_128L,
+	APSK_256L,
 };
 
 enum fe_transmit_mode {
@@ -201,6 +213,7 @@ enum fe_guard_interval {
 	GUARD_INTERVAL_PN420,
 	GUARD_INTERVAL_PN595,
 	GUARD_INTERVAL_PN945,
+	GUARD_INTERVAL_1_64,
 };
 
 enum fe_hierarchy {
@@ -321,6 +334,9 @@ enum fe_rolloff {
 	ROLLOFF_35, /* Implied value in DVB-S, default for DVB-S2 */
 	ROLLOFF_20,
 	ROLLOFF_25,
+	ROLLOFF_15,
+	ROLLOFF_10,
+	ROLLOFF_5,
 	ROLLOFF_AUTO,
 };
 
@@ -344,6 +360,7 @@ enum fe_delivery_system {
 	SYS_DVBT2,
 	SYS_TURBO,
 	SYS_DVBC_ANNEX_C,
+	SYS_DVBC2,
 };
 
 /* backward compatibility */

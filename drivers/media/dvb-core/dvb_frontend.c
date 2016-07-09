@@ -169,6 +169,7 @@ static enum dvbv3_emulation_type dvbv3_type(u32 delivery_system)
 	switch (delivery_system) {
 	case SYS_DVBC_ANNEX_A:
 	case SYS_DVBC_ANNEX_C:
+	case SYS_DVBC2:
 		return DVBV3_QAM;
 	case SYS_DVBS:
 	case SYS_DVBS2:
@@ -2081,6 +2082,15 @@ static int dtv_set_frontend(struct dvb_frontend *fe)
 		break;
 	case SYS_DVBS2:
 		switch (c->rolloff) {
+		case ROLLOFF_5:
+			rolloff = 105;
+			break;
+		case ROLLOFF_10:
+			rolloff = 110;
+			break;
+		case ROLLOFF_15:
+			rolloff = 115;
+			break;
 		case ROLLOFF_20:
 			rolloff = 120;
 			break;
@@ -2132,6 +2142,7 @@ static int dtv_set_frontend(struct dvb_frontend *fe)
 		case SYS_DVBT2:
 		case SYS_ISDBT:
 		case SYS_DTMB:
+		case SYS_DVBC2:
 			fepriv->min_delay = HZ / 20;
 			fepriv->step_size = fe->ops.info.frequency_stepsize * 2;
 			fepriv->max_drift = (fe->ops.info.frequency_stepsize * 2) + 1;
