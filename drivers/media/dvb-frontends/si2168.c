@@ -146,6 +146,11 @@ static int si2168_read_status(struct dvb_frontend *fe, fe_status_t *status)
 		cmd.wlen = 2;
 		cmd.rlen = 9;
 		break;
+	case SYS_DVBC_ANNEX_B:
+		memcpy(cmd.args, "\x98\x01", 2);
+		cmd.wlen = 2;
+		cmd.rlen = 10;
+		break;
 	case SYS_DVBT2:
 		memcpy(cmd.args, "\x50\x01", 2);
 		cmd.wlen = 2;
@@ -211,6 +216,9 @@ static int si2168_set_frontend(struct dvb_frontend *fe)
 	}
 
 	switch (c->delivery_system) {
+	case SYS_DVBC_ANNEX_B:
+		delivery_system = 0x10;
+		break;
 	case SYS_DVBT:
 		delivery_system = 0x20;
 		break;
@@ -263,6 +271,8 @@ static int si2168_set_frontend(struct dvb_frontend *fe)
 	if (c->delivery_system == SYS_DVBT)
 		memcpy(cmd.args, "\x89\x21\x06\x11\xff\x98", 6);
 	else if (c->delivery_system == SYS_DVBC_ANNEX_A)
+		memcpy(cmd.args, "\x89\x21\x06\x11\x89\xf0", 6);
+	else if (c->delivery_system == SYS_DVBC_ANNEX_B)
 		memcpy(cmd.args, "\x89\x21\x06\x11\x89\xf0", 6);
 	else if (c->delivery_system == SYS_DVBT2)
 		memcpy(cmd.args, "\x89\x21\x06\x11\x89\x20", 6);
@@ -330,6 +340,16 @@ static int si2168_set_frontend(struct dvb_frontend *fe)
 	/* set DVB-C symbol rate */
 	if (c->delivery_system == SYS_DVBC_ANNEX_A) {
 		memcpy(cmd.args, "\x14\x00\x02\x11", 4);
+		cmd.args[4] = ((c->symbol_rate / 1000) >> 0) & 0xff;
+		cmd.args[5] = ((c->symbol_rate / 1000) >> 8) & 0xff;
+		cmd.wlen = 6;
+		cmd.rlen = 4;
+		ret = si2168_cmd_execute(client, &cmd);
+		if (ret)
+			goto err;
+	}
+	else if (c->delivery_system == SYS_DVBC_ANNEX_B) {
+		memcpy(cmd.args, "\x14\x00\x02\x16", 4);
 		cmd.args[4] = ((c->symbol_rate / 1000) >> 0) & 0xff;
 		cmd.args[5] = ((c->symbol_rate / 1000) >> 8) & 0xff;
 		cmd.wlen = 6;
@@ -626,7 +646,7 @@ err:
 }
 
 static const struct dvb_frontend_ops si2168_ops = {
-	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A},
+	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A, SYS_DVBC_ANNEX_B},
 	.info = {
 		.name = "Silicon Labs Si2168",
 		.symbol_rate_min = 1000000,
