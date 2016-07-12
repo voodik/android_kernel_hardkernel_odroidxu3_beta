@@ -195,6 +195,76 @@ err:
 	return ret;
 }
 
+static int si2168_read_snr(struct dvb_frontend *fe, u16 *snr)
+{
+	struct i2c_client *client = fe->demodulator_priv;
+	struct si2168_dev *dev = i2c_get_clientdata(client);
+	
+	*snr = (dev->fe_status & FE_HAS_LOCK) ? dev->snr : 0;
+
+	return 0;
+}
+
+static int si2168_read_signal_strength(struct dvb_frontend *fe, u16 *strength)
+{
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+	
+	*strength = (c->strength.stat[0].scale == FE_SCALE_DECIBEL) ? ((100000 + c->strength.stat[0].svalue) / 1000) * 656 : 0;
+
+	return 0;
+}
+
+static int si2168_read_ber(struct dvb_frontend *fe, u32 *ber)
+{
+	struct i2c_client *client = fe->demodulator_priv;
+	struct si2168_dev *dev = i2c_get_clientdata(client);
+	struct si2168_cmd cmd;
+	int ret;
+	
+	if (dev->fe_status & FE_HAS_LOCK) {
+		memcpy(cmd.args, "\x82\x00", 2);
+		cmd.wlen = 2;
+		cmd.rlen = 3;
+		ret = si2168_cmd_execute(client, &cmd);
+		if (ret) {
+			dev_err(&client->dev, "read_ber fe%d cmd_exec failed=%d\n", fe->id, ret);
+			goto err;
+		}
+		*ber = (u32)cmd.args[2] * cmd.args[1] & 0xf;
+	} else *ber = 1;
+
+	return 0;
+err:
+	dev_err(&client->dev, "read_ber failed=%d\n", ret);
+	return ret;
+}
+
+static int si2168_read_ucblocks(struct dvb_frontend *fe, u32 *ucblocks)
+{
+	struct i2c_client *client = fe->demodulator_priv;
+	struct si2168_dev *dev = i2c_get_clientdata(client);
+	struct si2168_cmd cmd;
+	int ret;
+	
+	if (dev->stat_resp & 0x10) {
+		memcpy(cmd.args, "\x84\x00", 2);
+		cmd.wlen = 2;
+		cmd.rlen = 3;
+		ret = si2168_cmd_execute(client, &cmd);
+		if (ret) {
+		dev_err(&client->dev, "read_ucblocks fe%d cmd_exec failed=%d\n", fe->id, ret);
+			goto err;
+		}
+
+		*ucblocks = (u16)cmd.args[2] << 8 | cmd.args[1];
+	} else 	*ucblocks = 0;
+
+	return 0;
+err:
+	dev_err(&client->dev, "read_ucblocks failed=%d\n", ret);
+	return ret;
+}
+
 static int si2168_set_frontend(struct dvb_frontend *fe)
 {
 	struct i2c_client *client = fe->demodulator_priv;
@@ -680,6 +750,10 @@ static const struct dvb_frontend_ops si2168_ops = {
 	.set_frontend = si2168_set_frontend,
 
 	.read_status = si2168_read_status,
+	.read_signal_strength	= si2168_read_signal_strength,
+	.read_snr		= si2168_read_snr,
+	.read_ber		= si2168_read_ber,
+	.read_ucblocks		= si2168_read_ucblocks,
 };
 
 static int si2168_probe(struct i2c_client *client,
