@@ -180,7 +180,7 @@ static int si2168_read_status(struct dvb_frontend *fe, fe_status_t *status)
 	if (*status & FE_HAS_LOCK) {
 		c->cnr.len = 1;
 		c->cnr.stat[0].scale = FE_SCALE_DECIBEL;
-		c->cnr.stat[0].svalue = cmd.args[3] * 1000 / 4;
+		c->cnr.stat[0].svalue = cmd.args[3] * 250;
 	} else {
 		c->cnr.len = 1;
 		c->cnr.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
@@ -197,10 +197,9 @@ err:
 
 static int si2168_read_snr(struct dvb_frontend *fe, u16 *snr)
 {
-	struct i2c_client *client = fe->demodulator_priv;
-	struct si2168_dev *dev = i2c_get_clientdata(client);
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
 	
-	*snr = (dev->fe_status & FE_HAS_LOCK) ? dev->snr : 0;
+	*snr = (c->cnr.stat[0].scale == FE_SCALE_DECIBEL) ? (c->cnr.stat[0].svalue / 250) *  328  : 0;
 
 	return 0;
 }
