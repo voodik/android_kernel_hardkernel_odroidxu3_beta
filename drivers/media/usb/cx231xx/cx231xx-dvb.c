@@ -40,6 +40,9 @@
 #include "cxd2820r.h"
 #include "si2168.h"
 #include "si2157.h"
+#include "tas2101.h"
+#include "av201x.h"
+#include "tbscxci.h"
 
 MODULE_DESCRIPTION("driver for cx231xx based DVB cards");
 MODULE_AUTHOR("Srinivasa Deevi <srinivasa.deevi@conexant.com>");
@@ -54,25 +57,6 @@ DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 #define CX231XX_DVB_NUM_BUFS 5
 #define CX231XX_DVB_MAX_PACKETSIZE 564
 #define CX231XX_DVB_MAX_PACKETS 64
-
-struct cx231xx_dvb {
-	struct dvb_frontend *frontend;
-
-	/* feed count management */
-	struct mutex lock;
-	int nfeeds;
-	u8 count;
-
-	/* general boilerplate stuff */
-	struct dvb_adapter adapter;
-	struct dvb_demux demux;
-	struct dmxdev dmxdev;
-	struct dmx_frontend fe_hw;
-	struct dmx_frontend fe_mem;
-	struct dvb_net net;
-	struct i2c_client *i2c_client_demod;
-	struct i2c_client *i2c_client_tuner;
-};
 
 static struct s5h1432_config dvico_s5h1432_config = {
 	.output_mode   = S5H1432_SERIAL_OUTPUT,
@@ -200,6 +184,76 @@ static struct tda18212_config tda18212_config = {
 	.if_dvbc = 5000,
 	.loop_through = 1,
 	.xtout = 1
+};
+
+static void tbs5990_reset_fe(struct dvb_frontend *fe, int reset_pin)
+{
+	struct cx231xx *dev = fe->dvb->priv;
+
+	/* reset frontend, active low */
+	cx231xx_set_gpio_direction(dev, reset_pin, 1);
+	cx231xx_set_gpio_value(dev, reset_pin, 0);
+	msleep(60);
+	cx231xx_set_gpio_value(dev, reset_pin, 1);
+	msleep(120);
+}
+
+static void tbs5990_reset_fe0(struct dvb_frontend *fe)
+{
+	tbs5990_reset_fe(fe, 24);
+}
+
+static void tbs5990_reset_fe1(struct dvb_frontend *fe)
+{
+	tbs5990_reset_fe(fe, 20);
+}
+
+static void tbs5990_lnb_power(struct dvb_frontend *fe,
+	int enpwr_pin, int onoff)
+{
+	struct cx231xx *dev = fe->dvb->priv;
+
+	/* lnb power, active low */
+	cx231xx_set_gpio_direction(dev, enpwr_pin, 1);
+	if (onoff)
+		cx231xx_set_gpio_value(dev, enpwr_pin, 0);
+	else
+		cx231xx_set_gpio_value(dev, enpwr_pin, 1);
+}
+
+static void tbs5990_lnb0_power(struct dvb_frontend *fe, int onoff)
+{
+	tbs5990_lnb_power(fe, 26, onoff);
+}
+
+static void tbs5990_lnb1_power(struct dvb_frontend *fe, int onoff)
+{
+	tbs5990_lnb_power(fe, 22, onoff);
+}
+
+static struct tas2101_config tbs5990_tas2101_cfg[] = {
+	{
+		.i2c_address   = 0x60,
+		.id            = ID_TAS2101,
+		.reset_demod   = tbs5990_reset_fe0,
+		.lnb_power     = tbs5990_lnb0_power,
+		.init          = {0x80, 0xAB, 0x47, 0x61, 0x25, 0x93, 0x31},
+		.init2         = 0,
+	},
+	{
+		.i2c_address   = 0x68,
+		.id            = ID_TAS2101,
+		.reset_demod   = tbs5990_reset_fe1,
+		.lnb_power     = tbs5990_lnb1_power,
+		.init          = {0xB0, 0xA8, 0x21, 0x53, 0x74, 0x96, 0x31},
+		.init2         = 0,
+	}
+};
+
+static struct av201x_config tbs5990_av201x_cfg = {
+	.i2c_address = 0x63,
+	.id          = ID_AV2012,
+	.xtal_freq   = 27000,		/* kHz */
 };
 
 static inline void print_err_status(struct cx231xx *dev, int packet, int status)
@@ -1120,6 +1174,34 @@ static int dvb_init(struct cx231xx *dev)
 
 		break;
 	}
+	case CX231XX_BOARD_TBS_5990:
+	{
+		demod_i2c = cx231xx_get_i2c_adap(dev, dev->board.demod_i2c_master+i);
+		dev->dvb[i]->frontend = dvb_attach(tas2101_attach, &tbs5990_tas2101_cfg[i],
+						demod_i2c);
+
+		if (dev->dvb[i]->frontend == NULL) {
+			dev_err(dev->dev,
+				"Failed to attach demod tas2101 %d\n", i);
+			result = -EINVAL;
+			goto out_free;
+		}
+
+		/* attach tuner */
+		if (dvb_attach(av201x_attach, dev->dvb[i]->frontend, &tbs5990_av201x_cfg,
+			tas2101_get_i2c_adapter(dev->dvb[i]->frontend, 2)) == NULL) {
+			dvb_frontend_detach(dev->dvb[i]->frontend);
+			result = -ENODEV;
+			goto out_free;
+		}
+
+		msleep(100);
+
+		/* define general-purpose callback pointer */
+		dvb->frontend->callback = cx231xx_tuner_callback;
+
+		break;
+	}
 	default:
 		dev_err(dev->dev,
 			"%s/2: The frontend of your DVB/ATSC card isn't supported yet\n",
@@ -1136,6 +1218,14 @@ static int dvb_init(struct cx231xx *dev)
 	/* register everything */
 	result = register_dvb(dvb, THIS_MODULE, dev, dev->dev);
 
+	/* post init frontend */
+	switch (dev->model) {
+	case CX231XX_BOARD_TBS_5990:
+		tbscxci_init(dev->dvb[i], i);
+		break;
+	}
+
+	mutex_unlock(&dev->lock);
 	if (result < 0)
 		goto out_free;
 	}
@@ -1165,6 +1255,12 @@ static int dvb_fini(struct cx231xx *dev)
 
 	for (i = 0; i < dev->board.adap_cnt; i++) {
 	if (dev->dvb[i]) {
+		switch (dev->model) {
+			case CX231XX_BOARD_TBS_5990:
+				tbscxci_release(dev->dvb[i]);
+				break;
+		}
+
 		unregister_dvb(dev->dvb[i]);
 		dev->dvb[i] = NULL;
 	}

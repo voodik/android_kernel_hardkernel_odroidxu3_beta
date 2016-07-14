@@ -928,8 +928,44 @@ struct cx231xx_board cx231xx_boards[] = {
 			.gpio = NULL,
 		} },
 	},
-
-
+	[CX231XX_BOARD_TBS_5990] = {
+		.name = "TurboSight TBS 5990",
+		.tuner_type = TUNER_ABSENT,
+		.decoder = CX231XX_AVDECODER,
+		.output_mode = OUT_MODE_VIP11,
+		.demod_xfer_mode = 0,
+		.ctl_pin_status_mask = 0xFFFFFFC4,
+		.agc_analog_digital_select_gpio = 0x00,
+		.tuner_sif_gpio = -1,
+		.tuner_scl_gpio = -1,
+		.tuner_sda_gpio = -1,
+		.gpio_pin_status_mask = 0x4001000,
+		.tuner_i2c_master = I2C_2,
+		.demod_i2c_master = I2C_1,
+		.has_dvb = 1,
+		.adap_cnt = 2,
+		.demod_addr = 0x64,
+		.norm = V4L2_STD_PAL_M,
+		
+		.input = {{
+			.type = CX231XX_VMUX_TELEVISION,
+			.vmux = CX231XX_VIN_3_1,
+			.amux = CX231XX_AMUX_VIDEO,
+			.gpio = NULL,
+		}, {
+			.type = CX231XX_VMUX_COMPOSITE1,
+			.vmux = CX231XX_VIN_2_1,
+			.amux = CX231XX_AMUX_LINE_IN,
+			.gpio = NULL,
+		}, {
+			.type = CX231XX_VMUX_SVIDEO,
+			.vmux = CX231XX_VIN_1_1 |
+				(CX231XX_VIN_1_2 << 8) |
+				CX25840_SVIDEO_ON,
+			.amux = CX231XX_AMUX_LINE_IN,
+			.gpio = NULL,
+		} },
+	},
 };
 const unsigned int cx231xx_bcount = ARRAY_SIZE(cx231xx_boards);
 
@@ -1001,7 +1037,8 @@ struct usb_device_id cx231xx_id_table[] = {
 	 .driver_info = CX231XX_BOARD_TBS_5280},
 	{USB_DEVICE(0x734c, 0x5281),
 	 .driver_info = CX231XX_BOARD_TBS_5281},
-
+	{USB_DEVICE(0x734c, 0x5990),
+	 .driver_info = CX231XX_BOARD_TBS_5990},
 	{},
 };
 
@@ -1452,7 +1489,7 @@ static void request_module_async(struct work_struct *work)
 		request_module("cx231xx-alsa");
 
 	if (dev->board.has_dvb)
-		request_module("cx231xx-dvb");
+		request_module("cx231xx-dvb-ci");
 
 }
 

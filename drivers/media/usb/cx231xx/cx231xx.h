@@ -80,6 +80,7 @@
 #define CX231XX_BOARD_TERRATEC_GRABBY 22
 #define CX231XX_BOARD_TBS_5280 23
 #define CX231XX_BOARD_TBS_5281 24
+#define CX231XX_BOARD_TBS_5990 25
 
 /* Limits minimum and default number of buffers */
 #define CX231XX_MIN_BUF                 4
@@ -588,6 +589,27 @@ struct cx231xx_tsport {
 	void                       *port_priv;
 };
 
+struct cx231xx_dvb {
+	struct dvb_frontend *frontend;
+
+	/* feed count management */
+	struct mutex lock;
+	int nfeeds;
+	u8 count;
+
+	/* general boilerplate stuff */
+	struct dvb_adapter adapter;
+	struct dvb_demux demux;
+	struct dmxdev dmxdev;
+	struct dmx_frontend fe_hw;
+	struct dmx_frontend fe_mem;
+	struct dvb_net net;
+	struct i2c_client *i2c_client_demod;
+	struct i2c_client *i2c_client_tuner;
+
+	void *adap_priv;
+};
+
 /* main device struct */
 struct cx231xx {
 	/* generic device properties */
@@ -861,6 +883,8 @@ int cx231xx_send_usb_command(struct cx231xx_i2c *i2c_bus,
 /* Gpio related functions */
 int cx231xx_send_gpio_cmd(struct cx231xx *dev, u32 gpio_bit, u8 *gpio_val,
 			  u8 len, u8 request, u8 direction);
+int cx231xx_set_gpio_bit(struct cx231xx *dev, u32 gpio_bit, u32 gpio_val);
+int cx231xx_get_gpio_bit(struct cx231xx *dev, u32 gpio_bit, u32 *gpio_val);
 int cx231xx_set_gpio_value(struct cx231xx *dev, int pin_number, int pin_value);
 int cx231xx_set_gpio_direction(struct cx231xx *dev, int pin_number,
 			       int pin_value);
