@@ -722,6 +722,7 @@ static void unregister_dvb(struct cx231xx_dvb *dvb)
 	dvb->demux.dmx.remove_frontend(&dvb->demux.dmx, &dvb->fe_hw);
 	dvb_dmxdev_release(&dvb->dmxdev);
 	dvb_dmx_release(&dvb->demux);
+#if 0
 	client = dvb->i2c_client_tuner;
 	/* remove I2C tuner */
 	if (client) {
@@ -737,7 +738,7 @@ static void unregister_dvb(struct cx231xx_dvb *dvb)
 		module_put(client->dev.driver->owner);
 		i2c_unregister_device(client);
 	}
-
+#endif
 	dvb_unregister_adapter(&dvb->adapter);
 }
 
@@ -1122,6 +1123,7 @@ static int dvb_init(struct cx231xx *dev)
 
 		demod_i2c = cx231xx_get_i2c_adap(dev, dev->board.demod_i2c_master+i);
 		/* attach frontend */
+		memset(&si2168_config, 0, sizeof(si2168_config));
 		si2168_config.i2c_adapter = &adapter;
 		si2168_config.fe = &dev->dvb[i]->frontend;
 		si2168_config.ts_mode = SI2168_TS_SERIAL;

@@ -498,6 +498,7 @@ static int tbs5881_frontend_attach(struct dvb_usb_adapter *adap)
 	mutex_init(&st->ca_mutex);
 
 	/* attach frontend */
+	memset(&si2168_config, 0, sizeof(si2168_config));
 	si2168_config.i2c_adapter = &adapter;
 	si2168_config.fe = &adap->fe_adap[0].fe;
 	si2168_config.ts_mode = SI2168_TS_SERIAL;
@@ -567,6 +568,7 @@ static int tbs5881_frontend_attach(struct dvb_usb_adapter *adap)
 static void tbs5881_usb_disconnect (struct usb_interface * intf)
 {
 	struct dvb_usb_device *d = usb_get_intfdata (intf);
+#if 0
 	struct tbs5881_state *st = d->priv;
 	struct i2c_client *client;
 
@@ -583,7 +585,7 @@ static void tbs5881_usb_disconnect (struct usb_interface * intf)
 		module_put(client->dev.driver->owner);
 		i2c_unregister_device(client);
 	}
-	
+#endif
 	tbs5881_uninit (d);
 	dvb_usb_device_exit (intf);
 }
