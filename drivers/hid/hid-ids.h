@@ -917,7 +917,6 @@
 /* Focaltech System FT5926 Multitouch(Hardkernel 9" Touch Screen) */
 #define USB_VENDOR_ID_FOCALTECH 0x2808
 #define USB_DEVICE_ID_FOCALTECH_TOUCH   0x81C9
-#endif
 
 /* Silicon Integrated Systems Corp */
 #define USB_VENDOR_ID_SILICON     0x0457
@@ -969,3 +968,10 @@
 /* Zaagtech HDMI capacitive Screen */
 #define USB_VENDOR_ID_ZAAGTECH	0xAAEC
 #define USB_DEVICE_ID_ZAAGTECH_TOUCH	0xC021
+
+/* Hardkernel */
+#define USB_VENDOR_ID_ODROID	0x16b4
+#define USB_DEVICE_ID_VU5	0x0704
+#define USB_DEVICE_ID_VU7PLUS	0x0705
+
+#endif
