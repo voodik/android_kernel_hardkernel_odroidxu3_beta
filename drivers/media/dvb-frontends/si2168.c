@@ -329,28 +329,6 @@ static int si2168_set_frontend(struct dvb_frontend *fe)
 			goto err;
 	}
 
-	memcpy(cmd.args, "\x88\x02\x02\x02\x02", 5);
-	cmd.wlen = 5;
-	cmd.rlen = 5;
-	ret = si2168_cmd_execute(client, &cmd);
-	if (ret)
-		goto err;
-
-	/* that has no big effect */
-	if (c->delivery_system == SYS_DVBT)
-		memcpy(cmd.args, "\x89\x21\x06\x11\xff\x98", 6);
-	else if (c->delivery_system == SYS_DVBC_ANNEX_A)
-		memcpy(cmd.args, "\x89\x21\x06\x11\x89\xf0", 6);
-	else if (c->delivery_system == SYS_DVBC_ANNEX_B)
-		memcpy(cmd.args, "\x89\x21\x06\x11\x89\xf0", 6);
-	else if (c->delivery_system == SYS_DVBT2)
-		memcpy(cmd.args, "\x89\x21\x06\x11\x89\x20", 6);
-	cmd.wlen = 6;
-	cmd.rlen = 3;
-	ret = si2168_cmd_execute(client, &cmd);
-	if (ret)
-		goto err;
-
 	if (c->delivery_system == SYS_DVBT2) {
 		/* select PLP */
 		cmd.args[0] = 0x52;
@@ -609,6 +587,56 @@ static int si2168_init(struct dvb_frontend *fe)
 		 dev->version >> 24 & 0xff, dev->version >> 16 & 0xff,
 		 dev->version >> 8 & 0xff, dev->version >> 0 & 0xff);
 
+	/* TER FEF */
+	memcpy(cmd.args, "\x51\x00", 2);
+	cmd.wlen = 2;
+	cmd.rlen = 12;
+	cmd.args[1] = (dev->fef_inv & 1) << 3 | (dev->fef_pin & 7);
+	dev_dbg(&client->dev, "args=%*ph\n", cmd.wlen, cmd.args);
+	
+	ret = si2168_cmd_execute(client, &cmd);
+	if (ret) {
+		dev_err(&client->dev, "err set fef pip\n");
+	}
+
+	/* MP DEFAULTS */
+	memcpy(cmd.args, "\x88\x01\x01\x01\x01", 5);
+	cmd.wlen = 5;
+	cmd.rlen = 2;
+	switch (dev->fef_pin)
+	{
+	case SI2168_MP_A:
+		cmd.args[1] = dev->fef_inv ? 3 : 2;
+		break;
+	case SI2168_MP_B:
+		cmd.args[2] = dev->fef_inv ? 3 : 2;
+		break;
+	case SI2168_MP_C:
+		cmd.args[3] = dev->fef_inv ? 3 : 2;
+		break;
+	case SI2168_MP_D:
+		cmd.args[4] = dev->fef_inv ? 3 : 2;
+		break;
+	}
+	dev_dbg(&client->dev, "args=%*ph\n", cmd.wlen, cmd.args);
+	
+	ret = si2168_cmd_execute(client, &cmd);
+	if (ret) {
+		dev_err(&client->dev, "err set mp defaults\n");
+	}
+
+	/* AGC */
+	memcpy(cmd.args, "\x89\x01\x06\x12\x00\x00", 6);
+	cmd.wlen = 6;
+	cmd.rlen = 3;
+	cmd.args[1] |= (dev->agc_inv & 1) << 7 | (dev->agc_pin & 7) << 4;
+	dev_dbg(&client->dev, "args=%*ph\n", cmd.wlen, cmd.args);
+
+	ret = si2168_cmd_execute(client, &cmd);
+	if (ret) {
+		dev_err(&client->dev, "err set ter agc\n");
+	}
+
 	/* set ts mode */
 	memcpy(cmd.args, "\x14\x00\x01\x10\x10\x00", 6);
 	cmd.args[4] |= dev->ts_mode;
@@ -839,6 +867,13 @@ static int si2168_probe(struct i2c_client *client,
 	dev->ts_mode = config->ts_mode;
 	dev->ts_clock_inv = config->ts_clock_inv;
 	dev->ts_clock_gapped = config->ts_clock_gapped;
+	dev->fef_pin = config->fef_pin;
+	dev->fef_inv = config->fef_inv;
+	dev->agc_pin = config->agc_pin;
+	dev->agc_inv = config->agc_inv;
+
+	if (!dev->agc_pin) dev->agc_pin = SI2168_MP_A;
+	if (!dev->fef_pin) dev->fef_pin = SI2168_MP_B;
 
 	dev_info(&client->dev, "Silicon Labs Si2168-%c%d%d successfully identified\n",
 		 dev->version >> 24 & 0xff, dev->version >> 16 & 0xff,
