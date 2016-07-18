@@ -166,12 +166,12 @@ static struct lgdt3306a_config hauppauge_955q_lgdt3306a_config = {
 
 static struct cxd2820r_config cxd2820r_config0 = {
 	.i2c_address = 0x6c, /* (0xd8 >> 1) */
-	.ts_mode = 0x08,
+	.ts_mode = CXD2820R_TS_SERIAL,
 };
 
 static struct cxd2820r_config cxd2820r_config1 = {
 	.i2c_address = 0x6d, /* (0xda >> 1) */
-	.ts_mode = 0x08,
+	.ts_mode = CXD2820R_TS_SERIAL,
 };
 
 static struct tda18212_config tda18212_config = {
