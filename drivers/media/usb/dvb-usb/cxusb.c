@@ -1347,6 +1347,7 @@ static int cxusb_mygica_t230_frontend_attach(struct dvb_usb_adapter *adap)
 		usb_rcvbulkpipe(d->udev, d->props.adapter[0].fe[0].stream.endpoint));
 
 	/* attach frontend */
+	memset(&si2168_config, 0, sizeof(si2168_config));
 	si2168_config.i2c_adapter = &adapter;
 	si2168_config.fe = &adap->fe_adap[0].fe;
 	si2168_config.ts_mode = SI2168_TS_PARALLEL;
@@ -1522,6 +1523,7 @@ static void cxusb_disconnect(struct usb_interface *intf)
 {
 	struct dvb_usb_device *d = usb_get_intfdata(intf);
 	struct cxusb_state *st = d->priv;
+#if 0
 	struct i2c_client *client;
 
 	/* remove I2C client for tuner */
@@ -1537,7 +1539,7 @@ static void cxusb_disconnect(struct usb_interface *intf)
 		module_put(client->dev.driver->owner);
 		i2c_unregister_device(client);
 	}
-
+#endif
 	dvb_usb_device_exit(intf);
 }
 
