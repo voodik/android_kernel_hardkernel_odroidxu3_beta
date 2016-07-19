@@ -933,6 +933,13 @@
 		compatible = "odroid-sysfs";
 	};
 
+	gpiomem {
+		compatible = "samsung,exynos-gpiomem";
+		reg = <0x13400000 0x1000>,
+		      <0x14010000 0x1000>;
+		status = "okay";
+	};
+
 	leds {
 		compatible = "gpio-leds";
 		/* Blue LED */

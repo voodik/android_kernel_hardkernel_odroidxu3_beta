@@ -64,3 +64,4 @@ wlf	Wolfson Microelectronics
 wm	Wondermedia Technologies, Inc.
 winbond Winbond Electronics corp.
 xlnx	Xilinx
+odroid-gpiomem
