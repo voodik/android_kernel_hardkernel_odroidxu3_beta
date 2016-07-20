@@ -199,7 +199,7 @@ static int si2168_read_snr(struct dvb_frontend *fe, u16 *snr)
 {
 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
 	
-	*snr = (c->cnr.stat[0].scale == FE_SCALE_DECIBEL) ? (c->cnr.stat[0].svalue / 250) *  328  : 0;
+	*snr = c->cnr.stat[0].scale == FE_SCALE_DECIBEL ? ((s32)c->cnr.stat[0].svalue / 250) *  328  : 0;
 
 	return 0;
 }
@@ -208,7 +208,7 @@ static int si2168_read_signal_strength(struct dvb_frontend *fe, u16 *strength)
 {
 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
 	
-	*strength = (c->strength.stat[0].scale == FE_SCALE_DECIBEL) ? ((100000 + c->strength.stat[0].svalue) / 1000) * 656 : 0;
+	*strength = c->strength.stat[0].scale == FE_SCALE_DECIBEL ? ((100000 + (s32)c->strength.stat[0].svalue) / 1000) * 656 : 0;
 
 	return 0;
 }
