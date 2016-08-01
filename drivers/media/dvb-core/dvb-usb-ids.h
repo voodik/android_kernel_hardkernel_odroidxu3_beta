@@ -385,4 +385,5 @@
 #define USB_PID_PCTV_2002E                              0x025c
 #define USB_PID_PCTV_2002E_SE                           0x025d
 #define USB_PID_SVEON_STV27                             0xd3af
+#define USB_PID_EVOLVEO_XTRATV_STICK                    0xa115
 #endif
