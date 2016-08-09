@@ -1005,7 +1005,7 @@ static int simple_sleep(struct dvb_frontend *fe)
 	return 0;
 }
 
-static int simple_release(struct dvb_frontend *fe)
+static void simple_release(struct dvb_frontend *fe)
 {
 	struct tuner_simple_priv *priv = fe->tuner_priv;
 
@@ -1017,8 +1017,6 @@ static int simple_release(struct dvb_frontend *fe)
 	mutex_unlock(&tuner_simple_list_mutex);
 
 	fe->tuner_priv = NULL;
-
-	return 0;
 }
 
 static int simple_get_frequency(struct dvb_frontend *fe, u32 *frequency)
