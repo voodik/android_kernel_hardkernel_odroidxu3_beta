@@ -1075,7 +1075,7 @@ err:
 }
 EXPORT_SYMBOL(af9033_attach);
 
-static struct dvb_frontend_ops af9033_ops = {
+static const struct dvb_frontend_ops af9033_ops = {
 	.delsys = { SYS_DVBT },
 	.info = {
 		.name = "Afatech AF9033 (DVB-T)",

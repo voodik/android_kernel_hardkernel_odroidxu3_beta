@@ -4863,7 +4863,7 @@ int stv090x_set_gpio(struct dvb_frontend *fe, u8 gpio, u8 dir, u8 value,
 }
 EXPORT_SYMBOL(stv090x_set_gpio);
 
-static struct dvb_frontend_ops stv090x_ops = {
+static const struct dvb_frontend_ops stv090x_ops = {
 	.delsys = { SYS_DVBS, SYS_DVBS2, SYS_DSS },
 	.info = {
 		.name			= "STV090x Multistandard",

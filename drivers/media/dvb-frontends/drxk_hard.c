@@ -6682,7 +6682,7 @@ static int drxk_get_tune_settings(struct dvb_frontend *fe, struct dvb_frontend_t
 	}
 }
 
-static struct dvb_frontend_ops drxk_ops = {
+static const struct dvb_frontend_ops drxk_ops = {
 	/* .delsys will be filled dynamically */
 	.info = {
 		.name = "DRXK",

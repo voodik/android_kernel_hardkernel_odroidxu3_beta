@@ -604,7 +604,7 @@ static void zl10353_release(struct dvb_frontend *fe)
 	kfree(state);
 }
 
-static struct dvb_frontend_ops zl10353_ops;
+static const struct dvb_frontend_ops zl10353_ops;
 
 struct dvb_frontend *zl10353_attach(const struct zl10353_config *config,
 				    struct i2c_adapter *i2c)
@@ -636,7 +636,7 @@ error:
 	return NULL;
 }
 
-static struct dvb_frontend_ops zl10353_ops = {
+static const struct dvb_frontend_ops zl10353_ops = {
 	.delsys = { SYS_DVBT },
 	.info = {
 		.name			= "Zarlink ZL10353 DVB-T",

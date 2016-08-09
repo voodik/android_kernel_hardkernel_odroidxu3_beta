@@ -838,7 +838,7 @@ static int rtl2832_deselect(struct i2c_adapter *adap, void *mux_priv,
 	return 0;
 }
 
-static struct dvb_frontend_ops rtl2832_ops = {
+static const struct dvb_frontend_ops rtl2832_ops = {
 	.delsys = { SYS_DVBT },
 	.info = {
 		.name = "Realtek RTL2832 (DVB-T)",

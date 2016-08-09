@@ -789,7 +789,7 @@ static void hd29l2_release(struct dvb_frontend *fe)
 	kfree(priv);
 }
 
-static struct dvb_frontend_ops hd29l2_ops;
+static const struct dvb_frontend_ops hd29l2_ops;
 
 struct dvb_frontend *hd29l2_attach(const struct hd29l2_config *config,
 	struct i2c_adapter *i2c)
@@ -824,7 +824,7 @@ err:
 }
 EXPORT_SYMBOL(hd29l2_attach);
 
-static struct dvb_frontend_ops hd29l2_ops = {
+static const struct dvb_frontend_ops hd29l2_ops = {
 	.delsys = { SYS_DVBT },
 	.info = {
 		.name = "HDIC HD29L2 DMB-TH",
