@@ -483,7 +483,7 @@ static int samsung_fake_bat_probe(struct platform_device *pdev)
 	samsung_fake_bat_info.bat_info.batt_temp_adc_cal = 0;
 	samsung_fake_bat_info.bat_info.batt_current = 0;
 	samsung_fake_bat_info.bat_info.level = 0;
-	samsung_fake_bat_info.bat_info.charging_source = CHARGER_BATTERY;
+	samsung_fake_bat_info.bat_info.charging_source = CHARGER_AC;
 	samsung_fake_bat_info.bat_info.charging_enabled = 0;
 	samsung_fake_bat_info.bat_info.batt_health = POWER_SUPPLY_HEALTH_GOOD;
 
