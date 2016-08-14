@@ -375,6 +375,7 @@ struct cx231xx_board {
 	unsigned int valid:1;
 	unsigned int no_alt_vanc:1;
 	unsigned int external_av:1;
+	unsigned int no_audio:1;
 
 	unsigned char xclk, i2c_speed;
 

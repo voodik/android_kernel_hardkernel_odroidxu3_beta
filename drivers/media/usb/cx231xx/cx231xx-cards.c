@@ -870,6 +870,7 @@ struct cx231xx_board cx231xx_boards[] = {
 		.adap_cnt = 2,
 		.demod_addr = 0x6c,
 		.norm = V4L2_STD_PAL_M,
+		.no_audio = 1,
 		
 		.input = {{
 			.type = CX231XX_VMUX_TELEVISION,
@@ -908,6 +909,7 @@ struct cx231xx_board cx231xx_boards[] = {
 		.adap_cnt = 2,
 		.demod_addr = 0x6c,
 		.norm = V4L2_STD_PAL_M,
+		.no_audio = 1,
 		
 		.input = {{
 			.type = CX231XX_VMUX_TELEVISION,
@@ -946,6 +948,7 @@ struct cx231xx_board cx231xx_boards[] = {
 		.adap_cnt = 2,
 		.demod_addr = 0x64,
 		.norm = V4L2_STD_PAL_M,
+		.no_audio = 1,
 		
 		.input = {{
 			.type = CX231XX_VMUX_TELEVISION,
@@ -1682,7 +1685,7 @@ static int cx231xx_usb_probe(struct usb_interface *interface,
 	dev->gpio_dir = 0;
 	dev->gpio_val = 0;
 	dev->xc_fw_load_done = 0;
-	dev->has_alsa_audio = 1;
+	dev->has_alsa_audio = !dev->board.no_audio;
 	dev->power_mode = -1;
 	atomic_set(&dev->devlist_count, 0);
 
