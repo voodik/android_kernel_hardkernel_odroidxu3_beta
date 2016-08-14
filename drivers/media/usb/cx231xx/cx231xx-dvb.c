@@ -770,7 +770,7 @@ static int dvb_init(struct cx231xx *dev)
 	dev->cx231xx_reset_analog_tuner = cx231xx_reset_analog_tuner;
 
 	tuner_i2c = cx231xx_get_i2c_adap(dev, dev->board.tuner_i2c_master);
-	demod_i2c = cx231xx_get_i2c_adap(dev, dev->board.demod_i2c_master);
+	demod_i2c = cx231xx_get_i2c_adap(dev, dev->board.demod_i2c_master[i]);
 	mutex_lock(&dev->lock);
 	cx231xx_set_mode(dev, CX231XX_DIGITAL_MODE);
 	cx231xx_demod_reset(dev);
@@ -1109,7 +1109,7 @@ static int dvb_init(struct cx231xx *dev)
 			goto out_free;
 		}
 		dev->dvb[i]->i2c_client_tuner = client;
-	
+
 		break;
 	}
 	case CX231XX_BOARD_TBS_5281:
@@ -1121,7 +1121,6 @@ static int dvb_init(struct cx231xx *dev)
 		struct si2168_config si2168_config;
 		struct si2157_config si2157_config;
 
-		demod_i2c = cx231xx_get_i2c_adap(dev, dev->board.demod_i2c_master+i);
 		/* attach frontend */
 		memset(&si2168_config, 0, sizeof(si2168_config));
 		si2168_config.i2c_adapter = &adapter;
@@ -1178,7 +1177,6 @@ static int dvb_init(struct cx231xx *dev)
 	}
 	case CX231XX_BOARD_TBS_5990:
 	{
-		demod_i2c = cx231xx_get_i2c_adap(dev, dev->board.demod_i2c_master+i);
 		dev->dvb[i]->frontend = dvb_attach(tas2101_attach, &tbs5990_tas2101_cfg[i],
 						demod_i2c);
 

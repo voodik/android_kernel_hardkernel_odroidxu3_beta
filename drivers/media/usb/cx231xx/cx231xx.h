@@ -363,7 +363,7 @@ struct cx231xx_board {
 
 	/* i2c masters */
 	u8 tuner_i2c_master;
-	u8 demod_i2c_master;
+	u8 demod_i2c_master[2];
 	u8 ir_i2c_master;
 
 	/* for devices with I2C chips for IR */
