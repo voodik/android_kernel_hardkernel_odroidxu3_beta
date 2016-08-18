@@ -186,26 +186,14 @@ static struct tda18212_config tda18212_config = {
 	.xtout = 1
 };
 
-static void tbs5990_reset_fe(struct dvb_frontend *fe, int reset_pin)
+static void tbs_reset_fe(struct cx231xx *dev, int reset_pin)
 {
-	struct cx231xx *dev = fe->dvb->priv;
-
 	/* reset frontend, active low */
 	cx231xx_set_gpio_direction(dev, reset_pin, 1);
 	cx231xx_set_gpio_value(dev, reset_pin, 0);
 	msleep(60);
 	cx231xx_set_gpio_value(dev, reset_pin, 1);
 	msleep(120);
-}
-
-static void tbs5990_reset_fe0(struct dvb_frontend *fe)
-{
-	tbs5990_reset_fe(fe, 24);
-}
-
-static void tbs5990_reset_fe1(struct dvb_frontend *fe)
-{
-	tbs5990_reset_fe(fe, 20);
 }
 
 static void tbs5990_lnb_power(struct dvb_frontend *fe,
@@ -235,7 +223,7 @@ static struct tas2101_config tbs5990_tas2101_cfg[] = {
 	{
 		.i2c_address   = 0x60,
 		.id            = ID_TAS2101,
-		.reset_demod   = tbs5990_reset_fe0,
+		.reset_demod   = NULL,
 		.lnb_power     = tbs5990_lnb0_power,
 		.init          = {0x80, 0xAB, 0x47, 0x61, 0x25, 0x93, 0x31},
 		.init2         = 0,
@@ -243,7 +231,7 @@ static struct tas2101_config tbs5990_tas2101_cfg[] = {
 	{
 		.i2c_address   = 0x68,
 		.id            = ID_TAS2101,
-		.reset_demod   = tbs5990_reset_fe1,
+		.reset_demod   = NULL,
 		.lnb_power     = tbs5990_lnb1_power,
 		.init          = {0xB0, 0xA8, 0x21, 0x53, 0x74, 0x96, 0x31},
 		.init2         = 0,
@@ -1177,6 +1165,7 @@ static int dvb_init(struct cx231xx *dev)
 	}
 	case CX231XX_BOARD_TBS_5990:
 	{
+		tbs_reset_fe(dev, i ? 20 : 24);
 		dev->dvb[i]->frontend = dvb_attach(tas2101_attach, &tbs5990_tas2101_cfg[i],
 						demod_i2c);
 
