@@ -273,14 +273,15 @@ int tbscxci_init(struct cx231xx_dvb *adap, int nr)
 
 	mutex_init(&state->ca_mutex);
 
+	state->i2c_adap = cx231xx_get_i2c_adap(dev, dev->board.demod_i2c_master[nr]);
+
 	switch (state->nr) {
 	case 0:
-		state->i2c_adap = &dev->i2c_bus[1].i2c_adap;
+		
 		dev->gpio_dir &= ~(1 << 27);
 		cx231xx_set_gpio_bit(dev, dev->gpio_dir, dev->gpio_val);
 		break;
 	case 1:
-		state->i2c_adap = &dev->i2c_bus[2].i2c_adap;
 		dev->gpio_dir &= ~(1 << 25);
 		cx231xx_set_gpio_bit(dev, dev->gpio_dir, dev->gpio_val);
 		break;
