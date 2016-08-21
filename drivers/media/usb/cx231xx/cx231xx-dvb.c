@@ -741,12 +741,43 @@ static void unregister_dvb(struct cx231xx_dvb *dvb)
 	dvb_unregister_adapter(&dvb->adapter);
 }
 
+static int tbs_cx_mac(struct i2c_adapter *i2c_adap, u8 count, u8 *mac)
+{
+	u8 b[64], e[256];
+	int ret, i;
+
+	struct i2c_msg msg[] = {
+		{ .addr = 0x50, .flags = 0,
+			.buf = b, .len = 1 },
+		{ .addr = 0x50, .flags = I2C_M_RD,
+			.buf = b, .len = 64 }
+	};
+
+	for (i = 0; i < 4; i++) {
+		b[0] = 0x40 * i;
+
+		ret = i2c_transfer(i2c_adap, msg, 2);
+
+		if (ret != 2) {
+			printk("TBS CX read MAC failed\n");
+			return -1;
+		}
+
+		memcpy(&e[0x40 * i], b , 64);
+	}
+	
+	memcpy(mac, &e[0x58 + 6 + 0x10*count], 6);
+	
+	return 0;
+}
+
 static int dvb_init(struct cx231xx *dev)
 {
 	int i, result = 0;
 	struct cx231xx_dvb *dvb;
 	struct i2c_adapter *tuner_i2c;
 	struct i2c_adapter *demod_i2c;
+	u8 mac[6];
 
 	if (!dev->board.has_dvb) {
 		/* This device does not support the extension */
@@ -1199,6 +1230,10 @@ static int dvb_init(struct cx231xx *dev)
 		}
 
 		msleep(100);
+
+		tbs_cx_mac(demod_i2c, i, mac);
+		dev_info(dev->dev, "MAC address %pM\n", mac);
+		memcpy(dev->dvb[i]->adapter.proposed_mac, mac, 6);
 
 		/* define general-purpose callback pointer */
 		dvb->frontend->callback = cx231xx_tuner_callback;
