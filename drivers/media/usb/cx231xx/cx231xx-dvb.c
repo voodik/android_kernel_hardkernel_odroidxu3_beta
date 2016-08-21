@@ -619,6 +619,13 @@ static int register_dvb(struct cx231xx_dvb *dvb,
 		goto fail_frontend;
 	}
 
+	/* post init frontend */
+	switch (dev->model) {
+	case CX231XX_BOARD_TBS_5990:
+		tbscxci_init(dvb, dvb->count);
+		break;
+	}
+
 	/* register demux stuff */
 	dvb->demux.dmx.capabilities =
 	    DMX_TS_FILTERING | DMX_SECTION_FILTERING |
@@ -1206,13 +1213,6 @@ static int dvb_init(struct cx231xx *dev)
 
 	/* register everything */
 	result = register_dvb(dvb, THIS_MODULE, dev, dev->dev);
-
-	/* post init frontend */
-	switch (dev->model) {
-	case CX231XX_BOARD_TBS_5990:
-		tbscxci_init(dev->dvb[i], i);
-		break;
-	}
 
 	mutex_unlock(&dev->lock);
 	if (result < 0)
