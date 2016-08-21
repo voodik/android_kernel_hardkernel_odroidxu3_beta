@@ -603,7 +603,9 @@ static int register_dvb(struct cx231xx_dvb *dvb,
 		       dev->name, result);
 		goto fail_adapter;
 	}
+#if 0
 	dvb_register_media_controller(&dvb->adapter, dev->media_dev);
+#endif
 
 	/* Ensure all frontends negotiate bus access */
 	dvb->frontend->ops.ts_bus_ctrl = cx231xx_dvb_bus_ctrl;
@@ -683,10 +685,12 @@ static int register_dvb(struct cx231xx_dvb *dvb,
 
 	/* register network adapter */
 	dvb_net_init(&dvb->adapter, &dvb->net, &dvb->demux.dmx);
+#if 0
 	result = dvb_create_media_graph(&dvb->adapter,
 					dev->tuner_type == TUNER_ABSENT);
 	if (result < 0)
 		goto fail_create_graph;
+#endif
 
 	return 0;
 
@@ -1143,6 +1147,9 @@ static int dvb_init(struct cx231xx *dev)
 
 		/* attach tuner */
 		memset(&si2157_config, 0, sizeof(si2157_config));
+#ifdef CONFIG_MEDIA_CONTROLLER_DVB
+		si2157_config.mdev = dev->media_dev;
+#endif
 		si2157_config.fe = dev->dvb[i]->frontend;
 		si2157_config.if_port = 1;
 		memset(&info, 0, sizeof(struct i2c_board_info));
