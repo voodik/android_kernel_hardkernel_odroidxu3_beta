@@ -373,6 +373,27 @@ static inline int dvb_bulk_copy(struct cx231xx *dev, struct urb *urb)
 	return 0;
 }
 
+static inline int dvb_bulk_copy_ts2(struct cx231xx *dev, struct urb *urb)
+{
+	if (!dev)
+		return 0;
+
+	if (dev->state & DEV_DISCONNECTED)
+		return 0;
+
+	if (urb->status < 0) {
+		print_err_status(dev, -1, urb->status);
+		if (urb->status == -ENOENT)
+			return 0;
+	}
+
+	/* Feed the transport payload into the kernel demux */
+	dvb_dmx_swfilter(&dev->dvb[1]->demux,
+		urb->transfer_buffer, urb->actual_length);
+
+	return 0;
+}
+
 static int start_streaming(struct cx231xx_dvb *dvb)
 {
 	int rc;
@@ -412,10 +433,15 @@ static int start_streaming(struct cx231xx_dvb *dvb)
 		if (rc < 0)
 			return rc;
 		dev->mode_tv = 1;
+		if (dvb->count == 1)
 		return cx231xx_init_bulk(dev, CX231XX_DVB_MAX_PACKETS,
 				CX231XX_DVB_NUM_BUFS,
-				dvb->count ? dev->ts2_mode.max_pkt_size 
-						: dev->ts1_mode.max_pkt_size,
+				dev->ts2_mode.max_pkt_size,
+				dvb_bulk_copy_ts2);
+		else
+		return cx231xx_init_bulk(dev, CX231XX_DVB_MAX_PACKETS,
+				CX231XX_DVB_NUM_BUFS,
+				dev->ts1_mode.max_pkt_size,
 				dvb_bulk_copy);
 	}
 
