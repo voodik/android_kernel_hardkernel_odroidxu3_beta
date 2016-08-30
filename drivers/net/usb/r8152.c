@@ -494,6 +494,7 @@ enum rtl8152_flags {
 	SELECTIVE_SUSPEND,
 	PHY_RESET,
 	SCHEDULE_NAPI,
+	POWER_RESET,
 };
 
 /* Define these values to match your device */
@@ -657,6 +658,8 @@ static unsigned int agg_buf_sz = 16384;
 
 #define RTL_LIMITED_TSO_SIZE	(agg_buf_sz - sizeof(struct tx_desc) - \
 				 VLAN_ETH_HLEN - VLAN_HLEN)
+
+extern int s2mps11_pmic_ethonoff(unsigned char status);
 
 static
 int get_registers(struct r8152 *tp, u16 value, u16 index, u16 size, void *data)
@@ -1279,9 +1282,10 @@ static void intr_callback(struct urb *urb)
 		netif_device_detach(tp->netdev);
 	case -ENOENT:
 	case -EPROTO:
+		set_bit(POWER_RESET, &tp->flags);
 		netif_info(tp, intr, tp->netdev,
 			   "Stop submitting intr, status %d\n", status);
-		return;
+		break;
 	case -EOVERFLOW:
 		netif_info(tp, intr, tp->netdev, "intr status -EOVERFLOW\n");
 		goto resubmit;
@@ -4791,6 +4795,13 @@ static inline void __rtl_work_func(struct r8152 *tp)
 	/* If the device is unplugged or !netif_running(), the workqueue
 	 * doesn't need to wake the device, and could return directly.
 	 */
+	if (test_bit(POWER_RESET, &tp->flags)) {
+		/* Force ethernet device turn off & on */
+		s2mps11_pmic_ethonoff(0);
+		mdelay(10);
+		s2mps11_pmic_ethonoff(1);
+	}
+
 	if (test_bit(RTL8152_UNPLUG, &tp->flags) || !netif_running(tp->netdev))
 		return;
 
