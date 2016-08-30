@@ -434,7 +434,7 @@ static int start_streaming(struct cx231xx_dvb *dvb)
 			return rc;
 		dev->mode_tv = 1;
 		if (dvb->count == 1)
-		return cx231xx_init_bulk(dev, CX231XX_DVB_MAX_PACKETS,
+		return cx231xx_init_bulk_ts2(dev, CX231XX_DVB_MAX_PACKETS,
 				CX231XX_DVB_NUM_BUFS,
 				dev->ts2_mode.max_pkt_size,
 				dvb_bulk_copy_ts2);
@@ -457,7 +457,10 @@ static int stop_streaming(struct cx231xx_dvb *dvb)
 		if (dvb->count == 1)
 			cx231xx_uninit_isoc_ts2(dev);
 	else
-		cx231xx_uninit_bulk(dev);
+		if (dvb->count == 0)
+			cx231xx_uninit_bulk(dev);
+		if (dvb->count == 1)
+			cx231xx_uninit_bulk_ts2(dev);
 
 	cx231xx_set_mode(dev, CX231XX_SUSPEND);
 
