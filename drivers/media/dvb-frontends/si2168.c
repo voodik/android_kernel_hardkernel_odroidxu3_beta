@@ -846,6 +846,9 @@ static int si2168_probe(struct i2c_client *client,
 	case SI2168_CHIP_ID_B40:
 		dev->firmware_name = SI2168_B40_FIRMWARE;
 		break;
+	case SI2168_CHIP_ID_D60:
+		dev->firmware_name = SI2168_D60_FIRMWARE;
+		break;
 	default:
 		dev_dbg(&client->dev, "unknown chip version Si21%d-%c%c%c\n",
 			cmd.args[2], cmd.args[1], cmd.args[3], cmd.args[4]);
