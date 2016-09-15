@@ -772,6 +772,9 @@ struct regmap *__regmap_init(struct device *dev,
 		case REGMAP_ENDIAN_BIG:
 			map->format.format_reg = regmap_format_16_be;
 			break;
+		case REGMAP_ENDIAN_LITTLE:
+			map->format.format_reg = regmap_format_16_le;
+			break;
 		case REGMAP_ENDIAN_NATIVE:
 			map->format.format_reg = regmap_format_16_native;
 			break;
@@ -791,6 +794,9 @@ struct regmap *__regmap_init(struct device *dev,
 		case REGMAP_ENDIAN_BIG:
 			map->format.format_reg = regmap_format_32_be;
 			break;
+		case REGMAP_ENDIAN_LITTLE:
+			map->format.format_reg = regmap_format_32_le;
+			break;
 		case REGMAP_ENDIAN_NATIVE:
 			map->format.format_reg = regmap_format_32_native;
 			break;
@@ -804,6 +810,9 @@ struct regmap *__regmap_init(struct device *dev,
 		switch (reg_endian) {
 		case REGMAP_ENDIAN_BIG:
 			map->format.format_reg = regmap_format_64_be;
+			break;
+		case REGMAP_ENDIAN_LITTLE:
+			map->format.format_reg = regmap_format_64_le;
 			break;
 		case REGMAP_ENDIAN_NATIVE:
 			map->format.format_reg = regmap_format_64_native;
