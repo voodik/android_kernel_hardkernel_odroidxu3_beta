@@ -1500,6 +1500,16 @@ static const struct hid_device_id mt_devices[] = {
 		HID_USB_DEVICE(USB_VENDOR_ID_FITOUCH,
 				USB_DEVICE_ID_FITOUCH_TOUCHSCREEN_Z_MT) },
 
+/* Hannspree HDMI capacitive Screen */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_HANNSPREE,
+				USB_DEVICE_ID_HANNSPREE_HT225HPB_TOUCH) },
+
+/* iiyama HDMI capacitive Screen */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(USB_VENDOR_ID_IIYAMA,
+				USB_DEVICE_ID_IIYAMA_T2236MSC_B2AG_TOUCH) },
+
 	/* Generic MT device */
 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
 	{ }
