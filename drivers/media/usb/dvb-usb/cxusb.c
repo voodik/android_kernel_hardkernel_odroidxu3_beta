@@ -652,6 +652,44 @@ static struct rc_map_table rc_map_d680_dmb_table[] = {
 	{ 0x0025, KEY_POWER },
 };
 
+static struct rc_map_table rc_map_t230_table[] = {
+	{ 0x0000, KEY_0 },
+	{ 0x0001, KEY_1 },
+	{ 0x0002, KEY_2 },
+	{ 0x0003, KEY_3 },
+	{ 0x0004, KEY_4 },
+	{ 0x0005, KEY_5 },
+	{ 0x0006, KEY_6 },
+	{ 0x0007, KEY_7 },
+	{ 0x0008, KEY_8 },
+	{ 0x0009, KEY_9 },
+	{ 0x000a, KEY_MUTE },
+	{ 0x000b, KEY_STOP },                   /* Stop */
+	{ 0x000c, KEY_POWER2 },                 /* Turn on/off application */
+	{ 0x000d, KEY_OK },                     /* OK */
+	{ 0x000e, KEY_CAMERA },                 /* Snapshot */
+	{ 0x000f, KEY_ZOOM },                   /* Full Screen/Restore */
+	{ 0x0010, KEY_RIGHT },                  /* Right arrow */
+	{ 0x0011, KEY_LEFT },                   /* Left arrow */
+	{ 0x0012, KEY_CHANNELUP },
+	{ 0x0013, KEY_CHANNELDOWN },
+	{ 0x0014, KEY_SHUFFLE },
+	{ 0x0016, KEY_PAUSE },
+	{ 0x0017, KEY_PLAY },                   /* Play */
+	{ 0x001e, KEY_TIME },                   /* Time Shift */
+	{ 0x001f, KEY_RECORD },
+	{ 0x0020, KEY_UP },
+	{ 0x0021, KEY_DOWN },
+	{ 0x0025, KEY_POWER },                  /* Turn off computer */
+	{ 0x0026, KEY_REWIND },                 /* FR << */
+	{ 0x0027, KEY_FASTFORWARD },            /* FF >> */
+	{ 0x0029, KEY_ESC },
+	{ 0x002b, KEY_VOLUMEUP },
+	{ 0x002c, KEY_VOLUMEDOWN },
+	{ 0x002d, KEY_CHANNEL },                /* CH Surfing */
+	{ 0x0038, KEY_VIDEO },                  /* TV/AV/S-Video/YPbPr */
+};
+
 static int cxusb_dee1601_demod_init(struct dvb_frontend* fe)
 {
 	static u8 clock_config []  = { CLOCK_CTL,  0x38, 0x28 };
@@ -2399,8 +2437,8 @@ static struct dvb_usb_device_properties cxusb_mygica_t230_properties = {
 
 	.rc.legacy = {
 		.rc_interval      = 100,
-		.rc_map_table     = rc_map_d680_dmb_table,
-		.rc_map_size      = ARRAY_SIZE(rc_map_d680_dmb_table),
+		.rc_map_table     = rc_map_t230_table,
+		.rc_map_size      = ARRAY_SIZE(rc_map_t230_table),
 		.rc_query         = cxusb_d680_dmb_rc_query,
 	},
 
@@ -2452,8 +2490,8 @@ static struct dvb_usb_device_properties cxusb_mygica_t230c_properties = {
 
 	.rc.legacy = {
 		.rc_interval      = 100,
-		.rc_map_table     = rc_map_d680_dmb_table,
-		.rc_map_size      = ARRAY_SIZE(rc_map_d680_dmb_table),
+		.rc_map_table     = rc_map_t230_table,
+		.rc_map_size      = ARRAY_SIZE(rc_map_t230_table),
 		.rc_query         = cxusb_d680_dmb_rc_query,
 	},
 
