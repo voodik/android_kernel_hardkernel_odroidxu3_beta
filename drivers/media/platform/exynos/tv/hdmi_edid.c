@@ -53,7 +53,7 @@ MODULE_DEVICE_TABLE(of, edid_device_table);
 // HDMI PHY Bootargs parsing
 //
 //[*]--------------------------------------------------------------------------------------------------[*]
-unsigned char   HdmiPHYBootArgs[12] = "720p60hz";
+unsigned char   HdmiPHYBootArgs[13] = "720p60hz";
 
 // Bootargs parsing
 static int __init hdmi_resolution_setup(char *line)
