@@ -1237,6 +1237,7 @@ SwLedBlink9(
 		SwLedOff(Adapter, pLed);
 		RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("Blinktimes (%d): turn off\n", pLed->BlinkTimes));
 	}	
+	//DBG_871X("%s, pLed->CurrLedState=%d, pLed->BlinkingLedState=%d \n", __FUNCTION__, pLed->CurrLedState, pLed->BlinkingLedState);
 
 
 	switch(pLed->CurrLedState)
@@ -1260,8 +1261,8 @@ SwLedBlink9(
 		case LED_BLINK_StartToBlink:
 			if( pLed->bLedOn )
 			{
-				pLed->BlinkingLedState = RTW_LED_OFF; 
-				_set_timer(&(pLed->BlinkTimer), LED_BLINK_SLOWLY_INTERVAL);				
+				pLed->BlinkingLedState = RTW_LED_OFF;
+				_set_timer(&(pLed->BlinkTimer), LED_BLINK_SLOWLY_INTERVAL);		
 			}
 			else
 			{
@@ -1286,7 +1287,7 @@ SwLedBlink9(
 				else if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE)
 				{
 					pLed->bLedLinkBlinkInProgress = _TRUE;
-					pLed->CurrLedState = LED_BLINK_ALWAYS_ON;
+					pLed->CurrLedState = LED_BLINK_SLOWLY;
 					
 					_set_timer(&(pLed->BlinkTimer), LED_BLINK_LINK_INTERVAL_ALPHA);
 					RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("CurrLedState %d\n", pLed->CurrLedState));					
@@ -1336,8 +1337,7 @@ SwLedBlink9(
 				}
 				else 
 				{
-					pLed->bLedNoLinkBlinkInProgress = _TRUE;
-					pLed->CurrLedState = LED_BLINK_ALWAYS_ON;
+					pLed->CurrLedState = LED_BLINK_SLOWLY;
 					if( pLed->bLedOn )
 						pLed->BlinkingLedState = RTW_LED_OFF; 
 					else
@@ -2426,7 +2426,8 @@ void BlinkTimerCallback(void *data)
 	#ifdef CONFIG_LED_HANDLED_BY_CMD_THREAD
 	rtw_led_blink_cmd(padapter, (PVOID)pLed);
 	#else
-	_set_workitem(&(pLed->BlinkWorkItem));
+	if(ATOMIC_READ(&pLed->bCancelWorkItem) == _FALSE)
+		_set_workitem(&(pLed->BlinkWorkItem));
 	#endif
 }
 
@@ -3879,7 +3880,7 @@ SwLedControlMode9(
 	PLED_USB	pLed1 = &(ledpriv->SwLed1);
 	PLED_USB	pLed2 = &(ledpriv->SwLed2);
 	BOOLEAN  bWPSOverLap = _FALSE;
-	
+	//DBG_871X("LedAction=%d \n", LedAction);
 	switch(LedAction)
 	{		
 		case LED_CTL_START_TO_LINK:	
@@ -3980,7 +3981,7 @@ SwLedControlMode9(
 					if(LedAction == LED_CTL_LINK)
 					{
 						pLed->BlinkingLedState = RTW_LED_ON; 
-						pLed->CurrLedState = LED_BLINK_ALWAYS_ON;
+						pLed->CurrLedState = LED_BLINK_SLOWLY;
 					}
 					else
 					{
@@ -4068,7 +4069,7 @@ SwLedControlMode9(
 			pLed2->CurrLedState = LED_BLINK_LINK_IN_PROCESS;
 			pLed2->bLedWPSBlinkInProgress = _TRUE;
 
-			_set_timer(&(pLed2->BlinkTimer), 0);
+			_set_timer(&(pLed2->BlinkTimer), 500);
 			 
 			break;
 		
@@ -5202,9 +5203,8 @@ InitLed(
 	pLed->LedPin = LedPin;
 
 	ResetLedStatus(pLed);
-
+	ATOMIC_SET(&pLed->bCancelWorkItem, _FALSE);
 	_init_timer(&(pLed->BlinkTimer), padapter->pnetdev, BlinkTimerCallback, pLed);
-
 	_init_workitem(&(pLed->BlinkWorkItem), BlinkWorkItemCallback, pLed);
 }
 
@@ -5218,6 +5218,7 @@ DeInitLed(
 	PLED_USB		pLed
 	)
 {
+	ATOMIC_SET(&pLed->bCancelWorkItem, _TRUE);
 	_cancel_workitem_sync(&(pLed->BlinkWorkItem));
 	_cancel_timer_ex(&(pLed->BlinkTimer));
 	ResetLedStatus(pLed);

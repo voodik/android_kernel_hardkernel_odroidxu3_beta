@@ -109,7 +109,7 @@ phy_RFSerialRead(
 	BB_REGISTER_DEFINITION_T	*pPhyReg = &pHalData->PHYRegDef[eRFPath];
 	BOOLEAN						bIsPIMode = _FALSE;
 
-
+	_enter_critical_mutex(&(adapter_to_dvobj(Adapter)->rf_read_reg_mutex) , NULL);
 	// 2009/06/17 MH We can not execute IO for power save or other accident mode.
 	//if(RT_CANNOT_IO(Adapter))
 	//{
@@ -125,9 +125,9 @@ phy_RFSerialRead(
 	Offset &= 0xff;
 
 	if (eRFPath == RF_PATH_A)
-       	bIsPIMode = (BOOLEAN)PHY_QueryBBReg(Adapter, 0xC00, 0x4);
+		bIsPIMode = (BOOLEAN)PHY_QueryBBReg(Adapter, 0xC00, 0x4);
 	else if (eRFPath == RF_PATH_B)
-       	bIsPIMode = (BOOLEAN)PHY_QueryBBReg(Adapter, 0xE00, 0x4);
+		bIsPIMode = (BOOLEAN)PHY_QueryBBReg(Adapter, 0xE00, 0x4);
 
 	PHY_SetBBReg(Adapter, pPhyReg->rfHSSIPara2, bHSSIRead_addr_Jaguar, Offset);
 
@@ -150,6 +150,7 @@ phy_RFSerialRead(
 	if (Offset != 0x0 &&  ! (IS_VENDOR_8812A_C_CUT(Adapter) || IS_HARDWARE_TYPE_8821(Adapter)))
 		PHY_SetBBReg(Adapter, rCCAonSec_Jaguar, 0x8, 0);
 
+	_exit_critical_mutex(&(adapter_to_dvobj(Adapter)->rf_read_reg_mutex), NULL);
 	return retValue;
 }
 
@@ -735,60 +736,34 @@ PHY_GetTxPowerIndex_8812A(
 
 	limit = PHY_GetTxPowerLimit( pAdapter, pAdapter->registrypriv.RegPwrTblSel, (u8)(!bIn24G), pHalData->CurrentChannelBW, RFPath, Rate, pHalData->CurrentChannel);
 
-	powerDiffByRate = powerDiffByRate > limit ? limit : powerDiffByRate;
-	//DBG_871X("Rate-0x%x: (TxPower, PowerDiffByRate Path-%c) = (0x%X, %d)\n", Rate, ((RFPath==0)?'A':'B'), txPower, powerDiffByRate);
-
-	// We need to reduce power index for VHT MCS 8 & 9.
-	if (Rate == MGN_VHT1SS_MCS8 || Rate == MGN_VHT1SS_MCS9 ||
-		Rate == MGN_VHT2SS_MCS8 || Rate == MGN_VHT2SS_MCS9)
-	{
-		txPower += powerDiffByRate;
-	}
-	else
-	{
 #ifdef CONFIG_USB_HCI
-		//
-		// 2013/01/29 MH For preventing VHT rate of 8812AU to be used in USB 2.0 mode
-		// and the current will be more than 500mA and card disappear. We need to limit 
-		// TX power with any power by rate for VHT in U2.
-		// 2013/01/30 MH According to power current test compare with BCM AC NIC, we
-		// decide to use host hub = 2.0 mode to enable tx power limit behavior.
-		//
-		if (adapter_to_dvobj(pAdapter)->usb_speed == RTW_USB_SPEED_2 && IS_HARDWARE_TYPE_8812AU(pAdapter))
-		{
-			powerDiffByRate = 0;
-		}
-#endif
-		txPower += powerDiffByRate;
-#if 0
-		//
-		// 2013/02/06 MH Add for ASUS requiremen for adjusting TX power limit.
-		// This is a temporarily dirty fix for asus , neeed to revise later!
-		// 2013/03/07 MH Asus add more request.
-		// 2013/03/14 MH Asus add one more request for the power control.
-		//
-		if (Channel >= 36)
-		{			
-			txPower += pMgntInfo->RegTPCLvl5g;
+	/*
+	  * 2013/01/29 MH For preventing VHT rate of 8812AU to be used in USB 2.0 mode
+	  * and the current will be more than 500mA and card disappear. We need to limit 
+	  * TX power with any power by rate for VHT in U2.
+	  * 2013/01/30 MH According to power current test compare with BCM AC NIC, we
+	  * decide to use host hub = 2.0 mode to enable tx power limit behavior.
+	  */
+	if (adapter_to_dvobj(pAdapter)->usb_speed == RTW_USB_SPEED_2 
+		&& IS_HARDWARE_TYPE_8812AU(pAdapter)) {
 
-			if (txPower > pMgntInfo->RegTPCLvl5gD)
-				txPower -= pMgntInfo->RegTPCLvl5gD;
-		}
-		else
-		{		
-			txPower += pMgntInfo->RegTPCLvl;
-
-			if (txPower > pMgntInfo->RegTPCLvlD)
-				txPower -= pMgntInfo->RegTPCLvlD;
-		}
+		/* VHT rate 0~7, disable TxPowerByRate, but enable TX power limit */
+		if ((Rate >= MGN_VHT1SS_MCS0 && Rate <= MGN_VHT1SS_MCS7) || 
+				(Rate >= MGN_VHT2SS_MCS0 && Rate <= MGN_VHT2SS_MCS7))
+				powerDiffByRate = 0;
+	}
 #endif
-	}	
+
+	powerDiffByRate = powerDiffByRate > limit ? limit : powerDiffByRate;
+	/* DBG_871X("Rate-0x%x: (TxPower, PowerDiffByRate Path-%c) = (0x%X, %d)\n", Rate, ((RFPath==0)?'A':'B'), txPower, powerDiffByRate); */
 	
+	txPower += powerDiffByRate;
 	txPower += PHY_GetTxPowerTrackingOffset( pAdapter, RFPath, Rate );
 	
-	// 2012/09/26 MH We need to take care high power device limiation to prevent destroy EXT_PA.
-	// This case had ever happened in CU/SU high power module. THe limitation = 0x20.
-	// But for 8812, we still not know the value.
+	/* 2012/09/26 MH We need to take care high power device limiation to prevent destroy EXT_PA.
+	  * This case had ever happened in CU/SU high power module. THe limitation = 0x20.
+	  * But for 8812, we still not know the value.
+	  */
 	phy_TxPwrAdjInPercentage(pAdapter, (u8 *)&txPower);
 
 	if(txPower > MAX_POWER_INDEX)
@@ -797,7 +772,7 @@ PHY_GetTxPowerIndex_8812A(
 	if ( txPower % 2 == 1 && !IS_NORMAL_CHIP(pHalData->VersionID))
 		--txPower;
 
-	//DBG_871X("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':'B'), Channel,txPower, txPower);
+	/* DBG_871X("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':'B'), Channel,txPower, txPower); */
 
 	return (u8) txPower;
 }
@@ -1282,9 +1257,56 @@ void phy_SetBBSwingByBand_8812A(
 	}
 }
 
+
+VOID
+phy_SetRFEReg8821(
+	IN PADAPTER 	Adapter,
+	IN u1Byte		Band
+)
+{
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
+
+	if(Band == BAND_ON_2_4G)
+	{
+		// Turn off RF PA and LNA
+		PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0xF000, 0x7);	// 0xCB0[15:12] = 0x7 (LNA_On)
+		PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0xF0, 0x7); 	// 0xCB0[7:4] = 0x7 (PAPE_A)			
+		
+		if (pHalData->ExternalLNA_2G) { 
+			// <20131223, VincentL> Turn on 2.4G External LNA (Asked by Luke Lee & Alex Wang)
+			PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT20, 1); 			// 0xCB4 = 0x10100077;
+			PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT22, 0); 			// 0xCB4 = 0x10100077;
+			PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT2|BIT1|BIT0, 0x2);	// 0xCB0[2:0] = b'010 
+			PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT10|BIT9|BIT8, 0x2);	// 0xCB0[10:8] = b'010
+
+		}else{
+			// <20131223, VincentL> Bypass 2.4G External LNA (Asked by Luke Lee & Alex Wang)
+			PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT20, 0); 			// 0xCB4 = 0x10000077;
+			PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT22, 0); 			// 0xCB4 = 0x10000077;
+			PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT2|BIT1|BIT0, 0x7);	// 0xCB0[2:0] = b'111 
+			PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT10|BIT9|BIT8, 0x7);	// 0xCB0[10:8] = b'111
+		}
+	}
+	else
+	{
+		// Turn ON RF PA and LNA
+		PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0xF000, 0x5);	// 0xCB0[15:12] = 0x5 (LNA_On)
+		PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0xF0, 0x4); 	// 0xCB0[7:4] = 0x4 (PAPE_A)			
+		
+		// <20131223, VincentL> Bypass 2.4G External LNA (Asked by Luke Lee & Alex Wang)
+		PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT20, 0); 			// 0xCB4 = 0x10000077;
+		PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT22, 0); 			// 0xCB4 = 0x10000077;
+		PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT2|BIT1|BIT0, 0x7);	// 0xCB0[2:0] = b'111 
+		PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT10|BIT9|BIT8, 0x7);	// 0xCB0[10:8] = b'111
+		
+	}
+}
+
+
+
 s32
 PHY_SwitchWirelessBand8812(
-	IN PADAPTER		Adapter,
+	IN PADAPTER 	Adapter,
 	IN u8			Band
 )
 {
@@ -1298,28 +1320,17 @@ PHY_SwitchWirelessBand8812(
 	if(Band == BAND_ON_2_4G)
 	{// 2.4G band
 
-		// STOP Tx/Rx
-		PHY_SetBBReg(Adapter, rOFDMCCKEN_Jaguar, bOFDMEN_Jaguar|bCCKEN_Jaguar, 0x00);
-
+		PHY_SetBBReg(Adapter, rOFDMCCKEN_Jaguar, bOFDMEN_Jaguar|bCCKEN_Jaguar, 0x03);
+		
 		if (IS_HARDWARE_TYPE_8821(Adapter)) 
-		{
-			// Turn off RF PA and LNA
-			PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0xF000, 0x7); 	// 0xCB0[15:12] = 0x7 (LNA_On)
-			PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0xF0, 0x7); 	// 0xCB0[7:4] = 0x7 (PAPE_A)
-
-			if (pHalData->ExternalLNA_2G) { 
-				// <20130717, Kordan> Turn on 2.4G External LNA. (Asked by Alvin)
-				PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT20, 1); 
-				PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT22, 0);
-				PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT2|BIT1|BIT0, 0x2); // 0xCB0[2:0] = b'010 
-				PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT10|BIT9|BIT8, 0x2); // 0xCB0[10:8] = b'010				
-			} 
-		}
+			phy_SetRFEReg8821(Adapter, Band);
 
 		if(IS_HARDWARE_TYPE_8812(Adapter))
 		{
-			PHY_SetBBReg(Adapter,rPwed_TH_Jaguar, 0xE, 0x4);		 	// 0x830[3:1] = 0x4 
-			PHY_SetBBReg(Adapter,rBWIndication_Jaguar,0x3,0x1);			// 0x834[1:0] = 0x1
+			// <20131128, VincentL> Remove 0x830[3:1] setting when switching 2G/5G, requested by Yn.
+			PHY_SetBBReg(Adapter,rBWIndication_Jaguar,0x3,0x1); 		// 0x834[1:0] = 0x1
+			//BB Yn user guide R27
+			PHY_SetBBReg(Adapter,rPwed_TH_Jaguar, BIT13|BIT14|BIT15|BIT16|BIT17, 0x17);		//0x830[17:13]=5'b10111
 		}
 
 		// AGC table select 
@@ -1329,60 +1340,27 @@ PHY_SwitchWirelessBand8812(
 			PHY_SetBBReg(Adapter, rAGC_table_Jaguar, 0x3, 0);			// 0x82C[1:0] = 2b'00
 
 		if(IS_HARDWARE_TYPE_8812(Adapter))
+			phy_SetRFEReg8812(Adapter, Band);
+			
+		// <20131106, Kordan> Workaround to fix CCK FA for scan issue.
+		//if( pHalData->bMPMode == FALSE)
+		if(Adapter->registrypriv.mp_mode==0)
 		{
-			if(GetRegbENRFEType(Adapter))
-				phy_SetRFEReg8812(Adapter, Band);
-			else
-			{
-				// PAPE_A (bypass RFE module in 2G)
-				PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0x000000F0, 0x7);
-				PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, 0x000000F0, 0x7);	
-				
-				// PAPE_G (bypass RFE module in 5G)
-				if (pHalData->ExternalPA_2G) {
-					PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0x0000000F, 0x0);
-					PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, 0x0000000F, 0x0);
-				} else {
-					PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0x0000000F, 0x7);
-					PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, 0x0000000F, 0x7);				
-				}
-
-				// TRSW bypass RFE moudle in 2G
-				if (pHalData->ExternalLNA_2G) {
-					PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, bMaskByte2, 0x54);
-					PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, bMaskByte2, 0x54);
-				} else {
-					PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, bMaskByte2, 0x77);
-					PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, bMaskByte2, 0x77);
-				}
-			}
+			PHY_SetBBReg(Adapter, rTxPath_Jaguar, 0xf0, 0x1);
+			PHY_SetBBReg(Adapter, rCCK_RX_Jaguar, 0x0f000000, 0x1);
 		}
 
 		update_tx_basic_rate(Adapter, WIRELESS_11BG);
-
-		// cck_enable
-		PHY_SetBBReg(Adapter, rOFDMCCKEN_Jaguar, bOFDMEN_Jaguar|bCCKEN_Jaguar, 0x3);
 
 		// CCK_CHECK_en
 		rtw_write8(Adapter, REG_CCK_CHECK_8812, 0x0);
 	}
 	else	//5G band
 	{
-		u16	count = 0, reg41A = 0;
+		u16 count = 0, reg41A = 0;
 
 		if (IS_HARDWARE_TYPE_8821(Adapter)) 
-		{
-			PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0xF000, 0x5); 	// 0xCB0[15:12] = 0x5 (LNA_On)
-			PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0xF0, 0x4); 	// 0xCB0[7:4] = 0x4 (PAPE_A)
-
-			if (pHalData->ExternalLNA_2G) { 
-				// <20130717, Kordan> Bypass the 2.4G External LNA. (Asked by Alvin)
-				PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT20, 0); 
-				PHY_SetBBReg(Adapter, rA_RFE_Inv_Jaguar, BIT22, 0); 
-				PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT2|BIT1|BIT0, 0x7); // 0xCB0[2:0] = b'111 
-				PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, BIT10|BIT9|BIT8, 0x7); // 0xCB0[10:8] = b'111
-			} 
-		}
+			phy_SetRFEReg8821(Adapter, Band);
 
 		// CCK_CHECK_en
 		rtw_write8(Adapter, REG_CCK_CHECK_8812, 0x80);
@@ -1404,63 +1382,49 @@ PHY_SwitchWirelessBand8812(
 		if(count != 0)
 			DBG_871X("PHY_SwitchWirelessBand8812(): Switch to 5G Band. Count = %d reg41A=0x%x\n", count, reg41A);
 
-		// STOP Tx/Rx
-		PHY_SetBBReg(Adapter, rOFDMCCKEN_Jaguar, bOFDMEN_Jaguar|bCCKEN_Jaguar, 0x00);
-
+		// 2012/02/01, Sinda add registry to switch workaround without long-run verification for scan issue.
+		if(Adapter->registrypriv.mp_mode==0)
+			PHY_SetBBReg(Adapter, rOFDMCCKEN_Jaguar, bOFDMEN_Jaguar|bCCKEN_Jaguar, 0x03);
+		
 		if(IS_HARDWARE_TYPE_8812(Adapter))
 		{
-			PHY_SetBBReg(Adapter,rPwed_TH_Jaguar, 0xE, 0x3);		// 0x830[3:1] = 0x3
-			PHY_SetBBReg(Adapter,rBWIndication_Jaguar,0x3,0x2);	// 0x834[1:0] = 0x2
+			// <20131128, VincentL> Remove 0x830[3:1] setting when switching 2G/5G, requested by Yn.
+			PHY_SetBBReg(Adapter,rBWIndication_Jaguar,0x3,0x2); // 0x834[1:0] = 0x2
+			//BB Yn user guide R27
+			PHY_SetBBReg(Adapter,rPwed_TH_Jaguar, BIT13|BIT14|BIT15|BIT16|BIT17, 0x15);		//0x830[17:13]=5'b10101
 		}
 
 		// AGC table select 
 		if (IS_VENDOR_8821A_MP_CHIP(Adapter))
-			PHY_SetBBReg(Adapter, rA_TxScale_Jaguar, 0xF00, 1);		// 0xC1C[11:8] = 1
+			PHY_SetBBReg(Adapter, rA_TxScale_Jaguar, 0xF00, 1); 	// 0xC1C[11:8] = 1
 		else		
 			PHY_SetBBReg(Adapter, rAGC_table_Jaguar, 0x3, 1);		// 0x82C[1:0] = 2'b00
 
 		if(IS_HARDWARE_TYPE_8812(Adapter))
+			phy_SetRFEReg8812(Adapter, Band);
+
+		// <20131106, Kordan> Workaround to fix CCK FA for scan issue.
+		//if( pHalData->bMPMode == FALSE)
+		if(Adapter->registrypriv.mp_mode==0)
 		{
-			if(GetRegbENRFEType(Adapter))
-				phy_SetRFEReg8812(Adapter, Band);
-			else
-			{
-				// PAPE_A (bypass RFE module in 2G)
-				if (pHalData->ExternalPA_5G) { 
-					PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0x000000F0, 0x1);
-					PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, 0x000000F0, 0x1);
-				} else {
-					PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0x000000F0, 0x0);
-					PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, 0x000000F0, 0x0);
-				}
-				
-				// PAPE_G (bypass RFE module in 5G)
-				PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, 0x0000000F, 0x7);
-				PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, 0x0000000F, 0x7);
-
-				// TRSW bypass RFE moudle in 2G
-				if (pHalData->ExternalLNA_5G) {
-					PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, bMaskByte2, 0x54);
-					PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, bMaskByte2, 0x54);
-				} else {
-					PHY_SetBBReg(Adapter, rA_RFE_Pinmux_Jaguar, bMaskByte2, 0x77);
-					PHY_SetBBReg(Adapter, rB_RFE_Pinmux_Jaguar, bMaskByte2, 0x77);
-				}
-			}
+			PHY_SetBBReg(Adapter, rTxPath_Jaguar, 0xf0, 0x0);
+			PHY_SetBBReg(Adapter, rCCK_RX_Jaguar, 0x0f000000, 0xF);
 		}
-
+		else
+		{
+			// cck_enable
+			PHY_SetBBReg(Adapter, rOFDMCCKEN_Jaguar, bOFDMEN_Jaguar|bCCKEN_Jaguar, 0x02);
+		}
+		
 		//avoid using cck rate in 5G band
 		// Set RRSR rate table.
 		update_tx_basic_rate(Adapter, WIRELESS_11A);
 
-		// cck_enable
-		PHY_SetBBReg(Adapter, rOFDMCCKEN_Jaguar, bOFDMEN_Jaguar|bCCKEN_Jaguar, 0x2);
 
 		//DBG_871X("==>PHY_SwitchWirelessBand8812() BAND_ON_5G settings OFDM index 0x%x\n", pHalData->OFDM_index[RF_PATH_A]);
-	}
+		}
 
 	phy_SetBBSwingByBand_8812A(Adapter, Band, currentBand);
-
 	//DBG_871X("<==PHY_SwitchWirelessBand8812():Switch Band OK.\n");
 	return _SUCCESS;	
 }
@@ -1741,17 +1705,20 @@ VOID phy_InitRssiTRSW(
 	}
 }
 
-// <20130806, Kordan> Referenced from "WB-20130801-YN-RL6286 Settings for Spur Issues.xls".
+/*Referenced from "WB-20130801-YN-RL6286 Settings for Spur Issues R02.xls"*/
 VOID
 phy_SpurCalibration_8812A(	
 	IN	PADAPTER	pAdapter,
-	IN	u8			Channel
+	IN	u8			Channel,
+	IN	u8			Bandwidth
 	)
 {
 	//RT_TRACE(COMP_SCAN, DBG_LOUD, ("===>phy_SpurCalibration_8812A()\n"));
 	
 	//2 1. Reset
-	PHY_SetBBReg(pAdapter, 0x878, BIT8|BIT7|BIT6, 0x3);
+	PHY_SetBBReg(pAdapter, 0x874, BIT0, 0);
+	PHY_SetBBReg(pAdapter, 0x874, BIT21 , 0);
+	PHY_SetBBReg(pAdapter, 0x878, BIT8|BIT7|BIT6, 0);
 	PHY_SetBBReg(pAdapter, 0x878, BIT0, 0);
 	PHY_SetBBReg(pAdapter, 0x87C, BIT13, 0);
 	PHY_SetBBReg(pAdapter, 0x880, bMaskDWord, 0);
@@ -1761,64 +1728,29 @@ phy_SpurCalibration_8812A(
 
 	
 	//2 2. Register Setting 1 (False Alarm)
-	switch (Channel)
-	{
-		case 149:
-		case 153:
-		case 151:
-		case 155:
-        {
-		    PHY_SetBBReg(pAdapter, 0x878, BIT8|BIT7|BIT6, 0x4);
-		    PHY_SetBBReg(pAdapter, 0x878, BIT0, 1);
-		    PHY_SetBBReg(pAdapter, 0x87C, BIT13, 1);
-		    break;
-        }
-		default:
-			break;
+	if (((Channel == 149 || Channel == 153) && Bandwidth == CHANNEL_WIDTH_20) ||
+		(Channel == 151 && Bandwidth == CHANNEL_WIDTH_40) ||
+			(Channel == 155 && Bandwidth == CHANNEL_WIDTH_80)) {
+
+		PHY_SetBBReg(pAdapter, 0x878, BIT6, 0);
+		PHY_SetBBReg(pAdapter, 0x878, BIT7, 0);
+		PHY_SetBBReg(pAdapter, 0x878, BIT8, 1);
+		PHY_SetBBReg(pAdapter, 0x878, BIT0, 1);
+		PHY_SetBBReg(pAdapter, 0x87C, BIT13, 1);
 	}
 	
 	//2 3. Register Setting 2 (SINR)
 	PHY_SetBBReg(pAdapter, 0x874, BIT21, 1);
 	PHY_SetBBReg(pAdapter, 0x874, BIT0 , 1);
 	
-	switch (Channel)
-	{
-		case 149:
-			PHY_SetBBReg(pAdapter, 0x884, bMaskDWord, 0x00010000);
-			break;
-		case 153:
-			PHY_SetBBReg(pAdapter, 0x89C, bMaskDWord, 0x00010000);
-			break;
-		case 165:
-			PHY_SetBBReg(pAdapter, 0x884, bMaskDWord, 0x00010000);
-			break;
-		case 169:
-			PHY_SetBBReg(pAdapter, 0x89C, bMaskDWord, 0x00010000);
-			break;
-		case 38:
-		case 54:
-		case 102:
-		case 118:
-		case 134:
-			//PHY_SetBBReg(pAdapter, 0x884, bMaskDWord, 0x00000001);
-			break;
-		case 151:
-		case 167:
-			PHY_SetBBReg(pAdapter, 0x880, bMaskDWord, 0x00010000);
-			break;
-		case 42:
-		case 58:
-		case 106:
-		case 122:
-		case 138:
-			PHY_SetBBReg(pAdapter, 0x89C, bMaskDWord, 0x00000001);
-			break;
-		case 155:
-			PHY_SetBBReg(pAdapter, 0x898, bMaskDWord, 0x00010000);
-			break;
-		default:
-		    break;
-	}
+	if (Channel == 149 && Bandwidth == CHANNEL_WIDTH_20) 
+		PHY_SetBBReg(pAdapter, 0x884, bMaskDWord, 0x00010000);
+	else if (Channel == 153 && Bandwidth == CHANNEL_WIDTH_20)
+		PHY_SetBBReg(pAdapter, 0x89C, bMaskDWord, 0x00010000);
+	else if (Channel == 151 && Bandwidth == CHANNEL_WIDTH_40)
+		PHY_SetBBReg(pAdapter, 0x880, bMaskDWord, 0x00010000);
+	else if (Channel == 155 && Bandwidth == CHANNEL_WIDTH_80)
+		PHY_SetBBReg(pAdapter, 0x898, bMaskDWord, 0x00010000);
 	//RT_TRACE(COMP_SCAN, DBG_LOUD, ("<===phy_SpurCalibration_8812A()\n"));
 
 }
@@ -1831,6 +1763,7 @@ phy_SwChnl8812(
 	u8	eRFPath = 0;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 	u8	channelToSW = pHalData->CurrentChannel;
+	u8	bandwidthToSw = pHalData->CurrentChannelBW;
 
 	if(phy_SwBand8812(pAdapter, channelToSW) == _FALSE)
 	{
@@ -1913,8 +1846,10 @@ phy_SwChnl8812(
 		}
 	}
 
-	if (IS_HARDWARE_TYPE_8812(pAdapter) && (pHalData->RFEType == 4 || pHalData->ExternalPA_5G == 0)) 
-		phy_SpurCalibration_8812A(pAdapter, channelToSW);
+	/*only for 8812A mp mode*/
+	if (IS_HARDWARE_TYPE_8812(pAdapter) && (pHalData->LNAType_5G == 0x00) 
+		&& pAdapter->registrypriv.mp_mode == _TRUE) 
+		phy_SpurCalibration_8812A(pAdapter, channelToSW, bandwidthToSw);
 }
 
 VOID
@@ -1923,7 +1858,7 @@ phy_SwChnlAndSetBwMode8812(
 )
 {
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
-
+	PDM_ODM_T			pDM_Odm = &pHalData->odmpriv;	
 	//DBG_871X("phy_SwChnlAndSetBwMode8812(): bSwChnl %d, bSetChnlBW %d \n", pHalData->bSwChnl, pHalData->bSetChnlBW);
 	if ( Adapter->bNotifyChannelChange )
 	{
@@ -1973,7 +1908,7 @@ phy_SwChnlAndSetBwMode8812(
 		else if(IS_HARDWARE_TYPE_8821(Adapter))
 		{
 #if (RTL8821A_SUPPORT == 1)
-			PHY_IQCalibrate_8821A(Adapter, _FALSE);
+			PHY_IQCalibrate_8821A(pDM_Odm, _FALSE);
 #endif
 		}	
 		pHalData->bNeedIQK = _FALSE;

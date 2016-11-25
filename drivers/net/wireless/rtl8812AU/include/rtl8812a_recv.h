@@ -22,24 +22,30 @@
 
 #if defined(CONFIG_USB_HCI)
 
+#ifndef MAX_RECVBUF_SZ
 #ifdef PLATFORM_OS_CE
 #define MAX_RECVBUF_SZ (8192+1024) // 8K+1k
 #else
 	#ifndef CONFIG_MINIMAL_MEMORY_USAGE
-		#ifdef CONFIG_PLATFORM_MSTAR
-			#define MAX_RECVBUF_SZ (8192) // 8K
+		#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
+			#define MAX_RECVBUF_SZ (rtw_rtkm_get_buff_size()) /*depend rtkm*/
 		#else
-		#define MAX_RECVBUF_SZ (32768) // 32k
+			#define MAX_RECVBUF_SZ (32768)  /*32k*/
 		#endif
 		//#define MAX_RECVBUF_SZ (24576) // 24k
 		//#define MAX_RECVBUF_SZ (20480) //20K
 		//#define MAX_RECVBUF_SZ (10240) //10K
 		//#define MAX_RECVBUF_SZ (15360) // 15k < 16k
 		//#define MAX_RECVBUF_SZ (8192+1024) // 8K+1k
+		#ifdef CONFIG_PLATFORM_NOVATEK_NT72668
+		#undef MAX_RECVBUF_SZ
+		#define MAX_RECVBUF_SZ (15360) // 15k < 16k
+		#endif //CONFIG_PLATFORM_NOVATEK_NT72668
 	#else
 		#define MAX_RECVBUF_SZ (4000) // about 4K
 	#endif
 #endif
+#endif //!MAX_RECVBUF_SZ
 
 #elif defined(CONFIG_PCI_HCI)
 //#ifndef CONFIG_MINIMAL_MEMORY_USAGE
@@ -155,8 +161,7 @@ s32 rtl8812ae_init_recv_priv(PADAPTER padapter);
 void rtl8812ae_free_recv_priv(PADAPTER padapter);
 #endif
 
-void	rtl8812_query_rx_desc_status(union recv_frame *precvframe, u8 *pdesc);
-void	rtl8812_query_rx_phy_status(union recv_frame *prframe, u8 *pphy_stat);
+void rtl8812_query_rx_desc_status(union recv_frame *precvframe, u8 *pdesc);
 
-#endif
+#endif /* __RTL8812A_RECV_H__ */
 

@@ -69,6 +69,10 @@
 	#include <asm/io.h>
 #endif
 
+#ifdef CONFIG_NET_RADIO
+	#define CONFIG_WIRELESS_EXT
+#endif
+
 #ifdef CONFIG_IOCTL_CFG80211	
 //	#include <linux/ieee80211.h>        
         #include <net/ieee80211_radiotap.h>
@@ -96,6 +100,14 @@
 	#include <linux/usb/ch9.h>
 #endif
 #endif
+
+#ifdef CONFIG_BT_COEXIST_SOCKET_TRX
+	#include <net/sock.h>
+	#include <net/tcp.h>
+	#include <linux/udp.h>
+	#include <linux/in.h>
+	#include <linux/netlink.h>
+#endif //CONFIG_BT_COEXIST_SOCKET_TRX
 
 #ifdef CONFIG_USB_HCI
 	typedef struct urb *  PURB;

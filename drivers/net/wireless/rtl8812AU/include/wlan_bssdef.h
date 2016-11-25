@@ -73,7 +73,7 @@ typedef struct _NDIS_802_11_CONFIGURATION
     ULONG           Length;             // Length of structure
     ULONG           BeaconPeriod;       // units are Kusec
     ULONG           ATIMWindow;         // units are Kusec
-    ULONG           DSConfig;           // Frequency, units are kHz
+	ULONG           DSConfig;           /* channel number */
     NDIS_802_11_CONFIGURATION_FH    FHConfig;
 } NDIS_802_11_CONFIGURATION, *PNDIS_802_11_CONFIGURATION;
 
@@ -345,7 +345,7 @@ typedef struct _NDIS_802_11_CONFIGURATION
     ULONG           Length;             // Length of structure
     ULONG           BeaconPeriod;       // units are Kusec
     ULONG           ATIMWindow;         // units are Kusec
-    ULONG           DSConfig;           // Frequency, units are kHz
+	ULONG           DSConfig;           /* channel number */ 
     NDIS_802_11_CONFIGURATION_FH    FHConfig;
 } NDIS_802_11_CONFIGURATION, *PNDIS_802_11_CONFIGURATION;
 

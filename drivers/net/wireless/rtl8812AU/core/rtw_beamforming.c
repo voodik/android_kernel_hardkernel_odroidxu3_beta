@@ -92,8 +92,8 @@ struct beamforming_entry	*beamforming_add_entry(PADAPTER adapter, u8* ra, u16 ai
 		pEntry->sound_bw = bw;
 		if (check_fwstate(pmlmepriv, WIFI_AP_STATE))
 		{
-			u16	BSSID = ((adapter->eeprompriv.mac_addr[5] & 0xf0) >> 4) ^ 
-							(adapter->eeprompriv.mac_addr[5] & 0xf);	// BSSID[44:47] xor BSSID[40:43]
+			u16	BSSID = ((*(adapter_mac_addr(adapter) + 5) & 0xf0) >> 4) ^ 
+				(*(adapter_mac_addr(adapter) + 5) & 0xf); /* BSSID[44:47] xor BSSID[40:43] */
 			pEntry->p_aid = (aid + BSSID * 32) & 0x1ff;		// (dec(A) + dec(B)*32) mod 512
 		}		
 		else if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) || check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE))
@@ -113,9 +113,12 @@ struct beamforming_entry	*beamforming_add_entry(PADAPTER adapter, u8* ra, u16 ai
 		pEntry->beamforming_entry_cap = beamfrom_cap;
 		pEntry->beamforming_entry_state = BEAMFORMING_ENTRY_STATE_UNINITIALIZE;
 
-		pEntry->LogSeq = 0xff;
-		pEntry->LogRetryCnt = 0;
-		pEntry->LogSuccessCnt = 0;
+
+		pEntry->PreLogSeq = 0;	/*Modified by Jeffery @2015-04-13*/
+		pEntry->LogSeq = 0;		/*Modified by Jeffery @2014-10-29*/
+		pEntry->LogRetryCnt = 0;	/*Modified by Jeffery @2014-10-29*/
+		pEntry->LogSuccess = 0;	/*LogSuccess is NOT needed to be accumulated, so  LogSuccessCnt->LogSuccess, 2015-04-13, Jeffery*/
+		pEntry->ClockResetTimes = 0;	/*Modified by Jeffery @2015-04-13*/
 		pEntry->LogStatusFailCnt = 0;
 
 		return pEntry;
@@ -280,30 +283,43 @@ void	beamforming_get_ndpa_frame(PADAPTER	 Adapter, union recv_frame *precv_frame
 		return;
 	else if(!(pBeamformEntry->beamforming_entry_cap & BEAMFORMEE_CAP_VHT_SU))
 		return;
-	else if(pBeamformEntry->LogSuccessCnt > 1)
-		return;
-
-	Sequence = (pframe[16]) >> 2;
-
-	if(pBeamformEntry->LogSeq != Sequence)
-	{
-		/* Previous frame doesn't retry when meet new sequence number */
-		if(pBeamformEntry->LogSeq != 0xff && pBeamformEntry->LogRetryCnt == 0)
-			pBeamformEntry->LogSuccessCnt++;
-		
-		pBeamformEntry->LogSeq = Sequence;
-		pBeamformEntry->LogRetryCnt = 0;
-	}	
-	else
-	{
-		if(pBeamformEntry->LogRetryCnt == 3)
-			beamforming_wk_cmd(Adapter, BEAMFORMING_CTRL_SOUNDING_CLK, NULL, 0, 1);
-
-		pBeamformEntry->LogRetryCnt++;
+	/*LogSuccess: As long as 8812A receive NDPA and feedback CSI succeed once, clock reset is NO LONGER needed !2015-04-10, Jeffery*/
+	/*ClockResetTimes: While BFer entry always doesn't receive our CSI, clock will reset again and again.So ClockResetTimes is limited to 5 times.2015-04-13, Jeffery*/
+	else if ((pBeamformEntry->LogSuccess == 1) || (pBeamformEntry->ClockResetTimes == 5)) {
+		DBG_871X("[%s] LogSeq=%d, PreLogSeq=%d\n", __func__, pBeamformEntry->LogSeq, pBeamformEntry->PreLogSeq);
+        return;
 	}
 
-	DBG_871X("%s LogSeq %d LogRetryCnt %d LogSuccessCnt %d\n", 
-			__FUNCTION__, pBeamformEntry->LogSeq, pBeamformEntry->LogRetryCnt, pBeamformEntry->LogSuccessCnt);
+	Sequence = (pframe[16]) >> 2;
+	DBG_871X("[%s] Start, Sequence=%d, LogSeq=%d, PreLogSeq=%d, LogRetryCnt=%d, ClockResetTimes=%d, LogSuccess=%d\n", 
+		__func__, Sequence, pBeamformEntry->LogSeq, pBeamformEntry->PreLogSeq, pBeamformEntry->LogRetryCnt, pBeamformEntry->ClockResetTimes, pBeamformEntry->LogSuccess);
+
+	if ((pBeamformEntry->LogSeq != 0) && (pBeamformEntry->PreLogSeq != 0)) {
+		/*Success condition*/
+		if ((pBeamformEntry->LogSeq != Sequence) && (pBeamformEntry->PreLogSeq != pBeamformEntry->LogSeq)) {
+			/* break option for clcok reset, 2015-03-30, Jeffery */
+			pBeamformEntry->LogRetryCnt = 0;
+			/*As long as 8812A receive NDPA and feedback CSI succeed once, clock reset is no longer needed.*/
+			/*That is, LogSuccess is NOT needed to be reset to zero, 2015-04-13, Jeffery*/
+			pBeamformEntry->LogSuccess = 1;
+
+		} else {/*Fail condition*/
+
+			if (pBeamformEntry->LogRetryCnt == 5) {
+				pBeamformEntry->ClockResetTimes++;
+				pBeamformEntry->LogRetryCnt = 0;
+
+				DBG_871X("[%s] Clock Reset!!! ClockResetTimes=%d\n",  __func__, pBeamformEntry->ClockResetTimes);
+				beamforming_wk_cmd(Adapter, BEAMFORMING_CTRL_SOUNDING_CLK, NULL, 0, 1);
+
+			} else
+				pBeamformEntry->LogRetryCnt++;
+		}
+	}
+
+	/*Update LogSeq & PreLogSeq*/
+	pBeamformEntry->PreLogSeq = pBeamformEntry->LogSeq;
+	pBeamformEntry->LogSeq = Sequence;
 }
 
 BOOLEAN	issue_ht_ndpa_packet(PADAPTER Adapter, u8 *ra, CHANNEL_WIDTH bw, u8 qidx)
@@ -330,7 +346,7 @@ BOOLEAN	issue_ht_ndpa_packet(PADAPTER Adapter, u8 *ra, CHANNEL_WIDTH bw, u8 qidx
 	update_mgntframe_attrib(Adapter, pattrib);
 
 	if (qidx == BCN_QUEUE_INX)
-		pattrib->qsel = 0x10;
+		pattrib->qsel = QSLT_BEACON;
 	pattrib->rate = MGN_MCS8;
 	pattrib->bwmode = bw;
 	pattrib->order = 1;
@@ -349,7 +365,7 @@ BOOLEAN	issue_ht_ndpa_packet(PADAPTER Adapter, u8 *ra, CHANNEL_WIDTH bw, u8 qidx
 	SetFrameSubType(pframe, WIFI_ACTION_NOACK);
 
 	_rtw_memcpy(pwlanhdr->addr1, ra, ETH_ALEN);
-	_rtw_memcpy(pwlanhdr->addr2, myid(&(Adapter->eeprompriv)), ETH_ALEN);
+	_rtw_memcpy(pwlanhdr->addr2, adapter_mac_addr(Adapter), ETH_ALEN);
 	_rtw_memcpy(pwlanhdr->addr3, get_my_bssid(&(pmlmeinfo->network)), ETH_ALEN);
 
 	if( pmlmeext->cur_wireless_mode == WIRELESS_11B)
@@ -412,7 +428,7 @@ BOOLEAN	issue_vht_ndpa_packet(PADAPTER Adapter, u8 *ra, u16 aid, CHANNEL_WIDTH b
 	update_mgntframe_attrib(Adapter, pattrib);
 
 	if (qidx == BCN_QUEUE_INX)
-		pattrib->qsel = 0x10;
+		pattrib->qsel = QSLT_BEACON;
 	pattrib->rate = MGN_VHT2SS_MCS0;
 	pattrib->bwmode = bw;
 	pattrib->subtype = WIFI_NDPA;
@@ -429,7 +445,7 @@ BOOLEAN	issue_vht_ndpa_packet(PADAPTER Adapter, u8 *ra, u16 aid, CHANNEL_WIDTH b
 	SetFrameSubType(pframe, WIFI_NDPA);
 
 	_rtw_memcpy(pwlanhdr->addr1, ra, ETH_ALEN);
-	_rtw_memcpy(pwlanhdr->addr2, myid(&(Adapter->eeprompriv)), ETH_ALEN);
+	_rtw_memcpy(pwlanhdr->addr2, adapter_mac_addr(Adapter), ETH_ALEN);
 
 	if (IsSupported5G(pmlmeext->cur_wireless_mode) || IsSupportedHT(pmlmeext->cur_wireless_mode))
 		aSifsTime = 16;

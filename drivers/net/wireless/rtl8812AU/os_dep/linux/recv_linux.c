@@ -183,8 +183,6 @@ int rtw_os_recvbuf_resource_alloc(_adapter *padapter, struct recv_buf *precvbuf)
 
 	precvbuf->pskb = NULL;
 
-	precvbuf->reuse = _FALSE;
-
 	precvbuf->pallocated_buf  = precvbuf->pbuf = NULL;
 
 	precvbuf->pdata = precvbuf->phead = precvbuf->ptail = precvbuf->pend = NULL;
@@ -233,9 +231,12 @@ int rtw_os_recvbuf_resource_free(_adapter *padapter, struct recv_buf *precvbuf)
 
 
 	if(precvbuf->pskb)
+	{
+#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
+		if(rtw_free_skb_premem(precvbuf->pskb)!=0)
+#endif
 		rtw_skb_free(precvbuf->pskb);
-
-
+	}
 	return ret;
 
 }
@@ -299,9 +300,11 @@ _pkt *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, u16 nSubframe_Length, u8 
 void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attrib *pattrib)
 {
 	struct mlme_priv*pmlmepriv = &padapter->mlmepriv;
+	struct recv_priv *precvpriv = &(padapter->recvpriv);
 #ifdef CONFIG_BR_EXT
 	void *br_port = NULL;
 #endif
+	int ret;
 
 	/* Indicat the packets to upper layer */
 	if (pkt) {
@@ -314,7 +317,7 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 
 			//DBG_871X("bmcast=%d\n", bmcast);
 
-			if(_rtw_memcmp(pattrib->dst, myid(&padapter->eeprompriv), ETH_ALEN)==_FALSE)
+			if (_rtw_memcmp(pattrib->dst, adapter_mac_addr(padapter), ETH_ALEN) == _FALSE)
 			{
 				//DBG_871X("not ap psta=%p, addr=%pM\n", psta, pattrib->dst);
 
@@ -342,7 +345,9 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 
 					if(bmcast && (pskb2 != NULL) ) {
 						pkt = pskb2;
+						DBG_COUNTER(padapter->rx_logs.os_indicate_ap_mcast);
 					} else {
+						DBG_COUNTER(padapter->rx_logs.os_indicate_ap_forward);
 						return;
 					}
 				}
@@ -350,6 +355,7 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 			else// to APself
 			{
 				//DBG_871X("to APSelf\n");
+				DBG_COUNTER(padapter->rx_logs.os_indicate_ap_self);
 			}
 		}
 		
@@ -381,7 +387,8 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 			}							
 		}
 #endif	// CONFIG_BR_EXT
-
+		if( precvpriv->sink_udpport > 0)
+			rtw_sink_rtp_seq_dbg(padapter,pkt);
 		pkt->protocol = eth_type_trans(pkt, padapter->pnetdev);
 		pkt->dev = padapter->pnetdev;
 
@@ -395,7 +402,11 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 		pkt->ip_summed = CHECKSUM_NONE;
 #endif //CONFIG_TCP_CSUM_OFFLOAD_RX
 
-		rtw_netif_rx(padapter->pnetdev, pkt);
+		ret = rtw_netif_rx(padapter->pnetdev, pkt);
+		if (ret == NET_RX_SUCCESS)
+			DBG_COUNTER(padapter->rx_logs.os_netif_ok);
+		else
+			DBG_COUNTER(padapter->rx_logs.os_netif_err);
 	}
 }
 
@@ -558,10 +569,13 @@ int rtw_recv_indicatepkt(_adapter *padapter, union recv_frame *precv_frame)
 	_queue	*pfree_recv_queue;
 	_pkt *skb;
 	struct mlme_priv*pmlmepriv = &padapter->mlmepriv;
-	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
+	struct rx_pkt_attrib *pattrib;
+	
+	if(NULL == precv_frame)
+		goto _recv_indicatepkt_drop;
 
-_func_enter_;
-
+	DBG_COUNTER(padapter->rx_logs.os_indicate);
+	pattrib = &precv_frame->u.hdr.attrib;
 	precvpriv = &(padapter->recvpriv);
 	pfree_recv_queue = &(precvpriv->free_recv_queue);
 
@@ -599,6 +613,9 @@ _func_enter_;
 
 	RT_TRACE(_module_recv_osdep_c_,_drv_info_,("\n skb->head=%p skb->data=%p skb->tail=%p skb->end=%p skb->len=%d\n", skb->head, skb->data, skb_tail_pointer(skb), skb_end_pointer(skb), skb->len));
 
+	if (pattrib->eth_type == 0x888e)
+		DBG_871X_LEVEL(_drv_always_, "recv eapol packet\n");
+
 #ifdef CONFIG_AUTO_AP_MODE	
 #if 1 //for testing
 #if 1
@@ -629,7 +646,6 @@ _recv_indicatepkt_end:
 
 	RT_TRACE(_module_recv_osdep_c_,_drv_info_,("\n rtw_recv_indicatepkt :after rtw_os_recv_indicate_pkt!!!!\n"));
 
-_func_exit_;
 
         return _SUCCESS;
 
@@ -639,9 +655,9 @@ _recv_indicatepkt_drop:
 	 if(precv_frame)
 		 rtw_free_recvframe(precv_frame, pfree_recv_queue);
 
-	 return _FAIL;
+	 DBG_COUNTER(padapter->rx_logs.os_indicate_err);
 
-_func_exit_;
+	 return _FAIL;
 
 }
 
@@ -657,7 +673,6 @@ void rtw_os_read_port(_adapter *padapter, struct recv_buf *precvbuf)
 	rtw_skb_free(precvbuf->pskb);
 
 	precvbuf->pskb = NULL;
-	precvbuf->reuse = _FALSE;
 
 	if(precvbuf->irp_pending == _FALSE)
 	{

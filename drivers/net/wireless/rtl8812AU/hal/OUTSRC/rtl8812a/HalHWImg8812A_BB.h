@@ -22,8 +22,6 @@
 #ifndef __INC_MP_BB_HW_IMG_8812A_H
 #define __INC_MP_BB_HW_IMG_8812A_H
 
-//static BOOLEAN CheckPositive(PDM_ODM_T pDM_Odm, const u4Byte Condition1, const u4Byte Condition2);
-//static BOOLEAN CheckNegative(PDM_ODM_T pDM_Odm, const u4Byte Condition1, const u4Byte Condition2);
 
 /******************************************************************************
 *                           AGC_TAB.TXT
@@ -33,19 +31,7 @@ void
 ODM_ReadAndConfig_MP_8812A_AGC_TAB( // TC: Test Chip, MP: MP Chip
 	IN   PDM_ODM_T  pDM_Odm
 );
-u4Byte
-ODM_GetVersion_MP_8812A_AGC_TAB(VOID);
-
-/******************************************************************************
-*                           PHY_REG.TXT
-******************************************************************************/
-
-void
-ODM_ReadAndConfig_MP_8812A_PHY_REG( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
-);
-u4Byte
-ODM_GetVersion_MP_8812A_PHY_REG(VOID);
+u4Byte ODM_GetVersion_MP_8812A_AGC_TAB(void);
 
 /******************************************************************************
 *                           AGC_TAB_DIFF.TXT
@@ -59,41 +45,17 @@ ODM_ReadAndConfig_MP_8812A_AGC_TAB_DIFF(
  	 IN   u4Byte  	   Array[],
  	 IN   u4Byte  	   ArrayLen 
 );
-u4Byte
-ODM_GetVersion_MP_8812A_AGC_TAB_DIFF(VOID);
+u4Byte ODM_GetVersion_MP_8812A_AGC_TAB_DIFF(void);
 
 /******************************************************************************
-*                           PHY_REG_PG.TXT
+*                           PHY_REG.TXT
 ******************************************************************************/
 
 void
-ODM_ReadAndConfig_MP_8812A_PHY_REG_PG( // TC: Test Chip, MP: MP Chip
+ODM_ReadAndConfig_MP_8812A_PHY_REG( // TC: Test Chip, MP: MP Chip
 	IN   PDM_ODM_T  pDM_Odm
 );
-u4Byte
-ODM_GetVersion_MP_8812A_PHY_REG_PG(VOID);
-
-/******************************************************************************
-*                           PHY_REG_PG_ASUS.TXT
-******************************************************************************/
-
-void
-ODM_ReadAndConfig_MP_8812A_PHY_REG_PG_ASUS( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
-);
-u4Byte
-ODM_GetVersion_MP_8812A_PHY_REG_PG_ASUS(VOID);
-
-/******************************************************************************
-*                           PHY_REG_PG_NEC.TXT
-******************************************************************************/
-
-void
-ODM_ReadAndConfig_MP_8812A_PHY_REG_PG_NEC( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
-);
-u4Byte
-ODM_GetVersion_MP_8812A_PHY_REG_PG_NEC(VOID);
+u4Byte ODM_GetVersion_MP_8812A_PHY_REG(void);
 
 /******************************************************************************
 *                           PHY_REG_MP.TXT
@@ -103,8 +65,37 @@ void
 ODM_ReadAndConfig_MP_8812A_PHY_REG_MP( // TC: Test Chip, MP: MP Chip
 	IN   PDM_ODM_T  pDM_Odm
 );
-u4Byte
-ODM_GetVersion_MP_8812A_PHY_REG_MP(VOID);
+u4Byte ODM_GetVersion_MP_8812A_PHY_REG_MP(void);
+
+/******************************************************************************
+*                           PHY_REG_PG.TXT
+******************************************************************************/
+
+void
+ODM_ReadAndConfig_MP_8812A_PHY_REG_PG( // TC: Test Chip, MP: MP Chip
+	IN   PDM_ODM_T  pDM_Odm
+);
+u4Byte ODM_GetVersion_MP_8812A_PHY_REG_PG(void);
+
+/******************************************************************************
+*                           PHY_REG_PG_ASUS.TXT
+******************************************************************************/
+
+void
+ODM_ReadAndConfig_MP_8812A_PHY_REG_PG_ASUS( // TC: Test Chip, MP: MP Chip
+	IN   PDM_ODM_T  pDM_Odm
+);
+u4Byte ODM_GetVersion_MP_8812A_PHY_REG_PG_ASUS(void);
+
+/******************************************************************************
+*                           PHY_REG_PG_NEC.TXT
+******************************************************************************/
+
+void
+ODM_ReadAndConfig_MP_8812A_PHY_REG_PG_NEC( // TC: Test Chip, MP: MP Chip
+	IN   PDM_ODM_T  pDM_Odm
+);
+u4Byte ODM_GetVersion_MP_8812A_PHY_REG_PG_NEC(void);
 
 #endif
 #endif // end of HWIMG_SUPPORT

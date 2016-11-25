@@ -277,7 +277,73 @@ void rtw_wifi_gpio_wlan_ctrl(int onoff)
 }
 #endif //ANDROID_2X
 
-#else // !CONFIG_PLATFORM_SPRD
+#elif defined(CONFIG_PLATFORM_ARM_RK3066) 
+#include <mach/iomux.h>
+
+#define GPIO_WIFI_IRQ		RK30_PIN2_PC2
+extern unsigned int oob_irq;
+int rtw_wifi_gpio_init(void)
+{
+#ifdef CONFIG_GSPI_HCI
+	if (GPIO_WIFI_IRQ > 0) {
+		rk30_mux_api_set(GPIO2C2_LCDC1DATA18_SMCBLSN1_HSADCDATA5_NAME, GPIO2C_GPIO2C2);//jacky_test
+		gpio_request(GPIO_WIFI_IRQ, "oob_irq");
+		gpio_direction_input(GPIO_WIFI_IRQ);
+
+		oob_irq = gpio_to_irq(GPIO_WIFI_IRQ);
+
+		DBG_8192C("%s oob_irq:%d\n", __func__, oob_irq);
+	}
+#endif
+	return 0;
+}
+
+
+int rtw_wifi_gpio_deinit(void)
+{
+#ifdef CONFIG_GSPI_HCI
+	if (GPIO_WIFI_IRQ > 0)
+		gpio_free(GPIO_WIFI_IRQ);
+#endif
+	return 0;
+}
+
+void rtw_wifi_gpio_wlan_ctrl(int onoff)
+{
+}
+
+#ifdef CONFIG_GPIO_API
+//this is a demo for extending GPIO pin[7] as interrupt mode
+struct net_device * rtl_net;
+extern int rtw_register_gpio_interrupt(struct net_device *netdev, int gpio_num, void(*callback)(u8 level));
+extern int rtw_disable_gpio_interrupt(struct net_device *netdev, int gpio_num);
+void gpio_int(u8 is_high)
+{
+	DBG_8192C("%s level=%d\n",__func__, is_high);
+}
+int register_net_gpio_init(void)
+{
+	rtl_net = dev_get_by_name(&init_net,"wlan0");
+	if(!rtl_net)
+	{
+		DBG_871X_LEVEL(_drv_always_, "rtl_net init fail!\n");
+		return -1;
+	}
+	return rtw_register_gpio_interrupt(rtl_net,7, gpio_int);
+}
+int unregister_net_gpio_init(void)
+{
+	rtl_net = dev_get_by_name(&init_net,"wlan0");
+	if(!rtl_net)
+	{
+		DBG_871X_LEVEL(_drv_always_, "rtl_net init fail!\n");
+		return -1;
+	}
+	return rtw_disable_gpio_interrupt(rtl_net,7);
+}
+#endif
+
+#else
 
 int rtw_wifi_gpio_init(void)
 {

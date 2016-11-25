@@ -16,6 +16,8 @@
 		(((_BT_INFO_EXT_&BIT0))? TRUE:FALSE)
 
 #define		BTC_RSSI_COEX_THRESH_TOL_8812A_2ANT		2
+#define 	NOISY_AP_NUM_THRESH_8812A						50
+
 
 typedef enum _BT_INFO_SRC_8812A_2ANT{
 	BT_INFO_SRC_8812A_2ANT_WIFI_FW			= 0x0,
@@ -73,6 +75,9 @@ typedef struct _COEX_DM_8812A_2ANT{
 	u1Byte		curLps;
 	u1Byte		preRpwm;
 	u1Byte		curRpwm;
+	BOOLEAN		bPreEnablePTA;
+	BOOLEAN		bCurEnablePTA;
+
 
 	// sw mechanism
 	BOOLEAN		bPreRfRxLpfShrink;
@@ -125,6 +130,7 @@ typedef struct _COEX_STA_8812A_2ANT{
 	BOOLEAN					bA2dpExist;
 	BOOLEAN					bHidExist;
 	BOOLEAN					bPanExist;
+	BOOLEAN					bAclBusy;
 
 	BOOLEAN					bUnderLps;
 	BOOLEAN					bUnderIps;
@@ -134,14 +140,34 @@ typedef struct _COEX_STA_8812A_2ANT{
 	u4Byte					lowPriorityRx;
 	u1Byte					btRssi;
 	u1Byte					preBtRssiState;
+	u1Byte					preBtDisabled;
 	u1Byte					preWifiRssiState[4];
 	BOOLEAN					bC2hBtInfoReqSent;
 	u1Byte					btInfoC2h[BT_INFO_SRC_8812A_2ANT_MAX][10];
 	u4Byte					btInfoC2hCnt[BT_INFO_SRC_8812A_2ANT_MAX];
+	u4Byte					prebtInfoC2hCnt_BT_RSP;
+	u4Byte					prebtInfoC2hCnt_BT_SEND;
 	u4Byte					btInfoQueryCnt;
 	BOOLEAN					bC2hBtInquiryPage;
 	u1Byte					btRetryCnt;
 	u1Byte					btInfoExt;
+	u1Byte					nScanAPNum;
+
+	u4Byte					nCRCOK_CCK;
+	u4Byte					nCRCOK_11g;
+	u4Byte					nCRCOK_11n;
+	u4Byte					nCRCOK_11nAgg;
+	
+	u4Byte					nCRCErr_CCK;
+	u4Byte					nCRCErr_11g;
+	u4Byte					nCRCErr_11n;
+	u4Byte					nCRCErr_11nAgg;
+
+	u1Byte					nCoexTableType;
+	BOOLEAN					bForceLpsOn;
+
+	u1Byte					disVerInfoCnt;
+
 }COEX_STA_8812A_2ANT, *PCOEX_STA_8812A_2ANT;
 
 //===========================================
@@ -214,5 +240,10 @@ EXhalbtc8812a2ant_DbgControl(
 	IN	u1Byte				opCode,
 	IN	u1Byte				opLen,
 	IN	pu1Byte 			pData
+	);
+VOID
+EXhalbtc8812a2ant_BTOffOnNotify(
+	IN	PBTC_COEXIST			pBtCoexist,
+	IN	u1Byte			BTstatus 
 	);
 

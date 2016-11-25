@@ -27,8 +27,9 @@
 #define	HWSET_MAX_SIZE_128		128
 #define	HWSET_MAX_SIZE_256		256
 #define	HWSET_MAX_SIZE_512		512
+#define HWSET_MAX_SIZE_1024		1024
 
-#define	EEPROM_MAX_SIZE			HWSET_MAX_SIZE_512
+#define	EEPROM_MAX_SIZE			HWSET_MAX_SIZE_1024
 
 #define	CLOCK_RATE					50			//100us		
 
@@ -124,8 +125,8 @@ struct eeprom_priv
 	u8		adjuseVoltageVal;
 
 #ifdef CONFIG_RF_GAIN_OFFSET
-		u8		EEPROMRFGainOffset;
-		u8		EEPROMRFGainVal;
+	u8		EEPROMRFGainOffset;
+	u8		EEPROMRFGainVal;
 #endif //CONFIG_RF_GAIN_OFFSET
 
 #ifdef CONFIG_SDIO_HCI

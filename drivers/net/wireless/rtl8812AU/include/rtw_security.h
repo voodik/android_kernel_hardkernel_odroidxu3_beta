@@ -209,6 +209,30 @@ struct security_priv
 	//u8				szCapability[256];				// For WPA2-PSK using zero-config, by Annie, 2005-09-20.
 
 	u8 bWepDefaultKeyIdxSet;
+
+#define DBG_SW_SEC_CNT
+#ifdef DBG_SW_SEC_CNT
+	u64 wep_sw_enc_cnt_bc;
+	u64 wep_sw_enc_cnt_mc;
+	u64 wep_sw_enc_cnt_uc;
+	u64 wep_sw_dec_cnt_bc;
+	u64 wep_sw_dec_cnt_mc;
+	u64 wep_sw_dec_cnt_uc;
+
+	u64 tkip_sw_enc_cnt_bc;
+	u64 tkip_sw_enc_cnt_mc;
+	u64 tkip_sw_enc_cnt_uc;
+	u64 tkip_sw_dec_cnt_bc;
+	u64 tkip_sw_dec_cnt_mc;
+	u64 tkip_sw_dec_cnt_uc;
+
+	u64 aes_sw_enc_cnt_bc;
+	u64 aes_sw_enc_cnt_mc;
+	u64 aes_sw_enc_cnt_uc;
+	u64 aes_sw_dec_cnt_bc;
+	u64 aes_sw_dec_cnt_mc;
+	u64 aes_sw_dec_cnt_uc;
+#endif /* DBG_SW_SEC_CNT */
 };
 
 struct sha256_state {
@@ -444,6 +468,8 @@ void wpa_tdls_generate_tpk(_adapter *padapter, PVOID sta);
 int wpa_tdls_ftie_mic(u8 *kck, u8 trans_seq, 
 						u8 *lnkid, u8 *rsnie, u8 *timeoutie, u8 *ftie,
 						u8 *mic);
+int wpa_tdls_teardown_ftie_mic(u8 *kck, u8 *lnkid, u16 reason, 
+	u8 dialog_token, u8 trans_seq, u8 *ftie, u8 *mic);
 int tdls_verify_mic(u8 *kck, u8 trans_seq, 
 						u8 *lnkid, u8 *rsnie, u8 *timeoutie, u8 *ftie);
 #endif //CONFIG_TDLS

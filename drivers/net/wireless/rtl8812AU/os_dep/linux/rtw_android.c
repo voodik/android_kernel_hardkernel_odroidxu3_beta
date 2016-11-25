@@ -86,7 +86,7 @@ const char *android_wifi_cmd_str[ANDROID_WIFI_CMD_MAX] = {
 	"HOSTAPD_SET_MACADDR_ACL",
 	"HOSTAPD_ACL_ADD_STA",
 	"HOSTAPD_ACL_REMOVE_STA",
-#ifdef CONFIG_GTK_OL
+#if defined(CONFIG_GTK_OL) && (LINUX_VERSION_CODE < KERNEL_VERSION(3, 1, 0))
 	"GTK_REKEY_OFFLOAD",
 #endif //CONFIG_GTK_OL
 /*	Private command for	P2P disable*/
@@ -161,7 +161,8 @@ typedef struct compat_android_wifi_priv_cmd {
  */
 static int g_wifi_on = _TRUE;
 
-unsigned int oob_irq;
+unsigned int oob_irq = 0;
+unsigned int oob_gpio = 0;
 
 #ifdef CONFIG_PNO_SUPPORT
 /* 
@@ -424,11 +425,11 @@ int rtw_android_setband(struct net_device *net, char *command, int total_len)
 {
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(net);
 	char *arg = command + strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_SETBAND]) + 1;
-	u32 band = GHZ_MAX;
+	u32 band = WIFI_FREQUENCY_BAND_AUTO;
 	int ret = _FAIL;
 
-	sscanf(arg, "%u", &band);
-	ret = rtw_set_band(adapter, band);
+	if (sscanf(arg, "%u", &band) >= 1)
+		ret = rtw_set_band(adapter, band);
 
 	return (ret==_SUCCESS)?0:-1;
 }
@@ -499,7 +500,7 @@ int get_int_from_command( char* pcmd )
 	return ( rtw_atoi( pcmd + i ) );
 }
 
-#ifdef CONFIG_GTK_OL
+#if defined(CONFIG_GTK_OL) && (LINUX_VERSION_CODE < KERNEL_VERSION(3, 1, 0))
 int rtw_gtk_offload(struct net_device *net, u8 *cmd_ptr)
 {
 	int i;
@@ -846,19 +847,20 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		rtw_acl_remove_sta(padapter, addr);
 		break;
 	}
-#ifdef CONFIG_GTK_OL
+#if defined(CONFIG_GTK_OL) && (LINUX_VERSION_CODE < KERNEL_VERSION(3, 1, 0))
 	case ANDROID_WIFI_CMD_GTK_REKEY_OFFLOAD:
-		rtw_gtk_offload(net, (u8 *)&priv_cmd.buf);
+		rtw_gtk_offload(net, (u8*)command);
 		break;
 #endif //CONFIG_GTK_OL		
 	case ANDROID_WIFI_CMD_P2P_DISABLE:
 	{
+#ifdef CONFIG_P2P
 		struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;	
-		struct wifidirect_info 	*pwdinfo= &(padapter->wdinfo);
 		u8 channel, ch_offset;
 		u16 bwmode;
 
 		rtw_p2p_enable(padapter, P2P_ROLE_DISABLE);
+#endif // CONFIG_P2P
 		break;
 	}
 	default:
@@ -1036,9 +1038,13 @@ static int wifi_probe(struct platform_device *pdev)
 			wifi_irqres->start, wifi_wake_gpio);
 
 	if (wifi_wake_gpio > 0) {
+#ifdef CONFIG_PLATFORM_INTEL_BYT
+		wifi_configure_gpio();
+#else //CONFIG_PLATFORM_INTEL_BYT
 		gpio_request(wifi_wake_gpio, "oob_irq");
 		gpio_direction_input(wifi_wake_gpio);
 		oob_irq = gpio_to_irq(wifi_wake_gpio);
+#endif //CONFIG_PLATFORM_INTEL_BYT
 		printk("%s oob_irq:%d\n", __func__, oob_irq);
 	}
 	else if(wifi_irqres)
@@ -1226,3 +1232,34 @@ static void wifi_del_dev(void)
 }
 #endif /* defined(RTW_ENABLE_WIFI_CONTROL_FUNC) */
 
+#ifdef CONFIG_GPIO_WAKEUP
+#ifdef CONFIG_PLATFORM_INTEL_BYT
+int wifi_configure_gpio(void)
+{
+	if (gpio_request(oob_gpio, "oob_irq")) {
+		DBG_871X("## %s Cannot request GPIO\n", __FUNCTION__);
+		return -1;
+	}
+	gpio_export(oob_gpio, 0);
+	if (gpio_direction_input(oob_gpio)) {
+		DBG_871X("## %s Cannot set GPIO direction input\n", __FUNCTION__);
+		return -1;
+	}
+	if ((oob_irq = gpio_to_irq(oob_gpio)) < 0) {
+		DBG_871X("## %s Cannot convert GPIO to IRQ\n", __FUNCTION__);
+		return -1;
+	}
+
+	DBG_871X("## %s OOB_IRQ=%d\n", __FUNCTION__, oob_irq);
+
+	return 0;
+}
+#endif //CONFIG_PLATFORM_INTEL_BYT
+void wifi_free_gpio(unsigned int gpio)
+{
+#ifdef CONFIG_PLATFORM_INTEL_BYT
+	if(gpio)
+		gpio_free(gpio);
+#endif //CONFIG_PLATFORM_INTEL_BYT
+}
+#endif //CONFIG_GPIO_WAKEUP
