@@ -504,22 +504,7 @@ static int si2157_probe(struct i2c_client *client,
 	INIT_DELAYED_WORK(&dev->stat_work, si2157_stat_work);
 
 	/* check if the tuner is there */
-        /* wake tuner */
-	switch (dev->chiptype)
-	{
-	case SI2157_CHIPTYPE_SI2146:
-		memcpy(cmd.args, "\xc0\x05\x01\x00\x00\x0b\x00\x00\x01", 9);
-		cmd.wlen = 9;
-		break;
-	case SI2157_CHIPTYPE_SI2141:
-		memcpy(cmd.args, "\xc0\x05\x00\x00", 4);
-		cmd.wlen = 4;
-		break;
-	default:
-		memcpy(cmd.args, "\xc0\x00\x0c\x00\x00\x01\x01\x01\x01\x01\x01\x02\x00\x00\x01", 15);
-		cmd.wlen = 15;
-	}
-
+	cmd.wlen = 0;
 	cmd.rlen = 1;
 	ret = si2157_cmd_execute(client, &cmd);
 	if (ret)
@@ -554,8 +539,8 @@ static int si2157_probe(struct i2c_client *client,
 #endif
 
 	dev_info(&client->dev, "Silicon Labs %s successfully attached\n",
-			dev->chiptype == SI2157_CHIPTYPE_SI2141 ?
-			"Si2141/2151" : dev->chiptype == SI2157_CHIPTYPE_SI2146 ? "Si2146" : "Si2147/2148/2157/2158");
+			dev->chiptype == SI2157_CHIPTYPE_SI2146 ?
+			"Si2146" : "Si2147/2148/2157/2158");
 
 	return 0;
 
