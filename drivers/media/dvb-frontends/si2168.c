@@ -178,9 +178,11 @@ static int si2168_read_status(struct dvb_frontend *fe, fe_status_t *status)
 	dev->fe_status = *status;
 
 	if (*status & FE_HAS_LOCK) {
-		c->cnr.len = 1;
+		c->cnr.len = 2;
 		c->cnr.stat[0].scale = FE_SCALE_DECIBEL;
-		c->cnr.stat[0].svalue = cmd.args[3] * 250;
+		c->cnr.stat[0].svalue = (s64)cmd.args[3] * 250;
+		c->cnr.stat[1].scale = FE_SCALE_RELATIVE;
+		c->cnr.stat[1].uvalue = (s64)cmd.args[3] * 328;
 	} else {
 		c->cnr.len = 1;
 		c->cnr.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
@@ -198,18 +200,24 @@ err:
 static int si2168_read_snr(struct dvb_frontend *fe, u16 *snr)
 {
 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
-	
-	*snr = c->cnr.stat[0].scale == FE_SCALE_DECIBEL ? ((s32)c->cnr.stat[0].svalue / 250) *  328  : 0;
+	int i;
 
+	*snr = 0;
+	for (i=0; i < c->cnr.len; i++)
+		if (c->cnr.stat[i].scale == FE_SCALE_RELATIVE)
+		  *snr = (u16)c->cnr.stat[i].uvalue;
 	return 0;
 }
 
 static int si2168_read_signal_strength(struct dvb_frontend *fe, u16 *strength)
 {
 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
-	
-	*strength = c->strength.stat[0].scale == FE_SCALE_DECIBEL ? ((100000 + (s32)c->strength.stat[0].svalue) / 1000) * 656 : 0;
+	int i;
 
+	*strength = 0;
+	for (i=0; i < c->cnr.len; i++)
+		if (c->strength.stat[i].scale == FE_SCALE_RELATIVE)
+		  *strength = (u16)c->strength.stat[i].uvalue;
 	return 0;
 }
 
