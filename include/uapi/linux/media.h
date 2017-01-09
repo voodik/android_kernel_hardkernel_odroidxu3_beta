@@ -42,22 +42,86 @@ struct media_device_info {
 
 #define MEDIA_ENT_ID_FLAG_NEXT		(1 << 31)
 
+/* Used values for media_entity_desc::type */
+
+/*
+ * Initial value to be used when a new entity is created
+ * Drivers should change it to something useful
+ */
+#define MEDIA_ENT_T_UNKNOWN	0x00000000
+
+/*
+ * Base numbers for entity types
+ *
+ * Please notice that the huge gap of 16 bits for each base is overkill!
+ * 8 bits is more than enough to avoid starving entity types for each
+ * subsystem.
+ *
+ * However, It is kept this way just to avoid binary breakages with the
+ * namespace provided on legacy versions of this header.
+ */
+#define MEDIA_ENT_T_DVB_BASE		0x00000000
+#define MEDIA_ENT_T_V4L2_BASE		0x00010000
+#define MEDIA_ENT_T_V4L2_SUBDEV_BASE	0x00020000
+
+/*
+ * V4L2 entities - Those are used for DMA (mmap/DMABUF) and
+ *	read()/write() data I/O associated with the V4L2 devnodes.
+ */
+#define MEDIA_ENT_T_V4L2_VIDEO		(MEDIA_ENT_T_V4L2_BASE + 1)
+	/*
+	 * Please notice that numbers between MEDIA_ENT_T_V4L2_BASE + 2 and
+	 * MEDIA_ENT_T_V4L2_BASE + 4 can't be used, as those values used
+	 * to be declared for FB, ALSA and DVB entities.
+	 * As those values were never actually used in practice, we're just
+	 * adding them as backward compatibility macros and keeping the
+	 * numberspace clean here. This way, we avoid breaking compilation,
+	 * in the case of having some userspace application using the old
+	 * symbols.
+	 */
+#define MEDIA_ENT_T_V4L2_VBI		(MEDIA_ENT_T_V4L2_BASE + 5)
+#define MEDIA_ENT_T_V4L2_SWRADIO	(MEDIA_ENT_T_V4L2_BASE + 6)
+
+/* V4L2 Sub-device entities */
+
+/*
+ * Subdevs are initialized with MEDIA_ENT_T_V4L2_SUBDEV_UNKNOWN,
+ * in order to preserve backward compatibility.
+ * Drivers should change to the proper subdev type before
+ * registering the entity.
+ */
+#define MEDIA_ENT_T_V4L2_SUBDEV_UNKNOWN	MEDIA_ENT_T_V4L2_SUBDEV_BASE
+
+#define MEDIA_ENT_T_V4L2_SUBDEV_SENSOR	(MEDIA_ENT_T_V4L2_SUBDEV_BASE + 1)
+#define MEDIA_ENT_T_V4L2_SUBDEV_FLASH	(MEDIA_ENT_T_V4L2_SUBDEV_BASE + 2)
+#define MEDIA_ENT_T_V4L2_SUBDEV_LENS	(MEDIA_ENT_T_V4L2_SUBDEV_BASE + 3)
+	/* A converter of analogue video to its digital representation. */
+#define MEDIA_ENT_T_V4L2_SUBDEV_DECODER	(MEDIA_ENT_T_V4L2_SUBDEV_BASE + 4)
+	/* Tuner entity is actually both V4L2 and DVB subdev */
+#define MEDIA_ENT_T_V4L2_SUBDEV_TUNER	(MEDIA_ENT_T_V4L2_SUBDEV_BASE + 5)
+
+/* DVB entities */
+#define MEDIA_ENT_T_DVB_DEMOD		(MEDIA_ENT_T_DVB_BASE + 1)
+#define MEDIA_ENT_T_DVB_DEMUX		(MEDIA_ENT_T_DVB_BASE + 2)
+#define MEDIA_ENT_T_DVB_TSOUT		(MEDIA_ENT_T_DVB_BASE + 3)
+#define MEDIA_ENT_T_DVB_CA		(MEDIA_ENT_T_DVB_BASE + 4)
+#define MEDIA_ENT_T_DVB_NET_DECAP	(MEDIA_ENT_T_DVB_BASE + 5)
+
+/* Legacy symbols used to avoid userspace compilation breakages */
 #define MEDIA_ENT_TYPE_SHIFT		16
 #define MEDIA_ENT_TYPE_MASK		0x00ff0000
 #define MEDIA_ENT_SUBTYPE_MASK		0x0000ffff
 
-#define MEDIA_ENT_T_DEVNODE		(1 << MEDIA_ENT_TYPE_SHIFT)
-#define MEDIA_ENT_T_DEVNODE_V4L		(MEDIA_ENT_T_DEVNODE + 1)
+#define MEDIA_ENT_T_DEVNODE		MEDIA_ENT_T_V4L2_BASE
+#define MEDIA_ENT_T_V4L2_SUBDEV		MEDIA_ENT_T_V4L2_SUBDEV_BASE
+
+#define MEDIA_ENT_T_DEVNODE_V4L		MEDIA_ENT_T_V4L2_VIDEO
+
 #define MEDIA_ENT_T_DEVNODE_FB		(MEDIA_ENT_T_DEVNODE + 2)
 #define MEDIA_ENT_T_DEVNODE_ALSA	(MEDIA_ENT_T_DEVNODE + 3)
 #define MEDIA_ENT_T_DEVNODE_DVB		(MEDIA_ENT_T_DEVNODE + 4)
 
-#define MEDIA_ENT_T_V4L2_SUBDEV		(2 << MEDIA_ENT_TYPE_SHIFT)
-#define MEDIA_ENT_T_V4L2_SUBDEV_SENSOR	(MEDIA_ENT_T_V4L2_SUBDEV + 1)
-#define MEDIA_ENT_T_V4L2_SUBDEV_FLASH	(MEDIA_ENT_T_V4L2_SUBDEV + 2)
-#define MEDIA_ENT_T_V4L2_SUBDEV_LENS	(MEDIA_ENT_T_V4L2_SUBDEV + 3)
-/* A converter of analogue video to its digital representation. */
-#define MEDIA_ENT_T_V4L2_SUBDEV_DECODER	(MEDIA_ENT_T_V4L2_SUBDEV + 4)
+/* Entity types */
 
 #define MEDIA_ENT_FL_DEFAULT		(1 << 0)
 
@@ -75,6 +139,11 @@ struct media_entity_desc {
 
 	union {
 		/* Node specifications */
+		struct {
+			__u32 major;
+			__u32 minor;
+		} dev;
+
 		struct {
 			__u32 major;
 			__u32 minor;
@@ -126,6 +195,26 @@ struct media_links_enum {
 	__u32 reserved[4];
 };
 
+/* Interface type ranges */
+
+#define MEDIA_INTF_T_DVB_BASE	0x00000100
+#define MEDIA_INTF_T_V4L_BASE	0x00000200
+
+/* Interface types */
+
+#define MEDIA_INTF_T_DVB_FE    	(MEDIA_INTF_T_DVB_BASE)
+#define MEDIA_INTF_T_DVB_DEMUX  (MEDIA_INTF_T_DVB_BASE + 1)
+#define MEDIA_INTF_T_DVB_DVR    (MEDIA_INTF_T_DVB_BASE + 2)
+#define MEDIA_INTF_T_DVB_CA     (MEDIA_INTF_T_DVB_BASE + 3)
+#define MEDIA_INTF_T_DVB_NET    (MEDIA_INTF_T_DVB_BASE + 4)
+
+#define MEDIA_INTF_T_V4L_VIDEO  (MEDIA_INTF_T_V4L_BASE)
+#define MEDIA_INTF_T_V4L_VBI    (MEDIA_INTF_T_V4L_BASE + 1)
+#define MEDIA_INTF_T_V4L_RADIO  (MEDIA_INTF_T_V4L_BASE + 2)
+#define MEDIA_INTF_T_V4L_SUBDEV (MEDIA_INTF_T_V4L_BASE + 3)
+#define MEDIA_INTF_T_V4L_SWRADIO (MEDIA_INTF_T_V4L_BASE + 4)
+
+/* TBD: declare the structs needed for the new G_TOPOLOGY ioctl */
 #define MEDIA_IOC_DEVICE_INFO		_IOWR('|', 0x00, struct media_device_info)
 #define MEDIA_IOC_ENUM_ENTITIES		_IOWR('|', 0x01, struct media_entity_desc)
 #define MEDIA_IOC_ENUM_LINKS		_IOWR('|', 0x02, struct media_links_enum)

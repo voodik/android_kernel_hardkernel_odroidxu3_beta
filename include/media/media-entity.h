@@ -26,17 +26,66 @@
 #include <linux/list.h>
 #include <linux/media.h>
 
+#ifndef GENMASK
+#define GENMASK(h, l)           (((U32_C(1) << ((h) - (l) + 1)) - 1) << (l))
+#endif
+
+/* Enums used internally at the media controller to represent graphs */
+
+/**
+ * enum media_gobj_type - type of a graph object
+ *
+ * @MEDIA_GRAPH_ENTITY:		Identify a media entity
+ * @MEDIA_GRAPH_PAD:		Identify a media pad
+ * @MEDIA_GRAPH_LINK:		Identify a media link
+ * @MEDIA_GRAPH_INTF_DEVNODE:	Identify a media Kernel API interface via
+ *				a device node
+ */
+enum media_gobj_type {
+	MEDIA_GRAPH_ENTITY,
+	MEDIA_GRAPH_PAD,
+	MEDIA_GRAPH_LINK,
+	MEDIA_GRAPH_INTF_DEVNODE,
+};
+
+#define MEDIA_BITS_PER_TYPE		8
+#define MEDIA_BITS_PER_LOCAL_ID		(32 - MEDIA_BITS_PER_TYPE)
+#define MEDIA_LOCAL_ID_MASK		 GENMASK(MEDIA_BITS_PER_LOCAL_ID - 1, 0)
+
+/* Structs to represent the objects that belong to a media graph */
+
+/**
+ * struct media_gobj - Define a graph object.
+ *
+ * @id:		Non-zero object ID identifier. The ID should be unique
+ *		inside a media_device, as it is composed by
+ *		MEDIA_BITS_PER_TYPE to store the type plus
+ *		MEDIA_BITS_PER_LOCAL_ID	to store a per-type ID
+ *		(called as "local ID").
+ *
+ * All objects on the media graph should have this struct embedded
+ */
+struct media_gobj {
+	struct media_device	*mdev;
+	u32			id;
+};
+
 struct media_pipeline {
 };
 
 struct media_link {
+	struct media_gobj graph_obj;
+	struct list_head list;
 	struct media_pad *source;	/* Source pad */
+		struct media_interface *intf;
 	struct media_pad *sink;		/* Sink pad  */
+		struct media_entity *entity;
 	struct media_link *reverse;	/* Link in the reverse direction */
 	unsigned long flags;		/* Link flags (MEDIA_LNK_FL_*) */
 };
 
 struct media_pad {
+	struct media_gobj graph_obj;	/* must be first field in struct */
 	struct media_entity *entity;	/* Entity this pad belongs to */
 	u16 index;			/* Pad index in the entity pads array */
 	unsigned long flags;		/* Pad flags (MEDIA_PAD_FL_*) */
@@ -50,6 +99,7 @@ struct media_entity_operations {
 };
 
 struct media_entity {
+	struct media_gobj graph_obj;	/* must be first field in struct */
 	struct list_head list;
 	struct media_device *parent;	/* Media device this entity belongs to*/
 	u32 id;				/* Entity ID, unique in the parent media
@@ -102,6 +152,44 @@ struct media_entity {
 	} info;
 };
 
+/**
+ * struct media_interface - A media interface graph object.
+ *
+ * @graph_obj:		embedded graph object
+ * @links:		List of links pointing to graph entities
+ * @type:		Type of the interface as defined in
+ *			:ref:`include/uapi/linux/media.h <media_header>`
+ *			(seek for ``MEDIA_INTF_T_*``)
+ * @flags:		Interface flags as defined in
+ *			:ref:`include/uapi/linux/media.h <media_header>`
+ *			(seek for ``MEDIA_INTF_FL_*``)
+ *
+ * .. note::
+ *
+ *    Currently, no flags for &media_interface is defined.
+ */
+struct media_interface {
+	struct media_gobj		graph_obj;
+	struct list_head		links;
+	u32				type;
+	u32				flags;
+};
+
+/**
+ * struct media_intf_devnode - A media interface via a device node.
+ *
+ * @intf:	embedded interface object
+ * @major:	Major number of a device node
+ * @minor:	Minor number of a device node
+ */
+struct media_intf_devnode {
+	struct media_interface		intf;
+
+	/* Should match the fields at media_v2_intf_devnode */
+	u32				major;
+	u32				minor;
+};
+
 static inline u32 media_entity_type(struct media_entity *entity)
 {
 	return entity->type & MEDIA_ENT_TYPE_MASK;
@@ -110,6 +198,31 @@ static inline u32 media_entity_type(struct media_entity *entity)
 static inline u32 media_entity_subtype(struct media_entity *entity)
 {
 	return entity->type & MEDIA_ENT_SUBTYPE_MASK;
+}
+
+static inline u32 media_entity_id(struct media_entity *entity)
+{
+	return entity->graph_obj.id;
+}
+
+static inline enum media_gobj_type media_type(struct media_gobj *gobj)
+{
+	return gobj->id >> MEDIA_BITS_PER_LOCAL_ID;
+}
+
+static inline u32 media_localid(struct media_gobj *gobj)
+{
+	return gobj->id & MEDIA_LOCAL_ID_MASK;
+}
+
+static inline u32 media_gobj_gen_id(enum media_gobj_type type, u32 local_id)
+{
+	u32 id;
+
+	id = type << MEDIA_BITS_PER_LOCAL_ID;
+	id |= local_id & MEDIA_LOCAL_ID_MASK;
+
+	return id;
 }
 
 #define MEDIA_ENTITY_ENUM_MAX_DEPTH	16
@@ -121,6 +234,11 @@ struct media_entity_graph {
 	} stack[MEDIA_ENTITY_ENUM_MAX_DEPTH];
 	int top;
 };
+
+void media_gobj_init(struct media_device *mdev,
+		    enum media_gobj_type type,
+		    struct media_gobj *gobj);
+void media_gobj_remove(struct media_gobj *gobj);
 
 int media_entity_init(struct media_entity *entity, u16 num_pads,
 		struct media_pad *pads, u16 extra_links);
@@ -144,6 +262,16 @@ media_entity_graph_walk_next(struct media_entity_graph *graph);
 __must_check int media_entity_pipeline_start(struct media_entity *entity,
 					     struct media_pipeline *pipe);
 void media_entity_pipeline_stop(struct media_entity *entity);
+
+struct media_intf_devnode *media_devnode_create(struct media_device *mdev,
+						u32 type, u32 flags,
+						u32 major, u32 minor,
+						gfp_t gfp_flags);
+void media_devnode_remove(struct media_intf_devnode *devnode);
+struct media_link *media_create_intf_link(struct media_entity *entity,
+					    struct media_interface *intf,
+					    u32 flags);
+void media_remove_intf_link(struct media_link *link);
 
 #define media_entity_call(entity, operation, args...)			\
 	(((entity)->ops && (entity)->ops->operation) ?			\

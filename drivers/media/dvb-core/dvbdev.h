@@ -101,8 +101,12 @@ struct dvb_device {
 #if defined(CONFIG_MEDIA_CONTROLLER_DVB)
 	const char *name;
 
+	/* Allocated and filled inside dvbdev.c */
+	struct media_intf_devnode *intf_devnode;
+
 	/* Filled inside dvbdev.c */
 	struct media_entity *entity;
+	struct media_pad *pads;
 #endif
 
 	void *priv;

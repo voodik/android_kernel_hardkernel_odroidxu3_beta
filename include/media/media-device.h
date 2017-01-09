@@ -68,6 +68,9 @@ struct media_device {
 	u32 driver_version;
 
 	u32 entity_id;
+	u32 pad_id;
+	u32 link_id;
+	u32 intf_devnode_id;
 	struct list_head entities;
 
 	/* Protects the entities list */
