@@ -187,69 +187,37 @@ skip:
 	return -ENFILE;
 }
 
-static void dvb_create_media_entity(struct dvb_device *dvbdev,
-				       int type, int minor)
+static void dvb_register_media_device(struct dvb_device *dvbdev,
+				      int type, int minor)
 {
 #if defined(CONFIG_MEDIA_CONTROLLER_DVB)
-	int ret = 0, npads;
+	int ret;
 
-	switch (type) {
-	case DVB_DEVICE_FRONTEND:
-		npads = 2;
-		break;
-	case DVB_DEVICE_DEMUX:
-		npads = 2;
-		break;
-	case DVB_DEVICE_CA:
-		npads = 2;
-		break;
-	case DVB_DEVICE_NET:
-		/*
-		 * We should be creating entities for the MPE/ULE
-		 * decapsulation hardware (or software implementation).
-		 *
-		 * However, the number of for the MPE/ULE decaps may not be
-		 * fixed. As we don't have yet dynamic support for PADs at
-		 * the Media Controller, let's not create the decap
-		 * entities yet.
-		 */
+	if (!dvbdev->adapter->mdev)
 		return;
-	default:
-		return;
-	}
 
 	dvbdev->entity = kzalloc(sizeof(*dvbdev->entity), GFP_KERNEL);
 	if (!dvbdev->entity)
 		return;
 
-//	dvbdev->entity->info.dev.major = DVB_MAJOR;
-//	dvbdev->entity->info.dev.minor = minor;
+	dvbdev->entity->info.dev.major = DVB_MAJOR;
+	dvbdev->entity->info.dev.minor = minor;
 	dvbdev->entity->name = dvbdev->name;
-
-	if (npads) {
-		dvbdev->pads = kcalloc(npads, sizeof(*dvbdev->pads),
-				       GFP_KERNEL);
-		if (!dvbdev->pads) {
-			kfree(dvbdev->entity);
-			return;
-		}
-	}
-
 	switch (type) {
 	case DVB_DEVICE_FRONTEND:
-		dvbdev->entity->type = MEDIA_ENT_T_DVB_DEMOD;
-		dvbdev->pads[0].flags = MEDIA_PAD_FL_SINK;
-		dvbdev->pads[1].flags = MEDIA_PAD_FL_SOURCE;
+		dvbdev->entity->type = MEDIA_ENT_T_DEVNODE_DVB_FE;
 		break;
 	case DVB_DEVICE_DEMUX:
-		dvbdev->entity->type = MEDIA_ENT_T_DVB_DEMUX;
-		dvbdev->pads[0].flags = MEDIA_PAD_FL_SINK;
-		dvbdev->pads[1].flags = MEDIA_PAD_FL_SOURCE;
+		dvbdev->entity->type = MEDIA_ENT_T_DEVNODE_DVB_DEMUX;
+		break;
+	case DVB_DEVICE_DVR:
+		dvbdev->entity->type = MEDIA_ENT_T_DEVNODE_DVB_DVR;
 		break;
 	case DVB_DEVICE_CA:
-		dvbdev->entity->type = MEDIA_ENT_T_DVB_CA;
-		dvbdev->pads[0].flags = MEDIA_PAD_FL_SINK;
-		dvbdev->pads[1].flags = MEDIA_PAD_FL_SOURCE;
+		dvbdev->entity->type = MEDIA_ENT_T_DEVNODE_DVB_CA;
+		break;
+	case DVB_DEVICE_NET:
+		dvbdev->entity->type = MEDIA_ENT_T_DEVNODE_DVB_NET;
 		break;
 	default:
 		kfree(dvbdev->entity);
@@ -257,75 +225,19 @@ static void dvb_create_media_entity(struct dvb_device *dvbdev,
 		return;
 	}
 
-	if (npads)
-		ret = media_entity_init(dvbdev->entity, npads, dvbdev->pads, 0);
-	if (!ret)
-		ret = media_device_register_entity(dvbdev->adapter->mdev,
-						   dvbdev->entity);
+	ret = media_device_register_entity(dvbdev->adapter->mdev,
+					   dvbdev->entity);
 	if (ret < 0) {
 		printk(KERN_ERR
 			"%s: media_device_register_entity failed for %s\n",
 			__func__, dvbdev->entity->name);
-		kfree(dvbdev->pads);
 		kfree(dvbdev->entity);
 		dvbdev->entity = NULL;
 		return;
 	}
 
-	printk(KERN_DEBUG "%s: media entity '%s' registered.\n",
+	printk(KERN_DEBUG "%s: media device '%s' registered.\n",
 		__func__, dvbdev->entity->name);
-#endif
-}
-
-static void dvb_register_media_device(struct dvb_device *dvbdev,
-				      int type, int minor)
-{
-#if defined(CONFIG_MEDIA_CONTROLLER_DVB)
-	u32 intf_type;
-
-	if (!dvbdev->adapter->mdev)
-		return;
-
-	dvb_create_media_entity(dvbdev, type, minor);
-
-	switch (type) {
-	case DVB_DEVICE_FRONTEND:
-		intf_type = MEDIA_INTF_T_DVB_FE;
-		break;
-	case DVB_DEVICE_DEMUX:
-		intf_type = MEDIA_INTF_T_DVB_DEMUX;
-		break;
-	case DVB_DEVICE_DVR:
-		intf_type = MEDIA_INTF_T_DVB_DVR;
-		break;
-	case DVB_DEVICE_CA:
-		intf_type = MEDIA_INTF_T_DVB_CA;
-		break;
-	case DVB_DEVICE_NET:
-		intf_type = MEDIA_INTF_T_DVB_NET;
-		break;
-	default:
-		return;
-	}
-
-	dvbdev->intf_devnode = media_devnode_create(dvbdev->adapter->mdev,
-						 intf_type, 0,
-						 DVB_MAJOR, minor,
-						 GFP_KERNEL);
-
-	/*
-	 * Create the "obvious" link, e. g. the ones that represent
-	 * a direct association between an interface and an entity.
-	 * Other links should be created elsewhere, like:
-	 *		DVB FE intf    -> tuner
-	 *		DVB demux intf -> dvr
-	 */
-
-	if (!dvbdev->entity || !dvbdev->intf_devnode)
-		return;
-
-	media_create_intf_link(dvbdev->entity, &dvbdev->intf_devnode->intf, 0);
-
 #endif
 }
 
@@ -431,7 +343,6 @@ void dvb_unregister_device(struct dvb_device *dvbdev)
 	if (dvbdev->entity) {
 		media_device_unregister_entity(dvbdev->entity);
 		kfree(dvbdev->entity);
-		kfree(dvbdev->pads);
 	}
 #endif
 
