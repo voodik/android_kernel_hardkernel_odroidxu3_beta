@@ -165,7 +165,7 @@ static int mxr_streamer_get(struct mxr_device *mdev, struct v4l2_subdev *sd)
 			pad = &sd->entity.pads[i];
 
 			/* find sink pad of output via enabled link*/
-			pad = media_entity_remote_source(pad);
+			pad = media_entity_remote_pad(pad);
 			if (pad)
 				if (media_entity_type(pad->entity)
 						== MEDIA_ENT_T_V4L2_SUBDEV)
@@ -277,7 +277,7 @@ static int mxr_streamer_put(struct mxr_device *mdev, struct v4l2_subdev *sd)
 
 		/* stop gscaler --> waiting for frame done */
 		pad = &sd->entity.pads[MXR_PAD_SINK_GSCALER];
-		pad = media_entity_remote_source(pad);
+		pad = media_entity_remote_pad(pad);
 		if (pad) {
 			gsc_sd = media_entity_to_v4l2_subdev(
 					pad->entity);
@@ -305,7 +305,7 @@ static int mxr_streamer_put(struct mxr_device *mdev, struct v4l2_subdev *sd)
 			pad = &sd->entity.pads[i];
 
 			/* find sink pad of output via enabled link*/
-			pad = media_entity_remote_source(pad);
+			pad = media_entity_remote_pad(pad);
 			if (pad)
 				if (media_entity_type(pad->entity)
 						== MEDIA_ENT_T_V4L2_SUBDEV)
@@ -1104,7 +1104,7 @@ static int mxr_link_setup(struct media_entity *entity,
 		 * until enabled link is found.
 		 * This will be remove. because Exynos5250 only supports
 		 * HDMI output */
-		pad = media_entity_remote_source((struct media_pad *)local);
+		pad = media_entity_remote_pad((struct media_pad *)local);
 		if (pad) {
 			printk(KERN_ERR "%s is already connected to %s\n",
 					entity->name, pad->entity->name);

@@ -751,7 +751,7 @@ static int gsc_s_ctrl_to_mxr(struct v4l2_ctrl *ctrl)
 	struct v4l2_subdev *sd, *gsc_sd;
 	struct v4l2_control control;
 
-	pad = media_entity_remote_source(pad);
+	pad = media_entity_remote_pad(pad);
 	if (IS_ERR(pad)) {
 		gsc_err("No sink pad conncted with a gscaler source pad");
 		return PTR_ERR(pad);

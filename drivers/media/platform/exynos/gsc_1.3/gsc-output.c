@@ -476,7 +476,7 @@ static int gsc_output_streamon(struct file *file, void *priv,
 	struct media_pad *sink_pad;
 	int ret;
 
-	sink_pad = media_entity_remote_source(&out->sd_pads[GSC_PAD_SOURCE]);
+	sink_pad = media_entity_remote_pad(&out->sd_pads[GSC_PAD_SOURCE]);
 	if (IS_ERR(sink_pad)) {
 		gsc_err("No sink pad conncted with a gscaler source pad");
 		return PTR_ERR(sink_pad);
@@ -628,7 +628,7 @@ static int gsc_out_video_s_stream(struct gsc_dev *gsc, int enable)
 	struct v4l2_subdev *sd;
 	int ret = 0;
 
-	sink_pad = media_entity_remote_source(&out->vd_pad);
+	sink_pad = media_entity_remote_pad(&out->vd_pad);
 	if (IS_ERR(sink_pad)) {
 		gsc_err("No sink pad conncted with a gscaler video source pad");
 		return PTR_ERR(sink_pad);

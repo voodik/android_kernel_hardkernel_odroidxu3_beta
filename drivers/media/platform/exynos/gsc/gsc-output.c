@@ -497,7 +497,7 @@ static int gsc_output_streamon(struct file *file, void *priv,
 	struct gsc_output_device *out = &gsc->out;
 	struct media_pad *sink_pad;
 	int ret;
-	sink_pad = media_entity_remote_source(&out->sd_pads[GSC_PAD_SOURCE]);
+	sink_pad = media_entity_remote_pad(&out->sd_pads[GSC_PAD_SOURCE]);
 	if (IS_ERR(sink_pad)) {
 		gsc_err("No sink pad conncted with a gscaler source pad");
 		return PTR_ERR(sink_pad);

@@ -809,7 +809,7 @@ static int gsc_cap_link_validate(struct gsc_dev *gsc)
 	int ret;
 
 	/* Get the source pad connected with gsc-video */
-	pad =  media_entity_remote_source(&cap->vd_pad);
+	pad =  media_entity_remote_pad(&cap->vd_pad);
 	if (pad == NULL)
 		return -EPIPE;
 	/* Get the subdev of source pad */
@@ -836,7 +836,7 @@ static int gsc_cap_link_validate(struct gsc_dev *gsc)
 		}
 		gsc_dbg("sink sd name : %s", sd->name);
 		/* Get the source pad connected with remote sink pad */
-		pad = media_entity_remote_source(pad);
+		pad = media_entity_remote_pad(pad);
 		if (pad == NULL ||
 		    media_entity_type(pad->entity) != MEDIA_ENT_T_V4L2_SUBDEV)
 			break;
@@ -948,7 +948,7 @@ static struct v4l2_subdev *gsc_cap_remote_subdev(struct gsc_dev *gsc, u32 *pad)
 {
 	struct media_pad *remote;
 
-	remote = media_entity_remote_source(&gsc->cap.vd_pad);
+	remote = media_entity_remote_pad(&gsc->cap.vd_pad);
 
 	if (remote == NULL ||
 	    media_entity_type(remote->entity) != MEDIA_ENT_T_V4L2_SUBDEV)

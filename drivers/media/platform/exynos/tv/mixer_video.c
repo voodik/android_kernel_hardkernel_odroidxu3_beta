@@ -123,7 +123,7 @@ static int tv_graph_pipeline_stream(struct mxr_pipeline *pipe, int on)
 	mxr_dbg(mdev, "%s TV graphic layer pipeline\n", on ? "start" : "stop");
 
 	/* find remote pad through enabled link */
-	pad = media_entity_remote_source(pad);
+	pad = media_entity_remote_pad(pad);
 	if (pad == NULL)
 		return -EPIPE;
 	if (media_entity_type(pad->entity) != MEDIA_ENT_T_V4L2_SUBDEV)
@@ -980,7 +980,7 @@ static int buf_prepare(struct vb2_buffer *vb)
 			pad = &sd->entity.pads[j];
 
 			/* find sink pad of hdmi or sdo through enabled link*/
-			pad = media_entity_remote_source(pad);
+			pad = media_entity_remote_pad(pad);
 			if (pad == NULL)
 				return -EPIPE;
 			if (media_entity_type(pad->entity)

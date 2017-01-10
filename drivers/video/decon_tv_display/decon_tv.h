@@ -182,7 +182,7 @@ static inline struct v4l2_subdev *dex_remote_subdev(struct dex_win *win)
 {
 	struct media_pad *remote;
 
-	remote = media_entity_remote_source(&win->pads[DEX_PAD_SOURCE]);
+	remote = media_entity_remote_pad(&win->pads[DEX_PAD_SOURCE]);
 
 	if (remote == NULL)
 		return NULL;
