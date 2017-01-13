@@ -813,6 +813,8 @@ int gsc_register_m2m_device(struct gsc_dev *gsc)
 	vfd->release	= video_device_release;
 	vfd->lock	= &gsc->lock;
 	vfd->vfl_dir	= VFL_DIR_M2M;
+	vfd->v4l2_dev	= &gsc->v4l2_dev;
+
 	snprintf(vfd->name, sizeof(vfd->name), "%s:m2m", dev_name(&pdev->dev));
 
 	video_set_drvdata(vfd, gsc);

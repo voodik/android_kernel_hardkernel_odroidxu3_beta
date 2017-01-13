@@ -2102,6 +2102,7 @@ static int sc_register_m2m_device(struct sc_dev *sc)
 	vfd->release	= video_device_release;
 	vfd->lock	= &sc->lock;
 	vfd->vfl_dir	= VFL_DIR_M2M;
+	vfd->v4l2_dev	= v4l2_dev;
 	snprintf(vfd->name, sizeof(vfd->name), "%s:m2m", MODULE_NAME);
 
 	video_set_drvdata(vfd, sc);

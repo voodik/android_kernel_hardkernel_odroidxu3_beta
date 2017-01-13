@@ -364,6 +364,7 @@ struct sc_dev {
 	struct mutex			lock;
 	struct sc_wdt			wdt;
 	atomic_t			clk_cnt;
+	struct v4l2_device		v4l2_dev;
 };
 
 /*

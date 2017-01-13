@@ -899,6 +899,7 @@ static int jpeg_hx_probe(struct platform_device *pdev)
 	vfd->ioctl_ops = get_jpeg_hx_enc_v4l2_ioctl_ops();
 	vfd->lock = &jpeg->lock;
 	vfd->vfl_dir = VFL_DIR_M2M;
+	vfd->v4l2_dev = &jpeg->v4l2_dev;
 	snprintf(vfd->name, sizeof(vfd->name), "%s:enc", dev_name(&pdev->dev));
 	ret = video_register_device(vfd, VFL_TYPE_GRABBER,
 			EXYNOS_VIDEONODE_JPEG_HX_ENC(jpeg->id));
@@ -935,6 +936,7 @@ static int jpeg_hx_probe(struct platform_device *pdev)
 	vfd->ioctl_ops = get_jpeg_hx_dec_v4l2_ioctl_ops();
 	vfd->lock = &jpeg->lock;
 	vfd->vfl_dir = VFL_DIR_M2M;
+	vfd->v4l2_dev = &jpeg->v4l2_dev;
 	snprintf(vfd->name, sizeof(vfd->name), "%s:dec", dev_name(&pdev->dev));
 	ret = video_register_device(vfd, VFL_TYPE_GRABBER,
 			EXYNOS_VIDEONODE_JPEG_HX_DEC(jpeg->id));

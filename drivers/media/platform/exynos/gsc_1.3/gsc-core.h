@@ -580,6 +580,7 @@ struct gsc_dev {
 	struct pm_qos_request		exynos5_gsc_int_qos;
 	struct clk			*clk_child;
 	struct clk			*clk_parent;
+	struct v4l2_device		v4l2_dev;
 };
 
 /**

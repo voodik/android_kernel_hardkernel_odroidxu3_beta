@@ -1595,6 +1595,13 @@ static int gsc_probe(struct platform_device *pdev)
 	gsc->vb2 = &gsc_vb2_ion;
 #endif
 
+        /* v4l2 device */
+        ret = v4l2_device_register(&pdev->dev, &gsc->v4l2_dev);
+        if (ret) {
+                dev_err(&pdev->dev, "Failed to register v4l2 device\n");
+                return ret;
+        }
+
 	platform_set_drvdata(pdev, gsc);
 
 	ret = gsc_register_m2m_device(gsc);

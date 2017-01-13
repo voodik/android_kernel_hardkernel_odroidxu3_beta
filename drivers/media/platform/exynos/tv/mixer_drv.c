@@ -1090,8 +1090,9 @@ static int mxr_link_setup(struct media_entity *entity,
 	struct media_pad *pad;
 	struct sub_mxr_device *sub_mxr = entity_to_sub_mxr(entity);
 	struct mxr_device *mdev = sub_mxr_to_mdev(sub_mxr);
-	int i;
+//	int i;
 	int gsc_num = 0;
+	struct media_link *link = NULL;
 
 	/* difficult to get dev ptr */
 	printk(KERN_DEBUG "%s %s\n", __func__, flags ? "start" : "stop");
@@ -1114,9 +1115,15 @@ static int mxr_link_setup(struct media_entity *entity,
 		if (local->index == MXR_PAD_SINK_GSCALER)
 			sub_mxr->local = 0;
 		sub_mxr->use = 0;
+/*
 		for (i = 0; i < entity->num_links; ++i)
 			if (entity->links[i].flags & MEDIA_LNK_FL_ENABLED)
 				sub_mxr->use = 1;
+*/
+		list_for_each_entry(link, &entity->links, list) {
+			if (link->flags & MEDIA_LNK_FL_ENABLED)
+				sub_mxr->use = 1;
+		}
 	}
 
 	if (!strcmp(remote->entity->name, "exynos-gsc-sd.0"))

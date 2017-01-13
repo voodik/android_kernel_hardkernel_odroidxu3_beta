@@ -681,9 +681,9 @@ int gsc_cap_pipeline_initialize(struct gsc_dev *gsc, struct media_entity *me,
 {
 	int ret;
 
-	mutex_lock(&me->parent->graph_mutex);
+	mutex_lock(&me->graph_obj.mdev->graph_mutex);
 	ret =  __gsc_cap_pipeline_initialize(gsc, me, prep);
-	mutex_unlock(&me->parent->graph_mutex);
+	mutex_unlock(&me->graph_obj.mdev->graph_mutex);
 
 	return ret;
 }
@@ -754,9 +754,9 @@ int gsc_cap_pipeline_shutdown(struct gsc_dev *gsc)
 	struct media_entity *me = &gsc->cap.vfd->entity;
 	int ret;
 
-	mutex_lock(&me->parent->graph_mutex);
+	mutex_lock(&me->graph_obj.mdev->graph_mutex);
 	ret = __gsc_cap_pipeline_shutdown(gsc);
-	mutex_unlock(&me->parent->graph_mutex);
+	mutex_unlock(&me->graph_obj.mdev->graph_mutex);
 
 	return ret;
 }

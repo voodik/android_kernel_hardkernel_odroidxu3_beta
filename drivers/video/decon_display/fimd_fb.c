@@ -3144,11 +3144,12 @@ static int s3c_fb_me_link_setup(struct media_entity *entity,
 			      const struct media_pad *local,
 			      const struct media_pad *remote, u32 flags)
 {
-	int i;
+//	int i;
 
 	struct v4l2_subdev *sd = media_entity_to_v4l2_subdev(entity);
 	struct s3c_fb_win *win = v4l2_subdev_to_s3c_fb_win(sd);
 	struct s3c_fb *sfb = win->parent;
+	struct media_link *link = NULL;
 
 	if (flags & MEDIA_LNK_FL_ENABLED) {
 		win->use = 1;
@@ -3159,9 +3160,15 @@ static int s3c_fb_me_link_setup(struct media_entity *entity,
 			win->local = 0;
 		win->use = 0;
 
+/*
 		for (i = 0; i < entity->num_links; ++i)
 			if (entity->links[i].flags & MEDIA_LNK_FL_ENABLED)
 				win->use = 1;
+*/
+		list_for_each_entry(link, &entity->links, list) {
+			if (link->flags & MEDIA_LNK_FL_ENABLED)
+				win->use = 1;
+		}
 	}
 
 	s3c_fb_mc_local_path_setup(win);
