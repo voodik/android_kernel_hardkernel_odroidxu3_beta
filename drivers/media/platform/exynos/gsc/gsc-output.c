@@ -913,7 +913,7 @@ static int gsc_create_link(struct gsc_dev *gsc)
 
 	source = &gsc->out.vfd->entity;
 	sink = &gsc->out.sd->entity;
-	ret = media_entity_create_link(source, 0, sink, GSC_PAD_SINK,
+	ret = media_create_pad_link(source, 0, sink, GSC_PAD_SINK,
 				       MEDIA_LNK_FL_IMMUTABLE |
 				       MEDIA_LNK_FL_ENABLED);
 	if (ret) {

@@ -562,12 +562,12 @@ void dvb_create_media_graph(struct dvb_adapter *adap)
 	}
 
 	if (tuner && demod)
-		media_entity_create_link(tuner, TUNER_PAD_IF_OUTPUT, demod, 0, 0);
+		media_create_pad_link(tuner, TUNER_PAD_IF_OUTPUT, demod, 0, 0);
 
 	if (demod && demux)
-		media_entity_create_link(demod, 1, demux, 0, MEDIA_LNK_FL_ENABLED);
+		media_create_pad_link(demod, 1, demux, 0, MEDIA_LNK_FL_ENABLED);
 	if (demux && ca)
-		media_entity_create_link(demux, 1, ca, 0, MEDIA_LNK_FL_ENABLED);
+		media_create_pad_link(demux, 1, ca, 0, MEDIA_LNK_FL_ENABLED);
 
 	/* Create demux links for each ringbuffer/pad */
 	if (demux) {

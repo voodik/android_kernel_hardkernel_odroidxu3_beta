@@ -1420,7 +1420,7 @@ static int gsc_capture_create_link(struct gsc_dev *gsc)
 	source = &gsc->cap.sd_cap->entity;
 	sink = &gsc->cap.vfd->entity;
 	if (source && sink) {
-		ret = media_entity_create_link(source, GSC_PAD_SOURCE, sink, 0, 0);
+		ret = media_create_pad_link(source, GSC_PAD_SOURCE, sink, 0, 0);
 		if (ret) {
 			gsc_err("failed link flite to gsc\n");
 			return ret;

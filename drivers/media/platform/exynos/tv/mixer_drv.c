@@ -1271,7 +1271,7 @@ static int mxr_create_links_sub_mxr(struct mxr_device *mdev, int mxr_num,
 	md = (struct exynos_md *)module_name_to_driver_data(MDEV_MODULE_NAME);
 	for (i = 0; i < MAX_GSC_SUBDEV; ++i) {
 		if (md->gsc_sd[i] != NULL) {
-			ret = media_entity_create_link(&md->gsc_sd[i]->entity,
+			ret = media_create_pad_link(&md->gsc_sd[i]->entity,
 				GSC_OUT_PAD_SOURCE,
 				&mdev->sub_mxr[mxr_num].sd.entity,
 				MXR_PAD_SINK_GSCALER, 0);
@@ -1286,7 +1286,7 @@ static int mxr_create_links_sub_mxr(struct mxr_device *mdev, int mxr_num,
 
 	/* link creation : mixer input0[0] -> mixer[1] */
 	layer = mdev->sub_mxr[mxr_num].layer[MXR_LAYER_GRP0];
-	ret = media_entity_create_link(&layer->vfd.entity, 0,
+	ret = media_create_pad_link(&layer->vfd.entity, 0,
 		&mdev->sub_mxr[mxr_num].sd.entity, MXR_PAD_SINK_GRP0, flags);
 	if (ret) {
 		snprintf(err, sizeof(err), "%s --> %s", layer->vfd.entity.name,
@@ -1296,7 +1296,7 @@ static int mxr_create_links_sub_mxr(struct mxr_device *mdev, int mxr_num,
 
 	/* link creation : mixer input1[0] -> mixer[2] */
 	layer = mdev->sub_mxr[mxr_num].layer[MXR_LAYER_GRP1];
-	ret = media_entity_create_link(&layer->vfd.entity, 0,
+	ret = media_create_pad_link(&layer->vfd.entity, 0,
 		&mdev->sub_mxr[mxr_num].sd.entity, MXR_PAD_SINK_GRP1, flags);
 	if (ret) {
 		snprintf(err, sizeof(err), "%s --> %s", layer->vfd.entity.name,
@@ -1313,7 +1313,7 @@ static int mxr_create_links_sub_mxr(struct mxr_device *mdev, int mxr_num,
 			flags = MEDIA_LNK_FL_ENABLED;
 
 		for (j = MXR_PAD_SOURCE_GSCALER; j < MXR_PADS_NUM; ++j) {
-			ret = media_entity_create_link(
+			ret = media_create_pad_link(
 					&mdev->sub_mxr[mxr_num].sd.entity,
 					j, &mdev->output[i]->sd->entity,
 					0, flags);
@@ -1345,7 +1345,7 @@ static int mxr_create_links(struct mxr_device *mdev)
 	layer = mdev->sub_mxr[MXR_SUB_MIXER0].layer[MXR_LAYER_VIDEO];
 	source = &layer->vfd.entity;
 	sink = &mdev->sub_mxr[MXR_SUB_MIXER0].sd.entity;
-	ret = media_entity_create_link(source, 0, sink, MXR_PAD_SINK_GSCALER,
+	ret = media_create_pad_link(source, 0, sink, MXR_PAD_SINK_GSCALER,
 			MEDIA_LNK_FL_ENABLED);
 #endif
 	for (i = 0; i < MXR_MAX_SUB_MIXERS; ++i) {
