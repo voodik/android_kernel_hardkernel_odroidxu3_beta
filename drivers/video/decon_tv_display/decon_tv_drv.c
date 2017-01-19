@@ -1426,7 +1426,7 @@ static int dex_register_entity(struct dex_win *win)
 	pads[DEX_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
 	pads[DEX_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE;
 	me->ops = &dex_entity_ops;
-	ret = media_entity_init(me, DEX_PADS_NUM, pads, 0);
+	ret = media_entity_pads_init(me, DEX_PADS_NUM, pads, 0);
 	if (ret) {
 		dex_err("failed to initialize media entity\n");
 		return ret;

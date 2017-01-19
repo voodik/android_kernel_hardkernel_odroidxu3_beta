@@ -2576,11 +2576,11 @@ static int smiapp_registered(struct v4l2_subdev *subdev)
 		this->sd.owner = NULL;
 		v4l2_set_subdevdata(&this->sd, client);
 
-		rval = media_entity_init(&this->sd.entity,
+		rval = media_entity_pads_init(&this->sd.entity,
 					 this->npads, this->pads, 0);
 		if (rval) {
 			dev_err(&client->dev,
-				"media_entity_init failed\n");
+				"media_entity_pads_init failed\n");
 			goto out_nvm_release;
 		}
 
@@ -2829,7 +2829,7 @@ static int smiapp_probe(struct i2c_client *client,
 	sensor->src->sensor = sensor;
 
 	sensor->src->pads[0].flags = MEDIA_PAD_FL_SOURCE;
-	return media_entity_init(&sensor->src->sd.entity, 2,
+	return media_entity_pads_init(&sensor->src->sd.entity, 2,
 				 sensor->src->pads, 0);
 }
 

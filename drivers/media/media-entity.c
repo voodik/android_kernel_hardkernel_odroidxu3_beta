@@ -197,7 +197,7 @@ void media_gobj_remove(struct media_gobj *gobj)
 }
 
 /**
- * media_entity_init - Initialize a media entity
+ * media_entity_pads_init - Initialize a media entity
  *
  * @num_pads: Total number of sink and source pads.
  * @extra_links: Initial estimate of the number of extra links.
@@ -218,18 +218,15 @@ void media_gobj_remove(struct media_gobj *gobj)
  * be set to the number of allocated elements.
  *
  * The pads array is managed by the entity driver and passed to
- * media_entity_init() where its pointer will be stored in the entity structure.
+ * media_entity_pads_init() where its pointer will be stored in the entity structure.
  */
 int
-media_entity_init(struct media_entity *entity, u16 num_pads,
+media_entity_pads_init(struct media_entity *entity, u16 num_pads,
 		  struct media_pad *pads, u16 extra_links)
 {
 	struct media_device *mdev = entity->graph_obj.mdev;
 	unsigned int i;
 
-	entity->group_id = 0;
-	entity->num_links = 0;
-	entity->num_backlinks = 0;
 	entity->num_pads = num_pads;
 	entity->pads = pads;
 
@@ -249,7 +246,7 @@ media_entity_init(struct media_entity *entity, u16 num_pads,
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(media_entity_init);
+EXPORT_SYMBOL_GPL(media_entity_pads_init);
 
 void
 media_entity_cleanup(struct media_entity *entity)

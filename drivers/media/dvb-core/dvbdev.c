@@ -252,7 +252,7 @@ static int dvb_create_tsout_entity(struct dvb_device *dvbdev,
 		entity->type = MEDIA_ENT_T_DVB_TSOUT;
 		pads->flags = MEDIA_PAD_FL_SINK;
 
-		ret = media_entity_init(entity, 1, pads, 0);
+		ret = media_entity_pads_init(entity, 1, pads, 0);
 		if (ret < 0)
 			return ret;
 
@@ -347,7 +347,7 @@ static int dvb_create_media_entity(struct dvb_device *dvbdev,
 	}
 
 	if (npads) {
-		ret = media_entity_init(dvbdev->entity, npads, dvbdev->pads, 0);
+		ret = media_entity_pads_init(dvbdev->entity, npads, dvbdev->pads, 0);
 		if (ret)
 			return ret;
 	}

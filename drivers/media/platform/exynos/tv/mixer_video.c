@@ -1225,10 +1225,10 @@ struct mxr_layer *mxr_base_layer_create(struct mxr_device *mdev,
 		.ioctl_ops = &mxr_ioctl_ops,
 	};
 
-	/* media_entity_init must be called after initializing layer->vfd
+	/* media_entity_pads_init must be called after initializing layer->vfd
 	 * for preventing to overwrite
 	 */
-	ret = media_entity_init(&layer->vfd.entity, 1, &layer->pad, 0);
+	ret = media_entity_pads_init(&layer->vfd.entity, 1, &layer->pad, 0);
 	if (ret) {
 		mxr_err(mdev, "media entity init failed\n");
 		goto fail_alloc;

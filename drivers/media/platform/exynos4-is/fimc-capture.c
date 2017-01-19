@@ -1787,7 +1787,7 @@ static int fimc_register_capture_device(struct fimc_dev *fimc,
 		goto err_ent;
 
 	vid_cap->vd_pad.flags = MEDIA_PAD_FL_SINK;
-	ret = media_entity_init(&vfd->entity, 1, &vid_cap->vd_pad, 0);
+	ret = media_entity_pads_init(&vfd->entity, 1, &vid_cap->vd_pad, 0);
 	if (ret)
 		goto err_ent;
 	/*
@@ -1872,7 +1872,7 @@ int fimc_initialize_capture_subdev(struct fimc_dev *fimc)
 	fimc->vid_cap.sd_pads[FIMC_SD_PAD_SINK_CAM].flags = MEDIA_PAD_FL_SINK;
 	fimc->vid_cap.sd_pads[FIMC_SD_PAD_SINK_FIFO].flags = MEDIA_PAD_FL_SINK;
 	fimc->vid_cap.sd_pads[FIMC_SD_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE;
-	ret = media_entity_init(&sd->entity, FIMC_SD_PADS_NUM,
+	ret = media_entity_pads_init(&sd->entity, FIMC_SD_PADS_NUM,
 				fimc->vid_cap.sd_pads, 0);
 	if (ret)
 		return ret;

@@ -1175,7 +1175,7 @@ static int mxr_register_entity(struct mxr_device *mdev, int mxr_num)
 	pads[MXR_PAD_SOURCE_GRP0].flags = MEDIA_PAD_FL_SOURCE;
 	pads[MXR_PAD_SOURCE_GRP1].flags = MEDIA_PAD_FL_SOURCE;
 	me->ops = &mxr_entity_ops;
-	ret = media_entity_init(me, MXR_PADS_NUM, pads, 0);
+	ret = media_entity_pads_init(me, MXR_PADS_NUM, pads, 0);
 	if (ret) {
 		mxr_err(mdev, "failed to initialize media entity\n");
 		return ret;

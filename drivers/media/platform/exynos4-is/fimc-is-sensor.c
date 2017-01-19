@@ -243,7 +243,7 @@ static int fimc_is_sensor_probe(struct i2c_client *client,
 	sensor->format.height = FIMC_IS_SENSOR_DEF_PIX_HEIGHT;
 
 	sensor->pad.flags = MEDIA_PAD_FL_SOURCE;
-	ret = media_entity_init(&sd->entity, 1, &sensor->pad, 0);
+	ret = media_entity_pads_init(&sd->entity, 1, &sensor->pad, 0);
 	if (ret < 0)
 		return ret;
 

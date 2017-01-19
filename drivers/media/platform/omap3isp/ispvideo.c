@@ -1347,7 +1347,7 @@ int omap3isp_video_init(struct isp_video *video, const char *name)
 		return -EINVAL;
 	}
 
-	ret = media_entity_init(&video->video.entity, 1, &video->pad, 0);
+	ret = media_entity_pads_init(&video->video.entity, 1, &video->pad, 0);
 	if (ret < 0)
 		return ret;
 

@@ -2073,7 +2073,7 @@ static int adv7604_probe(struct i2c_client *client,
 			adv7604_delayed_work_enable_hotplug);
 
 	state->pad.flags = MEDIA_PAD_FL_SOURCE;
-	err = media_entity_init(&sd->entity, 1, &state->pad, 0);
+	err = media_entity_pads_init(&sd->entity, 1, &state->pad, 0);
 	if (err)
 		goto err_work_queues;
 

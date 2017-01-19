@@ -3271,7 +3271,7 @@ static int s3c_fb_register_mc_entity(struct s3c_fb_win *win, struct exynos_md *m
 	me->ops = &s3c_fb_me_ops;
 
 	/* Init a sub-device as an entity */
-	ret = media_entity_init(me, FIMD_PADS_NUM, pads, 0);
+	ret = media_entity_pads_init(me, FIMD_PADS_NUM, pads, 0);
 	if (ret) {
 		dev_err(sfb->dev, "failed to initialize media entity in FIMD\n");
 		return ret;
@@ -3503,7 +3503,7 @@ static int s3c_fb_register_mc_wb_entity(struct s3c_fb *sfb, struct exynos_md *md
 	me_wb->ops = &s3c_fb_me_wb_ops;
 
 	/* Init a sub-device as an entity */
-	ret = media_entity_init(me_wb, FIMD_WB_PADS_NUM, pads_wb, 0);
+	ret = media_entity_pads_init(me_wb, FIMD_WB_PADS_NUM, pads_wb, 0);
 	if (ret) {
 		dev_err(sfb->dev, "failed to initialize media entity in FIMD WB\n");
 		return ret;

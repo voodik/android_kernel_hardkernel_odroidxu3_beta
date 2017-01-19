@@ -701,7 +701,7 @@ register_client:
 	t->sd.entity.type = MEDIA_ENT_T_V4L2_SUBDEV_TUNER;
 	t->sd.entity.name = t->name;
 
-	ret = media_entity_init(&t->sd.entity, TUNER_NUM_PADS, &t->pad[0], 0);
+	ret = media_entity_pads_init(&t->sd.entity, TUNER_NUM_PADS, &t->pad[0], 0);
 	if (ret < 0) {
 		tuner_err("failed to initialize media entity!\n");
 		kfree(t);

@@ -3205,7 +3205,7 @@ static int s3c_fb_register_mc_entity(struct s3c_fb_win *win, struct exynos_md *m
 	me->ops = &s3c_fb_me_ops;
 
 	/* Init a sub-device as an entity */
-	ret = media_entity_init(me, FIMD_PADS_NUM, pads, 0);
+	ret = media_entity_pads_init(me, FIMD_PADS_NUM, pads, 0);
 	if (ret) {
 		dev_err(sfb->dev, "failed to initialize media entity in FIMD\n");
 		return ret;
@@ -3293,7 +3293,7 @@ static int s3c_fb_create_mc_links(struct s3c_fb_win *win)
 	/* Gscaler 0 --> Winwow 0, Gscaler 1 --> Winow 1,
 	   Gscaler 2 --> Window 2, Gscaler 3 --> Window 3 */
 	if (md->gsc_sd[win->index] != NULL) {
-		ret = media_entity_create_link(&md->gsc_sd[win->index]->entity,
+		ret = media_create_pad_link(&md->gsc_sd[win->index]->entity,
 			GSC_OUT_PAD_SOURCE,
 			&win->sd.entity,
 			FIMD_PAD_SINK_FROM_GSCALER_SRC, 0);
@@ -3457,7 +3457,7 @@ static int s3c_fb_register_mc_wb_entity(struct s3c_fb *sfb, struct exynos_md *md
 	me_wb->ops = &s3c_fb_me_wb_ops;
 
 	/* Init a sub-device as an entity */
-	ret = media_entity_init(me_wb, FIMD_WB_PADS_NUM, pads_wb, 0);
+	ret = media_entity_pads_init(me_wb, FIMD_WB_PADS_NUM, pads_wb, 0);
 	if (ret) {
 		dev_err(sfb->dev, "failed to initialize media entity in FIMD WB\n");
 		return ret;
@@ -3524,7 +3524,7 @@ static int s3c_fb_create_mc_wb_links(struct s3c_fb *sfb)
 	/* FIMD1 --> Gscaler 0, Gscaler 1, Gscaler 2, or Gscaler 3 */
 	for (i = 0; i < MAX_GSC_SUBDEV; ++i) {
 		if (sfb->md_wb->gsc_cap_sd[i] != NULL) {
-			ret = media_entity_create_link(&sfb->sd_wb.entity, /* source */
+			ret = media_create_pad_link(&sfb->sd_wb.entity, /* source */
 				FIMD_WB_PAD_SRC_TO_GSCALER_SINK,
 				&sfb->md_wb->gsc_cap_sd[i]->entity, /* sink */
 				GSC_CAP_PAD_SINK, 0);

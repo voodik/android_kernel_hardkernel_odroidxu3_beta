@@ -1235,7 +1235,7 @@ static int ad9389b_probe(struct i2c_client *client, const struct i2c_device_id *
 	}
 
 	state->pad.flags = MEDIA_PAD_FL_SINK;
-	err = media_entity_init(&sd->entity, 1, &state->pad, 0);
+	err = media_entity_pads_init(&sd->entity, 1, &state->pad, 0);
 	if (err)
 		goto err_hdl;
 

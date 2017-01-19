@@ -961,7 +961,7 @@ static int gsc_create_subdev(struct gsc_dev *gsc)
 
 	gsc->out.sd_pads[GSC_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
 	gsc->out.sd_pads[GSC_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE;
-	ret = media_entity_init(&sd->entity, GSC_PADS_NUM,
+	ret = media_entity_pads_init(&sd->entity, GSC_PADS_NUM,
 				gsc->out.sd_pads, 0);
 	if (ret) {
 		gsc_err("Failed to initialize the G-Scaler media entity");
@@ -1059,7 +1059,7 @@ int gsc_register_output_device(struct gsc_dev *gsc)
 	}
 
 	gsc->out.vd_pad.flags = MEDIA_PAD_FL_SOURCE;
-	ret = media_entity_init(&vfd->entity, 1, &gsc->out.vd_pad, 0);
+	ret = media_entity_pads_init(&vfd->entity, 1, &gsc->out.vd_pad, 0);
 	if (ret)
 		goto err_ent;
 

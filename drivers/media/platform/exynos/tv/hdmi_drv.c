@@ -718,7 +718,7 @@ static int hdmi_register_entity(struct hdmi_device *hdev)
 	/* init hdmi sub-device as entity */
 	pads[HDMI_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
 	me->ops = &hdmi_entity_ops;
-	ret = media_entity_init(me, HDMI_PADS_NUM, pads, 0);
+	ret = media_entity_pads_init(me, HDMI_PADS_NUM, pads, 0);
 	if (ret) {
 		dev_err(dev, "failed to initialize media entity\n");
 		return ret;
