@@ -383,6 +383,35 @@
 		};
 	};
 
+	gpio_keys_polled {
+		compatible =
+			"gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+        poll-interval = <100>;
+		autorepeat;
+		button@1 {
+			label = "GPIO Key F7";
+			linux,code = <65>;
+			gpios = <&gpx1 2 0xf>;
+		};
+		button@2 {
+			label = "GPIO Key F8";
+			linux,code = <66>;
+			gpios = <&gpx1 5 0xf>;
+		};
+		button@3 {
+			label = "GPIO Key F9";
+			linux,code = <67>;
+			gpios = <&gpx1 6 0xf>;
+		};
+		button@4 {
+			label = "GPIO Key F10";
+			linux,code = <68>;
+			gpios = <&gpx2 4 0xf>;
+		};
+	};
+
 	hsi2c@12E00000 {
 		clock-frequency = <400000>;
 		status = "disabled";
