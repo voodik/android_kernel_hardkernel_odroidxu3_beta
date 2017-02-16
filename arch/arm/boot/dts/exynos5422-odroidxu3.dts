@@ -408,7 +408,7 @@
 		button@4 {
 			label = "GPIO Key F10";
 			linux,code = <68>;
-			gpios = <&gpx2 4 0xf>;
+			gpios = <&gpx1 3 0xf>;
 		};
 	};
 
