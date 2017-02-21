@@ -405,7 +405,7 @@ static int cx24123_set_ts_param(struct dvb_frontend* fe,
 }
 
 static int kworld_dvbs_100_set_voltage(struct dvb_frontend* fe,
-				       fe_sec_voltage_t voltage)
+				       enum fe_sec_voltage voltage)
 {
 	struct cx8802_dev *dev= fe->dvb->priv;
 	struct cx88_core *core = dev->core;
@@ -421,7 +421,7 @@ static int kworld_dvbs_100_set_voltage(struct dvb_frontend* fe,
 }
 
 static int geniatech_dvbs_set_voltage(struct dvb_frontend *fe,
-				      fe_sec_voltage_t voltage)
+				      enum fe_sec_voltage voltage)
 {
 	struct cx8802_dev *dev= fe->dvb->priv;
 	struct cx88_core *core = dev->core;
@@ -437,7 +437,7 @@ static int geniatech_dvbs_set_voltage(struct dvb_frontend *fe,
 }
 
 static int tevii_dvbs_set_voltage(struct dvb_frontend *fe,
-				      fe_sec_voltage_t voltage)
+				      enum fe_sec_voltage voltage)
 {
 	struct cx8802_dev *dev= fe->dvb->priv;
 	struct cx88_core *core = dev->core;
@@ -461,7 +461,7 @@ static int tevii_dvbs_set_voltage(struct dvb_frontend *fe,
 }
 
 static int vp1027_set_voltage(struct dvb_frontend *fe,
-				    fe_sec_voltage_t voltage)
+				    enum fe_sec_voltage voltage)
 {
 	struct cx8802_dev *dev = fe->dvb->priv;
 	struct cx88_core *core = dev->core;
@@ -853,7 +853,7 @@ static int samsung_smt_7020_tuner_set_params(struct dvb_frontend *fe)
 }
 
 static int samsung_smt_7020_set_tone(struct dvb_frontend *fe,
-	fe_sec_tone_mode_t tone)
+	enum fe_sec_tone_mode tone)
 {
 	struct cx8802_dev *dev = fe->dvb->priv;
 	struct cx88_core *core = dev->core;
@@ -875,7 +875,7 @@ static int samsung_smt_7020_set_tone(struct dvb_frontend *fe,
 }
 
 static int samsung_smt_7020_set_voltage(struct dvb_frontend *fe,
-	fe_sec_voltage_t voltage)
+	enum fe_sec_voltage voltage)
 {
 	struct cx8802_dev *dev = fe->dvb->priv;
 	struct cx88_core *core = dev->core;

@@ -188,8 +188,8 @@ static int cx22700_set_tps(struct cx22700_state *state,
 static int cx22700_get_tps(struct cx22700_state *state,
 			   struct dtv_frontend_properties *p)
 {
-	static const fe_modulation_t qam_tab [3] = { QPSK, QAM_16, QAM_64 };
-	static const fe_code_rate_t fec_tab [5] = { FEC_1_2, FEC_2_3, FEC_3_4,
+	static const enum fe_modulation qam_tab [3] = { QPSK, QAM_16, QAM_64 };
+	static const enum fe_code_rate fec_tab [5] = { FEC_1_2, FEC_2_3, FEC_3_4,
 						    FEC_5_6, FEC_7_8 };
 	u8 val;
 
@@ -250,7 +250,7 @@ static int cx22700_init (struct dvb_frontend* fe)
 	return 0;
 }
 
-static int cx22700_read_status(struct dvb_frontend* fe, fe_status_t* status)
+static int cx22700_read_status(struct dvb_frontend* fe, enum fe_status* status)
 {
 	struct cx22700_state* state = fe->demodulator_priv;
 

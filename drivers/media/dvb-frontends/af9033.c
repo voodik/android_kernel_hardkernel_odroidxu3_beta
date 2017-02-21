@@ -776,7 +776,7 @@ err:
 	return ret;
 }
 
-static int af9033_read_status(struct dvb_frontend *fe, fe_status_t *status)
+static int af9033_read_status(struct dvb_frontend *fe, enum fe_status *status)
 {
 	struct af9033_state *state = fe->demodulator_priv;
 	int ret;

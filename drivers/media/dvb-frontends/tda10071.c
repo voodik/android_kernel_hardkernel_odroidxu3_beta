@@ -201,7 +201,7 @@ error:
 }
 
 static int tda10071_set_tone(struct dvb_frontend *fe,
-	fe_sec_tone_mode_t fe_sec_tone_mode)
+	enum fe_sec_tone_mode fe_sec_tone_mode)
 {
 	struct tda10071_priv *priv = fe->demodulator_priv;
 	struct tda10071_cmd cmd;
@@ -247,7 +247,7 @@ error:
 }
 
 static int tda10071_set_voltage(struct dvb_frontend *fe,
-	fe_sec_voltage_t fe_sec_voltage)
+	enum fe_sec_voltage fe_sec_voltage)
 {
 	struct tda10071_priv *priv = fe->demodulator_priv;
 	struct tda10071_cmd cmd;
@@ -411,7 +411,7 @@ error:
 }
 
 static int tda10071_diseqc_send_burst(struct dvb_frontend *fe,
-	fe_sec_mini_cmd_t fe_sec_mini_cmd)
+	enum fe_sec_mini_cmd fe_sec_mini_cmd)
 {
 	struct tda10071_priv *priv = fe->demodulator_priv;
 	struct tda10071_cmd cmd;
@@ -474,7 +474,7 @@ error:
 	return ret;
 }
 
-static int tda10071_read_status(struct dvb_frontend *fe, fe_status_t *status)
+static int tda10071_read_status(struct dvb_frontend *fe, enum fe_status *status)
 {
 	struct tda10071_priv *priv = fe->demodulator_priv;
 	int ret;

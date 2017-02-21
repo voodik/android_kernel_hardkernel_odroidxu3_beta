@@ -144,7 +144,7 @@ struct lme2510_state {
 	void *buffer;
 	struct urb *lme_urb;
 	void *usb_buffer;
-	int (*fe_set_voltage)(struct dvb_frontend *, fe_sec_voltage_t);
+	int (*fe_set_voltage)(struct dvb_frontend *, enum fe_sec_voltage);
 	u8 dvb_usb_lme2510_firmware;
 };
 
@@ -955,7 +955,7 @@ static struct ts2020_config ts2020_config = {
 };
 
 static int dm04_lme2510_set_voltage(struct dvb_frontend *fe,
-					fe_sec_voltage_t voltage)
+					enum fe_sec_voltage voltage)
 {
 	struct dvb_usb_device *d = fe_to_d(fe);
 	struct lme2510_state *st = fe_to_priv(fe);

@@ -522,7 +522,7 @@ static struct stb6100_config prof_8000_stb6100_config = {
 	.refclock = 27000000,
 };
 
-static int p8000_set_voltage(struct dvb_frontend *fe, fe_sec_voltage_t voltage)
+static int p8000_set_voltage(struct dvb_frontend *fe, enum fe_sec_voltage voltage)
 {
 	struct cx23885_tsport *port = fe->dvb->priv;
 	struct cx23885_dev *dev = port->dev;

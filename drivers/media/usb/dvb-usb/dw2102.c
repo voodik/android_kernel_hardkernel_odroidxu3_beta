@@ -117,7 +117,7 @@ struct su3000_state {
 };
 
 struct s6x0_state {
-	int (*old_set_voltage)(struct dvb_frontend *f, fe_sec_voltage_t v);
+	int (*old_set_voltage)(struct dvb_frontend *f, enum fe_sec_voltage v);
 };
 
 /* debug */
@@ -864,7 +864,7 @@ static int su3000_identify_state(struct usb_device *udev,
 	return 0;
 }
 
-static int dw210x_set_voltage(struct dvb_frontend *fe, fe_sec_voltage_t voltage)
+static int dw210x_set_voltage(struct dvb_frontend *fe, enum fe_sec_voltage voltage)
 {
 	static u8 command_13v[] = {0x00, 0x01};
 	static u8 command_18v[] = {0x01, 0x01};
@@ -888,7 +888,7 @@ static int dw210x_set_voltage(struct dvb_frontend *fe, fe_sec_voltage_t voltage)
 	return 0;
 }
 
-static int s660_set_voltage(struct dvb_frontend *fe, fe_sec_voltage_t voltage)
+static int s660_set_voltage(struct dvb_frontend *fe, enum fe_sec_voltage voltage)
 {
 	struct dvb_usb_adapter *d =
 		(struct dvb_usb_adapter *)(fe->dvb->priv);

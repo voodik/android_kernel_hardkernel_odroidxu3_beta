@@ -102,7 +102,7 @@ static int as102_fe_get_tune_settings(struct dvb_frontend *fe,
 }
 
 
-static int as102_fe_read_status(struct dvb_frontend *fe, fe_status_t *status)
+static int as102_fe_read_status(struct dvb_frontend *fe, enum fe_status *status)
 {
 	int ret = 0;
 	struct as102_dev_t *dev;
@@ -441,7 +441,7 @@ static void as10x_fe_copy_tps_parameters(struct dtv_frontend_properties *fe_tps,
 	}
 }
 
-static uint8_t as102_fe_get_code_rate(fe_code_rate_t arg)
+static uint8_t as102_fe_get_code_rate(enum fe_code_rate arg)
 {
 	uint8_t c;
 

@@ -55,14 +55,14 @@ struct it913x_fe_state {
 	struct ite_config *config;
 	u8 i2c_addr;
 	u32 frequency;
-	fe_modulation_t constellation;
-	fe_transmit_mode_t transmission_mode;
+	enum fe_modulation constellation;
+	enum fe_transmit_mode transmission_mode;
 	u8 priority;
 	u32 crystalFrequency;
 	u32 adcFrequency;
 	u8 tuner_type;
 	struct adctable *table;
-	fe_status_t it913x_status;
+	enum fe_status it913x_status;
 	u16 tun_xtal;
 	u8 tun_fdiv;
 	u8 tun_clk_mode;
@@ -462,11 +462,11 @@ static int it913x_fe_select_bw(struct it913x_fe_state *state,
 
 
 
-static int it913x_fe_read_status(struct dvb_frontend *fe, fe_status_t *status)
+static int it913x_fe_read_status(struct dvb_frontend *fe, enum fe_status *status)
 {
 	struct it913x_fe_state *state = fe->demodulator_priv;
 	int ret, i;
-	fe_status_t old_status = state->it913x_status;
+	enum fe_status old_status = state->it913x_status;
 	*status = 0;
 
 	if (state->it913x_status == 0) {
@@ -501,7 +501,7 @@ static int it913x_fe_read_status(struct dvb_frontend *fe, fe_status_t *status)
 	return 0;
 }
 
-/* FEC values based on fe_code_rate_t non supported values 0*/
+/* FEC values based on enum fe_code_rate non supported values 0*/
 int it913x_qpsk_pval[] = {0, -93, -91, -90, 0, -89, -88};
 int it913x_16qam_pval[] = {0, -87, -85, -84, 0, -83, -82};
 int it913x_64qam_pval[] = {0, -82, -80, -78, 0, -77, -76};

@@ -166,7 +166,7 @@ static struct table fe_clockTable[] = {
 };
 
 /* fe get */
-fe_code_rate_t fe_code[] = {
+enum fe_code_rate fe_code[] = {
 	FEC_1_2,
 	FEC_2_3,
 	FEC_3_4,
@@ -175,27 +175,27 @@ fe_code_rate_t fe_code[] = {
 	FEC_NONE,
 };
 
-fe_guard_interval_t fe_gi[] = {
+enum fe_guard_interval fe_gi[] = {
 	GUARD_INTERVAL_1_32,
 	GUARD_INTERVAL_1_16,
 	GUARD_INTERVAL_1_8,
 	GUARD_INTERVAL_1_4,
 };
 
-fe_hierarchy_t fe_hi[] = {
+enum fe_hierarchy fe_hi[] = {
 	HIERARCHY_NONE,
 	HIERARCHY_1,
 	HIERARCHY_2,
 	HIERARCHY_4,
 };
 
-fe_transmit_mode_t fe_mode[] = {
+enum fe_transmit_mode fe_mode[] = {
 	TRANSMISSION_MODE_2K,
 	TRANSMISSION_MODE_8K,
 	TRANSMISSION_MODE_4K,
 };
 
-fe_modulation_t fe_con[] = {
+enum fe_modulation fe_con[] = {
 	QPSK,
 	QAM_16,
 	QAM_64,

@@ -3260,7 +3260,7 @@ static int dib8000_get_frontend(struct dvb_frontend *fe)
 {
 	struct dib8000_state *state = fe->demodulator_priv;
 	u16 i, val = 0;
-	fe_status_t stat;
+	enum fe_status stat;
 	u8 index_frontend, sub_index_frontend;
 
 	fe->dtv_property_cache.bandwidth_hz = 6000000;
@@ -3556,7 +3556,7 @@ static int dib8000_set_frontend(struct dvb_frontend *fe)
 	return ret;
 }
 
-static int dib8000_read_status(struct dvb_frontend *fe, fe_status_t * stat)
+static int dib8000_read_status(struct dvb_frontend *fe, enum fe_status * stat)
 {
 	struct dib8000_state *state = fe->demodulator_priv;
 	u16 lock_slave = 0, lock;
