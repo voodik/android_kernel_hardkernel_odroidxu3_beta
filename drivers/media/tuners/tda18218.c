@@ -265,6 +265,13 @@ static int tda18218_init(struct dvb_frontend *fe)
 	return ret;
 }
 
+static int tda18218_release(struct dvb_frontend *fe)
+{
+	kfree(fe->tuner_priv);
+	fe->tuner_priv = NULL;
+	return 0;
+}
+
 static const struct dvb_tuner_ops tda18218_tuner_ops = {
 	.info = {
 		.name           = "NXP TDA18218",
@@ -274,7 +281,7 @@ static const struct dvb_tuner_ops tda18218_tuner_ops = {
 		.frequency_step =      1000,
 	},
 
-	.release       = dvb_tuner_simple_release,
+	.release       = tda18218_release,
 	.init          = tda18218_init,
 	.sleep         = tda18218_sleep,
 

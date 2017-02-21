@@ -41,6 +41,13 @@ struct stb6000_priv {
 	u32 frequency;
 };
 
+static int stb6000_release(struct dvb_frontend *fe)
+{
+	kfree(fe->tuner_priv);
+	fe->tuner_priv = NULL;
+	return 0;
+}
+
 static int stb6000_sleep(struct dvb_frontend *fe)
 {
 	struct stb6000_priv *priv = fe->tuner_priv;
@@ -185,7 +192,7 @@ static struct dvb_tuner_ops stb6000_tuner_ops = {
 		.frequency_min = 950000,
 		.frequency_max = 2150000
 	},
-	.release = dvb_tuner_simple_release,
+	.release = stb6000_release,
 	.sleep = stb6000_sleep,
 	.set_params = stb6000_set_params,
 	.get_frequency = stb6000_get_frequency,
