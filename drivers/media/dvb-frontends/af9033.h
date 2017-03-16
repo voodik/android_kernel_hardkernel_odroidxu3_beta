@@ -18,8 +18,6 @@
 #ifndef AF9033_H
 #define AF9033_H
 
-#include <linux/kconfig.h>
-
 /*
  * I2C address: 0x1c, 0x1d, 0x1e, 0x1f
  */

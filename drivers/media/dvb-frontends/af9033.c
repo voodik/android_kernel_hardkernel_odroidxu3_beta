@@ -29,7 +29,7 @@ struct af9033_dev {
 	bool ts_mode_parallel;
 	bool ts_mode_serial;
 
-	fe_status_t fe_status;
+	enum fe_status fe_status;
 	u64 post_bit_error_prev; /* for old read_ber we return (curr - prev) */
 	u64 post_bit_error;
 	u64 post_bit_count;
