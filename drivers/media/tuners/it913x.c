@@ -46,6 +46,7 @@ static int it913x_rd_regs(struct it913x_state *state,
 		{ .addr = state->i2c_addr, .flags = I2C_M_RD,
 			.buf = data, .len = count }
 	};
+
 	b[0] = (u8)(reg >> 16) & 0xff;
 	b[1] = (u8)(reg >> 8) & 0xff;
 	b[2] = (u8) reg & 0xff;
@@ -61,6 +62,7 @@ static int it913x_rd_reg(struct it913x_state *state, u32 reg)
 {
 	int ret;
 	u8 b[1];
+
 	ret = it913x_rd_regs(state, reg, &b[0], sizeof(b));
 	return (ret < 0) ? -ENODEV : b[0];
 }
@@ -75,6 +77,7 @@ static int it913x_wr_regs(struct it913x_state *state,
 		  .buf = b, .len = 3 + count }
 	};
 	int ret;
+
 	b[0] = (u8)(reg >> 16) & 0xff;
 	b[1] = (u8)(reg >> 8) & 0xff;
 	b[2] = (u8) reg & 0xff;
@@ -122,6 +125,7 @@ static int it913x_script_loader(struct it913x_state *state,
 		struct it913xset *loadscript)
 {
 	int ret, i;
+
 	if (loadscript == NULL)
 		return -EINVAL;
 
@@ -154,6 +158,9 @@ static int it913x_init(struct dvb_frontend *fe)
 		val = 16;
 		break;
 	case -ENODEV:
+		/* FIXME: these are just avoid divide by 0 */
+		state->tun_xtal = 2000;
+		state->tun_fdiv = 3;
 		return -ENODEV;
 	case 1:
 	default:
@@ -202,7 +209,6 @@ static int it913x_init(struct dvb_frontend *fe)
 
 	/* Power Up Tuner - common all versions */
 	ret = it913x_wr_reg(state, PRO_DMOD, 0xec40, 0x1);
-	ret |= it913x_wr_reg(state, PRO_DMOD, 0xfba8, 0x0);
 	ret |= it913x_wr_reg(state, PRO_DMOD, 0xec57, 0x0);
 	ret |= it913x_wr_reg(state, PRO_DMOD, 0xec58, 0x0);
 
@@ -369,7 +375,11 @@ static int it9137_set_params(struct dvb_frontend *fe)
 static int it913x_sleep(struct dvb_frontend *fe)
 {
 	struct it913x_state *state = fe->tuner_priv;
-	return it913x_script_loader(state, it9137_tuner_off);
+
+	if (state->chip_ver == 0x01)
+		return it913x_script_loader(state, it9135ax_tuner_off);
+	else
+		return it913x_script_loader(state, it9137_tuner_off);
 }
 
 static int it913x_release(struct dvb_frontend *fe)
@@ -396,6 +406,7 @@ struct dvb_frontend *it913x_attach(struct dvb_frontend *fe,
 		struct i2c_adapter *i2c_adap, u8 i2c_addr, u8 config)
 {
 	struct it913x_state *state = NULL;
+	int ret;
 
 	/* allocate memory for the internal state */
 	state = kzalloc(sizeof(struct it913x_state), GFP_KERNEL);
@@ -424,6 +435,11 @@ struct dvb_frontend *it913x_attach(struct dvb_frontend *fe,
 
 	state->tuner_type = config;
 	state->firmware_ver = 1;
+
+	/* tuner RF initial */
+	ret = it913x_wr_reg(state, PRO_DMOD, 0xec4c, 0x68);
+	if (ret < 0)
+		goto error;
 
 	fe->tuner_priv = state;
 	memcpy(&fe->ops.tuner_ops, &it913x_tuner_ops,
