@@ -1115,7 +1115,7 @@ static int au0828_v4l2_close(struct file *filp)
 			pr_info("Au0828 can't set alternate to 0!\n");
 	}
 end:
-	_vb2_fop_release(filp, NULL);
+	vb2_fop_release(filp);
 	dev->users--;
 	mutex_unlock(&dev->lock);
 	return 0;
@@ -1823,7 +1823,7 @@ static int au0828_vb2_setup(struct au0828_dev *dev)
 	q = &dev->vb_vidq;
 	q->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	q->io_modes = VB2_READ | VB2_MMAP | VB2_USERPTR | VB2_DMABUF;
-	q->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
+	q->timestamp_type = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
 	q->drv_priv = dev;
 	q->buf_struct_size = sizeof(struct au0828_buffer);
 	q->ops = &au0828_video_qops;
@@ -1837,7 +1837,7 @@ static int au0828_vb2_setup(struct au0828_dev *dev)
 	q = &dev->vb_vbiq;
 	q->type = V4L2_BUF_TYPE_VBI_CAPTURE;
 	q->io_modes = VB2_READ | VB2_MMAP | VB2_USERPTR | VB2_DMABUF;
-	q->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
+	q->timestamp_type = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
 	q->drv_priv = dev;
 	q->buf_struct_size = sizeof(struct au0828_buffer);
 	q->ops = &au0828_vbi_qops;
