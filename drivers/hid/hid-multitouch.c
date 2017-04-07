@@ -604,6 +604,8 @@ static int mt_compute_slot(struct mt_device *td, struct input_dev *input)
 	return input_mt_get_slot_by_key(input, td->curdata.contactid);
 }
 
+extern bool touch_invert_x;
+extern bool touch_invert_y;
 /*
  * this function is called when a whole contact has been processed,
  * so that it can assign it to a slot and store the data there
@@ -639,8 +641,18 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
 			int major = max(s->w, s->h) >> 1;
 			int minor = min(s->w, s->h) >> 1;
 
-			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
-			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
+			if (touch_invert_x)
+				input_event(input, EV_ABS, ABS_MT_POSITION_X,
+					input->absinfo[0].maximum - s->x);
+			else
+				input_event(input, EV_ABS, ABS_MT_POSITION_X,
+						s->x);
+			if (touch_invert_y)
+				input_event(input, EV_ABS, ABS_MT_POSITION_Y,
+					input->absinfo[1].maximum - s->y);
+			else
+				input_event(input, EV_ABS, ABS_MT_POSITION_Y,
+						s->y);
 			input_event(input, EV_ABS, ABS_MT_TOOL_X, s->cx);
 			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
 			input_event(input, EV_ABS, ABS_MT_DISTANCE,

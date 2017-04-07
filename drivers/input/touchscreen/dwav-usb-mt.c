@@ -126,6 +126,43 @@ struct dwav_usb_mt  {
 };
 
 //[*]-------------------------------------------------------------------------[*]
+bool touch_invert_x;
+/*-------------------------------------------------------------------------*/
+static int __init touch_invert_x_para_setup(char *s)
+{
+	touch_invert_x = false;
+	if (!strncmp(s, "true", 4))
+		touch_invert_x = true;
+	else if (!strncmp(s, "false", 5))
+		touch_invert_x = false;
+	else {
+		pr_err("%s - wrong touch_invert_x parameter", __func__);
+		touch_invert_x = true;
+	}
+
+	return 0;
+}
+__setup("touch_invert_x=", touch_invert_x_para_setup);
+
+bool touch_invert_y;
+/*-------------------------------------------------------------------------*/
+static int __init touch_invert_y_para_setup(char *s)
+{
+	touch_invert_y = false;
+	if (!strncmp(s, "true", 4))
+		touch_invert_y = true;
+	else if (!strncmp(s, "false", 5))
+		touch_invert_y = false;
+	else {
+		pr_err("%s - wrong touch_invert_y parameter", __func__);
+		touch_invert_y = true;
+	}
+
+	return 0;
+}
+__setup("touch_invert_y=", touch_invert_y_para_setup);
+
+/*-------------------------------------------------------------------------*/
 static void dwav_usb_mt_report(struct dwav_usb_mt *dwav_usb_mt)
 {
 	int	id, max_x, max_y, max_press, max_finger;
@@ -143,17 +180,34 @@ static void dwav_usb_mt_report(struct dwav_usb_mt *dwav_usb_mt)
 		    dwav_usb_mt->finger[id].y >= max_y)
 			continue;
 
-    	input_mt_slot(dwav_usb_mt->input, id);
+		input_mt_slot(dwav_usb_mt->input, id);
 
-		if(dwav_usb_mt->finger[id].status != TS_EVENT_RELEASE)	{
-            input_mt_report_slot_state(dwav_usb_mt->input, MT_TOOL_FINGER, true);
-			input_report_abs(dwav_usb_mt->input, ABS_MT_POSITION_X,  dwav_usb_mt->finger[id].x);
-			input_report_abs(dwav_usb_mt->input, ABS_MT_POSITION_Y,	 dwav_usb_mt->finger[id].y);
-			input_report_abs(dwav_usb_mt->input, ABS_MT_PRESSURE, max_press);
-		}
-		else	{
-            input_mt_report_slot_state(dwav_usb_mt->input, MT_TOOL_FINGER, false);
-		    dwav_usb_mt->finger[id].status = TS_EVENT_UNKNOWN;
+		if (dwav_usb_mt->finger[id].status != TS_EVENT_RELEASE) {
+			input_mt_report_slot_state(dwav_usb_mt->input,
+					MT_TOOL_FINGER, true);
+			if (touch_invert_x)
+				input_report_abs(dwav_usb_mt->input,
+					ABS_MT_POSITION_X,
+				max_x - dwav_usb_mt->finger[id].x);
+			else
+				input_report_abs(dwav_usb_mt->input,
+					ABS_MT_POSITION_X,
+					dwav_usb_mt->finger[id].x);
+			if (touch_invert_y)
+				input_report_abs(dwav_usb_mt->input,
+					ABS_MT_POSITION_Y,
+				max_y - dwav_usb_mt->finger[id].y);
+			else
+				input_report_abs(dwav_usb_mt->input,
+					ABS_MT_POSITION_Y,
+					dwav_usb_mt->finger[id].y);
+			input_report_abs(dwav_usb_mt->input,
+					ABS_MT_PRESSURE,
+					max_press);
+		} else {
+			input_mt_report_slot_state(dwav_usb_mt->input,
+					MT_TOOL_FINGER, false);
+			dwav_usb_mt->finger[id].status = TS_EVENT_UNKNOWN;
 		}
 		input_mt_report_pointer_emulation(dwav_usb_mt->input, true);
 	    input_sync(dwav_usb_mt->input);
