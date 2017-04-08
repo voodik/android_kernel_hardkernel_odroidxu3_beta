@@ -78,8 +78,8 @@
 #define CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx 20
 #define CX231XX_BOARD_HAUPPAUGE_955Q 21
 #define CX231XX_BOARD_TERRATEC_GRABBY 22
-#define CX231XX_BOARD_TBS_5280 22
-#define CX231XX_BOARD_TBS_5281 23
+#define CX231XX_BOARD_TBS_5280 23
+#define CX231XX_BOARD_TBS_5281 24
 
 /* Limits minimum and default number of buffers */
 #define CX231XX_MIN_BUF                 4
@@ -283,7 +283,6 @@ enum cx231xx_itype {
 	CX231XX_VMUX_CABLE,
 	CX231XX_RADIO,
 	CX231XX_VMUX_DVB,
-	CX231XX_VMUX_DEBUG
 };
 
 enum cx231xx_v_input {
@@ -667,6 +666,8 @@ struct cx231xx {
 #if defined(CONFIG_MEDIA_CONTROLLER)
 	struct media_device *media_dev;
 	struct media_pad video_pad, vbi_pad;
+	struct media_entity input_ent[MAX_CX231XX_INPUT];
+	struct media_pad input_pad[MAX_CX231XX_INPUT];
 #endif
 
 	unsigned char eedata[256];
@@ -765,7 +766,6 @@ void cx231xx_do_i2c_scan(struct cx231xx *dev, int i2c_port);
 int cx231xx_i2c_register(struct cx231xx_i2c *bus);
 int cx231xx_i2c_unregister(struct cx231xx_i2c *bus);
 int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no);
-void cx231xx_i2c_mux_unregister(struct cx231xx *dev, int mux_no);
 struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port);
 
 /* Internal block control functions */
@@ -953,6 +953,7 @@ int cx231xx_register_extension(struct cx231xx_ops *dev);
 void cx231xx_unregister_extension(struct cx231xx_ops *dev);
 void cx231xx_init_extension(struct cx231xx *dev);
 void cx231xx_close_extension(struct cx231xx *dev);
+void cx231xx_v4l2_create_entities(struct cx231xx *dev);
 int cx231xx_querycap(struct file *file, void *priv,
 			   struct v4l2_capability *cap);
 int cx231xx_g_tuner(struct file *file, void *priv, struct v4l2_tuner *t);

@@ -106,7 +106,7 @@ static int cx231xx_enable_analog_tuner(struct cx231xx *dev)
 	struct media_device *mdev = dev->media_dev;
 	struct media_entity  *entity, *decoder = NULL, *source;
 	struct media_link *link, *found_link = NULL;
-	int i, ret, active_links = 0;
+	int ret, active_links = 0;
 
 	if (!mdev)
 		return 0;
@@ -119,7 +119,7 @@ static int cx231xx_enable_analog_tuner(struct cx231xx *dev)
 	 * this should be enough for the actual needs.
 	 */
 	media_device_for_each_entity(entity, mdev) {
-		if (entity->type == MEDIA_ENT_T_V4L2_SUBDEV_DECODER) {
+		if (entity->function == MEDIA_ENT_F_ATV_DECODER) {
 			decoder = entity;
 			break;
 		}
@@ -127,8 +127,7 @@ static int cx231xx_enable_analog_tuner(struct cx231xx *dev)
 	if (!decoder)
 		return 0;
 
-	for (i = 0; i < decoder->num_links; i++) {
-		link = &decoder->links[i];
+	list_for_each_entry(link, &decoder->links, list) {
 		if (link->sink->entity == decoder) {
 			found_link = link;
 			if (link->flags & MEDIA_LNK_FL_ENABLED)
@@ -141,11 +140,10 @@ static int cx231xx_enable_analog_tuner(struct cx231xx *dev)
 		return 0;
 
 	source = found_link->source->entity;
-	for (i = 0; i < source->num_links; i++) {
+	list_for_each_entry(link, &source->links, list) {
 		struct media_entity *sink;
 		int flags = 0;
 
-		link = &source->links[i];
 		sink = link->sink->entity;
 
 		if (sink == entity)
@@ -1105,8 +1103,53 @@ static const char *iname[] = {
 	[CX231XX_VMUX_TELEVISION] = "Television",
 	[CX231XX_VMUX_CABLE]      = "Cable TV",
 	[CX231XX_VMUX_DVB]        = "DVB",
-	[CX231XX_VMUX_DEBUG]      = "for debug only",
 };
+
+void cx231xx_v4l2_create_entities(struct cx231xx *dev)
+{
+#if defined(CONFIG_MEDIA_CONTROLLER)
+	int ret, i;
+
+	/* Create entities for each input connector */
+	for (i = 0; i < MAX_CX231XX_INPUT; i++) {
+		struct media_entity *ent = &dev->input_ent[i];
+
+		if (!INPUT(i)->type)
+			break;
+
+		ent->name = iname[INPUT(i)->type];
+		ent->flags = MEDIA_ENT_FL_CONNECTOR;
+		dev->input_pad[i].flags = MEDIA_PAD_FL_SOURCE;
+
+		switch (INPUT(i)->type) {
+		case CX231XX_VMUX_COMPOSITE1:
+			ent->function = MEDIA_ENT_F_CONN_COMPOSITE;
+			break;
+		case CX231XX_VMUX_SVIDEO:
+			ent->function = MEDIA_ENT_F_CONN_SVIDEO;
+			break;
+		case CX231XX_VMUX_TELEVISION:
+		case CX231XX_VMUX_CABLE:
+		case CX231XX_VMUX_DVB:
+			/* The DVB core will handle it */
+			if (dev->tuner_type == TUNER_ABSENT)
+				continue;
+			/* fall though */
+		default: /* just to shut up a gcc warning */
+			ent->function = MEDIA_ENT_F_CONN_RF;
+			break;
+		}
+
+		ret = media_entity_pads_init(ent, 1, &dev->input_pad[i], 0);
+		if (ret < 0)
+			pr_err("failed to initialize input pad[%d]!\n", i);
+
+		ret = media_device_register_entity(dev->media_dev, ent);
+		if (ret < 0)
+			pr_err("failed to register input entity %d!\n", i);
+	}
+#endif
+}
 
 int cx231xx_enum_input(struct file *file, void *priv,
 			     struct v4l2_input *i)
@@ -2122,7 +2165,6 @@ static void cx231xx_vdev_init(struct cx231xx *dev,
 	vfd->v4l2_dev = &dev->v4l2_dev;
 	vfd->release = video_device_release_empty;
 	vfd->lock = &dev->lock;
-	set_bit(V4L2_FL_USE_FH_PRIO, &vfd->flags);
 
 	snprintf(vfd->name, sizeof(vfd->name), "%s %s", dev->name, type_name);
 
@@ -2178,7 +2220,7 @@ int cx231xx_register_analog_devices(struct cx231xx *dev)
 	cx231xx_vdev_init(dev, &dev->vdev, &cx231xx_video_template, "video");
 #if defined(CONFIG_MEDIA_CONTROLLER)
 	dev->video_pad.flags = MEDIA_PAD_FL_SINK;
-	ret = media_entity_init(&dev->vdev.entity, 1, &dev->video_pad, 0);
+	ret = media_entity_pads_init(&dev->vdev.entity, 1, &dev->video_pad, 0);
 	if (ret < 0)
 		dev_err(dev->dev, "failed to initialize video media entity!\n");
 #endif
@@ -2205,7 +2247,7 @@ int cx231xx_register_analog_devices(struct cx231xx *dev)
 
 #if defined(CONFIG_MEDIA_CONTROLLER)
 	dev->vbi_pad.flags = MEDIA_PAD_FL_SINK;
-	ret = media_entity_init(&dev->vbi_dev.entity, 1, &dev->vbi_pad, 0);
+	ret = media_entity_pads_init(&dev->vbi_dev.entity, 1, &dev->vbi_pad, 0);
 	if (ret < 0)
 		dev_err(dev->dev, "failed to initialize vbi media entity!\n");
 #endif
