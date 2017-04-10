@@ -49,6 +49,13 @@
 		V4L2_DV_BT_STD_CEA861, 0) \
 }
 
+#define V4L2_DV_BT_CEA_480X800P60 { \
+	.type = V4L2_DV_BT_656_1120, \
+	V4L2_INIT_BT_TIMINGS(480, 800, 0, 0, \
+		32000000, 40, 48, 40, 13, 3, 29, 0, 0, 0, \
+		V4L2_DV_BT_STD_CEA861, 0) \
+}
+
 /* Note: these are the nominal timings, for HDMI links this format is typically
  * double-clocked to meet the minimum pixelclock requirements.  */
 #define V4L2_DV_BT_CEA_720X480I59_94 { \
@@ -499,6 +506,14 @@
 		V4L2_DV_BT_STD_DMT, 0) \
 }
 
+#define V4L2_DV_BT_DMT_1360X768P60_2 { \
+	.type = V4L2_DV_BT_656_1120, \
+	V4L2_INIT_BT_TIMINGS(1360, 768, 0, \
+		V4L2_DV_VSYNC_POS_POL, \
+		84750000, 64, 144, 208, 1, 3, 23, 0, 0, 0, \
+		V4L2_DV_BT_STD_DMT, 0) \
+}
+
 #define V4L2_DV_BT_DMT_1360X768P120_RB { \
 	.type = V4L2_DV_BT_656_1120, \
 	V4L2_INIT_BT_TIMINGS(1360, 768, 0, V4L2_DV_HSYNC_POS_POL, \
@@ -605,6 +620,14 @@
 		V4L2_DV_HSYNC_POS_POL | V4L2_DV_VSYNC_POS_POL, \
 		108000000, 24, 80, 96, 1, 3, 96, 0, 0, 0, \
 		V4L2_DV_BT_STD_DMT, V4L2_DV_FL_REDUCED_BLANKING) \
+}
+
+#define V4L2_DV_BT_DMT_1600X900P60 { \
+	.type = V4L2_DV_BT_656_1120, \
+	V4L2_INIT_BT_TIMINGS(1600, 900, 0, \
+		V4L2_DV_VSYNC_POS_POL, \
+		119000000, 96, 168, 264, 1, 3, 28, 0, 0, 0, \
+		V4L2_DV_BT_STD_DMT, 0) \
 }
 
 /* UXGA resolutions */
@@ -744,7 +767,7 @@
 #define V4L2_DV_BT_DMT_1920X1200P60_RB { \
 	.type = V4L2_DV_BT_656_1120, \
 	V4L2_INIT_BT_TIMINGS(1920, 1200, 0, V4L2_DV_HSYNC_POS_POL, \
-		154000000, 48, 32, 80, 3, 6, 26, 0, 0, 0, \
+		154000000, 48, 32, 80, 2, 6, 27, 0, 0, 0, \
 		V4L2_DV_BT_STD_DMT | V4L2_DV_BT_STD_CVT, \
 		V4L2_DV_FL_REDUCED_BLANKING) \
 }
