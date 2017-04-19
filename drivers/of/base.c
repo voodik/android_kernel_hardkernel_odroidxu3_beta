@@ -179,8 +179,8 @@ static const char *safe_name(struct kobject *kobj, const char *orig_name)
 	int i = 0;
 
 	/* don't be a hero. After 16 tries give up */
-	while (i < 16 && (kn = sysfs_get_dirent(kobj->sd, name))) {
-		sysfs_put(kn);
+	while (i < 16 && (kn = sysfs_get_dirent(kobj->sd, NULL, name))) {
+		sysfs_put(kobj->sd);
 		if (name != orig_name)
 			kfree(name);
 		name = kasprintf(GFP_KERNEL, "%s#%i", orig_name, ++i);
