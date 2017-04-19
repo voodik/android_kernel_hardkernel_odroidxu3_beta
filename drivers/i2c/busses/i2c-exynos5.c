@@ -840,7 +840,6 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
 		goto err_pm;
 	}
 
-	of_i2c_register_devices(&i2c->adap);
 	platform_set_drvdata(pdev, i2c);
 
 	clk_disable_unprepare(i2c->clk);
