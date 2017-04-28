@@ -724,7 +724,7 @@ void mxr_reg_set_mbus_fmt(struct mxr_device *mdev,
 		val |= MXR_CFG_SCAN_PAL | MXR_CFG_SCAN_SD;
 	else if (fmt->height <= 720)
 		val |= MXR_CFG_SCAN_HD_720 | MXR_CFG_SCAN_HD;
-	else if (fmt->height <= 1080)
+	else if (fmt->height <= 1200)
 		val |= MXR_CFG_SCAN_HD_1080 | MXR_CFG_SCAN_HD;
 	else {
 		WARN(1, "unrecognized mbus height %u!\n", fmt->height);
