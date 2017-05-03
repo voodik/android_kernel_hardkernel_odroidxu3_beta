@@ -144,6 +144,7 @@ static void mt_post_parse(struct mt_device *td);
 #define MT_CLS_FLATFROG				0x0107
 #define MT_CLS_GENERALTOUCH_TWOFINGERS		0x0108
 #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
+#define MT_CLS_SHARP                            0x010A
 
 #define MT_DEFAULT_MAXCONTACT	10
 #define MT_MAX_MAXCONTACT	250
@@ -251,6 +252,10 @@ static struct mt_class mt_classes[] = {
 		.quirks	= MT_QUIRK_NOT_SEEN_MEANS_UP |
 			MT_QUIRK_SLOT_IS_CONTACTNUMBER
 	},
+ 	{ .name	= MT_CLS_SHARP,
+ 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+ 			MT_QUIRK_SLOT_IS_CONTACTID
+ 	},
 
 	{ .name = MT_CLS_FLATFROG,
 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
@@ -1450,6 +1455,10 @@ static const struct hid_device_id mt_devices[] = {
 	{ .driver_data = MT_CLS_SERIAL,
 		MT_USB_DEVICE(USB_VENDOR_ID_ZYTRONIC,
 			USB_DEVICE_ID_ZYTRONIC_ZXY100) },
+
+ 	{ .driver_data = MT_CLS_SHARP,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_SHARP,
+ 			USB_DEVICE_ID_LR388K4) },
 
 	 /* Silicon Integrated Systems Corp */
 	{ .driver_data = MT_CLS_DEFAULT,
