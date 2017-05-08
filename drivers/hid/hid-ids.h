@@ -1058,4 +1058,8 @@
 #define USB_VENDOR_ID_CJTOUCH	0x24b8
 #define USB_DEVICE_ID_CCA_UL01_DM	0x0001
 
+/* PQLabs HDMI capacitive Screen */
+#define USB_VENDOR_ID_PQLABS	0x1EF1
+#define USB_DEVICE_ID_PQLABS_0057	0x0057
+
 #endif
