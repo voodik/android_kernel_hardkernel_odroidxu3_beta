@@ -2026,6 +2026,7 @@ struct samsung_pll_rate_table rpll_rate_table[] = {
 struct samsung_pll_rate_table bpll_rate_table[] = {
 	/* rate		p	m	s	k */
 #ifdef CONFIG_SOC_EXYNOS5422_REV_0
+	{ 933000000U,   4,  311,    1,  0},
 	{ 925000000U,   4,  307,    1,  0},
 	{ 825000000U,   4,  275,    1,  0},
 	{ 728000000U,   3,  182,    1,  0},

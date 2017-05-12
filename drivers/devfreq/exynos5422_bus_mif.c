@@ -162,15 +162,15 @@ struct mif_bus_opp_table {
 
 struct mif_bus_opp_table mif_bus_opp_list[] = {
 #ifdef CONFIG_SOC_EXYNOS5422_REV_0
-	{LV_0, 825000, 1050000, 0},
-	{LV_1, 728000, 1037500, 0},
-	{LV_2, 633000, 1012500, 0},
-	{LV_3, 543000,  937500, 0},
-	{LV_4, 413000,  887500, 0},
-	{LV_5, 275000,  875000, 0},
-	{LV_6, 206000,  875000, 0},
-	{LV_7, 165000,  875000, 0},
-	{LV_8, 138000,  875000, 0},
+	{LV_0, 933000, 1100000, 0},
+	{LV_1, 825000, 1050000, 0},
+	{LV_2, 728000, 1037500, 0},
+	{LV_3, 633000, 1012500, 0},
+	{LV_4, 543000,  937500, 0},
+	{LV_5, 413000,  887500, 0},
+	{LV_6, 275000,  875000, 0},
+	{LV_7, 206000,  875000, 0},
+	{LV_8, 165000,  875000, 0},
 #else
 	{LV_0, 800000, 1050000, 0},
 	{LV_1, 733000, 1037500, 0},
@@ -209,6 +209,7 @@ static unsigned int *exynos5422_dram_switching_param;
 static unsigned int exynos5422_dram_param_3gb[][3] = {
 	/* timiningRow, timingData, timingPower */
 #ifdef CONFIG_SOC_EXYNOS5422_REV_0
+	{0x3D6BA816, 0x4742086E, 0x60670447},	/*933Mhz*/
 	{0x575A9713, 0x4740085E, 0x545B0446},	/*825Mhz*/
 	{0x4D598651, 0x3730085E, 0x4C510336},	/*728Mhz*/
 	{0x4348758F, 0x3730085E, 0x40460335},	/*633Mhz*/
@@ -217,7 +218,6 @@ static unsigned int exynos5422_dram_param_3gb[][3] = {
 	{0x1D244287, 0x2720085E, 0x1C1F0225},	/*275Mhz*/
 	{0x162331C6, 0x2720085E, 0x18170225},	/*206Mhz*/
 	{0x12223185, 0x2720085E, 0x14130225},	/*165Mhz*/
-	{0x11222144, 0x2720085E, 0x10100225},	/*138Mhz*/
 #else
 	{0x345A96D3, 0x3630065C, 0x50380336},	/* 800Mhz */
 	{0x30598651, 0x3630065C, 0x4C340336},	/* 733Mhz */
@@ -235,6 +235,7 @@ static unsigned int exynos5422_dram_param_3gb[][3] = {
 #ifdef CONFIG_SOC_EXYNOS5422_REV_0
 static unsigned int exynos5422_dram_param_2gb[][3] = {
 	/* timiningRow, timingData, timingPower */
+	{0x3D6BA816, 0x4742086E, 0x60670447},	/*933Mhz*/
 	{0x365A9713, 0x4740085E, 0x543A0446},   /*825Mhz*/
 	{0x30598651, 0x3730085E, 0x4C330336},   /*728Mhz*/
 	{0x2A48758F, 0x3730085E, 0x402D0335},   /*633Mhz*/
@@ -243,7 +244,6 @@ static unsigned int exynos5422_dram_param_2gb[][3] = {
 	{0x12244287, 0x2720085E, 0x1C140225},   /*275Mhz*/
 	{0x112331C6, 0x2720085E, 0x180F0225},   /*206Mhz*/
 	{0x11223185, 0x2720085E, 0x140C0225},   /*165Mhz*/
-	{0x11222144, 0x2720085E, 0x100C0225},   /*138Mhz*/
 };
 #endif
 
@@ -252,7 +252,7 @@ static struct devfreq_simple_exynos_data exynos5_mif_governor_data = {
 	.upthreshold		= 60,
 	.downthreshold		= 45,
 	.idlethreshold		= 30,
-	.cal_qos_max		= 825000,
+	.cal_qos_max		= 933000,
 	.pm_qos_class		= PM_QOS_BUS_THROUGHPUT,
 };
 
@@ -861,7 +861,7 @@ static int exynos5_mif_bus_get_dev_status(struct device *dev,
 }
 
 static struct devfreq_dev_profile exynos5_mif_devfreq_profile = {
-	.initial_freq	= 825000,
+	.initial_freq	= 933000,
 	.polling_ms	= 100,
 	.target		= exynos5_mif_busfreq_target,
 	.get_dev_status	= exynos5_mif_bus_get_dev_status,
@@ -1284,7 +1284,11 @@ static int exynos5_devfreq_probe(struct platform_device *pdev)
 	rcu_read_unlock();
 
 	/* Set Max information for devfreq */
+#ifdef CONFIG_MACH_ODROIDXU3
+	tmpfreq = 825000;
+#else
 	tmpfreq = ULONG_MAX;
+#endif
 
 	rcu_read_lock();
 	opp = opp_find_freq_floor(dev, &tmpfreq);
