@@ -28,7 +28,7 @@
 
 #define MIF_DVFS_LEVEL_NR		(10)
 #define MIF_ASV_GRP_NR			(14)
-#define MIF_MAX_VOLT			(975000)
+#define MIF_MAX_VOLT			(1100000)
 #define MIF_V240_MAX_VOLT		(962500)
 #define MIF_V230_MAX_VOLT		(962500)
 #define MIF_V300_BIN2_MAX_VOLT		(1000000)
