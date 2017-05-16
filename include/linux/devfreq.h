@@ -157,6 +157,9 @@ struct devfreq {
 	struct devfreq_dev_profile *profile;
 	const struct devfreq_governor *governor;
 	char governor_name[DEVFREQ_NAME_LEN];
+#ifdef CONFIG_MACH_ODROIDXU3
+	char governor_data_name[DEVFREQ_NAME_LEN];
+#endif
 	struct notifier_block nb;
 	struct delayed_work work;
 

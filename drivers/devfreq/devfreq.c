@@ -468,6 +468,9 @@ struct devfreq *devfreq_add_device(struct device *dev,
 	devfreq->dev.release = devfreq_dev_release;
 	devfreq->profile = profile;
 	strncpy(devfreq->governor_name, governor_name, DEVFREQ_NAME_LEN);
+#ifdef CONFIG_MACH_ODROIDXU3
+	strncpy(devfreq->governor_data_name, governor_name, DEVFREQ_NAME_LEN);
+#endif
 	devfreq->previous_freq = profile->initial_freq;
 	devfreq->data = data;
 	devfreq->nb.notifier_call = devfreq_notifier_call;
@@ -718,6 +721,16 @@ static ssize_t store_governor(struct device *dev, struct device_attribute *attr,
 	if (df->governor == governor)
 		goto out;
 
+#ifdef CONFIG_MACH_ODROIDXU3
+	if (!strcmp(str_governor, "simple_exynos") || !strcmp(str_governor, "simple_ondemand")) {
+		if (strcmp(str_governor, df->governor_data_name)) {
+			dev_warn(dev, "%s: Governor %s not supported\n",
+				 __func__, str_governor);
+			goto out;
+		}
+	}
+#endif
+
 	if (df->governor) {
 		ret = df->governor->event_handler(df, DEVFREQ_GOV_STOP, NULL);
 		if (ret) {
@@ -743,14 +756,46 @@ static ssize_t show_available_governors(struct device *d,
 				    struct device_attribute *attr,
 				    char *buf)
 {
+#ifdef CONFIG_MACH_ODROIDXU3
+	struct devfreq *devfreq = to_devfreq(d);
+#else
 	struct devfreq_governor *tmp_governor;
+#endif
 	ssize_t count = 0;
 
+/*
+ * This adjustment is to show only available governors
+ * to avoid kernel panic with governors
+ * which don't have correct governor data and profile.
+ * For example, available_governors node of devfreq exynos5-devfreq-mif has
+ * simple_ondemand governor because devfreq_governor_list has all of
+ * governors' names from devfreq_add_governor during driver probe.
+ * But, there is no own data for the governor data, so it causes a kernel panic.
+ * Also with exynos5-devfreq-int, it has only simple_ondemand governor data
+ * but there is simple_exynos option in available_governors node.
+ */
+#ifdef CONFIG_MACH_ODROIDXU3
+	count += scnprintf(&buf[count], (PAGE_SIZE - count - 2),
+			   "%s ", devfreq->governor_data_name);
+#ifdef CONFIG_DEVFREQ_GOV_PERFORMANCE
+	count += scnprintf(&buf[count], (PAGE_SIZE - count - 2),
+			   "performance ");
+#endif
+#ifdef CONFIG_DEVFREQ_GOV_POWERSAVE
+	count += scnprintf(&buf[count], (PAGE_SIZE - count - 2),
+			   "powersave ");
+#endif
+#ifdef CONFIG_DEVFREQ_GOV_USERSPACE
+	count += scnprintf(&buf[count], (PAGE_SIZE - count - 2),
+			   "userspace ");
+#endif
+#else /* CONFIG_MACH_ODROIDXU3 */
 	mutex_lock(&devfreq_list_lock);
 	list_for_each_entry(tmp_governor, &devfreq_governor_list, node)
 		count += scnprintf(&buf[count], (PAGE_SIZE - count - 2),
 				   "%s ", tmp_governor->name);
 	mutex_unlock(&devfreq_list_lock);
+#endif /* CONFIG_MACH_ODROIDXU3 */
 
 	/* Truncate the trailing space */
 	if (count)
