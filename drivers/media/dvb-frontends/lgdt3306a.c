@@ -62,7 +62,7 @@ struct lgdt3306a_state {
 
 	struct dvb_frontend frontend;
 
-	fe_modulation_t current_modulation;
+	enum fe_modulation current_modulation;
 	u32 current_frequency;
 	u32 snr;
 };
@@ -731,7 +731,7 @@ static int lgdt3306a_set_if(struct lgdt3306a_state *state,
 
 	switch (if_freq_khz) {
 	default:
-		pr_warn("IF=%d KHz is not supportted, 3250 assumed\n",
+		pr_warn("IF=%d KHz is not supported, 3250 assumed\n",
 			if_freq_khz);
 		/* fallthrough */
 	case 3250: /* 3.25Mhz */
@@ -1040,10 +1040,10 @@ fail:
 	return ret;
 }
 
-static int lgdt3306a_get_frontend(struct dvb_frontend *fe)
+static int lgdt3306a_get_frontend(struct dvb_frontend *fe,
+				  struct dtv_frontend_properties *p)
 {
 	struct lgdt3306a_state *state = fe->demodulator_priv;
-	struct dtv_frontend_properties *p = &fe->dtv_property_cache;
 
 	dbg_info("(%u, %d)\n",
 		 state->current_frequency, state->current_modulation);
@@ -1558,7 +1558,8 @@ lgdt3306a_qam_lock_poll(struct lgdt3306a_state *state)
 	return LG3306_UNLOCK;
 }
 
-static int lgdt3306a_read_status(struct dvb_frontend *fe, fe_status_t *status)
+static int lgdt3306a_read_status(struct dvb_frontend *fe,
+				 enum fe_status *status)
 {
 	struct lgdt3306a_state *state = fe->demodulator_priv;
 	u16 strength = 0;
@@ -1705,7 +1706,7 @@ static int lgdt3306a_read_ucblocks(struct dvb_frontend *fe, u32 *ucblocks)
 
 static int lgdt3306a_tune(struct dvb_frontend *fe, bool re_tune,
 			  unsigned int mode_flags, unsigned int *delay,
-			  fe_status_t *status)
+			  enum fe_status *status)
 {
 	int ret = 0;
 	struct lgdt3306a_state *state = fe->demodulator_priv;
@@ -1735,25 +1736,17 @@ static int lgdt3306a_get_tune_settings(struct dvb_frontend *fe,
 
 static int lgdt3306a_search(struct dvb_frontend *fe)
 {
-	fe_status_t status = 0;
-	int i, ret;
+	enum fe_status status = 0;
+	int ret;
 
 	/* set frontend */
 	ret = lgdt3306a_set_parameters(fe);
 	if (ret)
 		goto error;
 
-	/* wait frontend lock */
-	for (i = 20; i > 0; i--) {
-		dbg_info(": loop=%d\n", i);
-		msleep(50);
-		ret = lgdt3306a_read_status(fe, &status);
-		if (ret)
-			goto error;
-
-		if (status & FE_HAS_LOCK)
-			break;
-	}
+	ret = lgdt3306a_read_status(fe, &status);
+	if (ret)
+		goto error;
 
 	/* check if we have a valid signal */
 	if (status & FE_HAS_LOCK)
@@ -1774,7 +1767,7 @@ static void lgdt3306a_release(struct dvb_frontend *fe)
 	kfree(state);
 }
 
-static struct dvb_frontend_ops lgdt3306a_ops;
+static const struct dvb_frontend_ops lgdt3306a_ops;
 
 struct dvb_frontend *lgdt3306a_attach(const struct lgdt3306a_config *config,
 				      struct i2c_adapter *i2c_adap)
@@ -2110,7 +2103,7 @@ static void lgdt3306a_DumpRegs(struct lgdt3306a_state *state)
 
 
 
-static struct dvb_frontend_ops lgdt3306a_ops = {
+static const struct dvb_frontend_ops lgdt3306a_ops = {
 	.delsys = { SYS_ATSC, SYS_DVBC_ANNEX_B },
 	.info = {
 		.name = "LG Electronics LGDT3306A VSB/QAM Frontend",

@@ -1357,7 +1357,7 @@ static int cx25840_s_ctrl(struct v4l2_ctrl *ctrl)
 /* ----------------------------------------------------------------------- */
 
 static int cx25840_set_fmt(struct v4l2_subdev *sd,
-		struct v4l2_subdev_pad_config *cfg,
+		struct v4l2_subdev_fh *fh,
 		struct v4l2_subdev_format *format)
 {
 	struct v4l2_mbus_framefmt *fmt = &format->format;
@@ -5211,9 +5211,9 @@ static int cx25840_probe(struct i2c_client *client,
 	state->pads[CX25840_PAD_INPUT].flags = MEDIA_PAD_FL_SINK;
 	state->pads[CX25840_PAD_VID_OUT].flags = MEDIA_PAD_FL_SOURCE;
 	state->pads[CX25840_PAD_VBI_OUT].flags = MEDIA_PAD_FL_SOURCE;
-	sd->entity.type = MEDIA_ENT_T_V4L2_SUBDEV_DECODER;
+	sd->entity.function = MEDIA_ENT_F_ATV_DECODER;
 
-	ret = media_entity_init(&sd->entity, ARRAY_SIZE(state->pads),
+	ret = media_entity_pads_init(&sd->entity, ARRAY_SIZE(state->pads),
 				state->pads, 0);
 	if (ret < 0) {
 		v4l_info(client, "failed to initialize media entity!\n");

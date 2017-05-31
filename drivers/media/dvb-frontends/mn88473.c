@@ -223,6 +223,13 @@ static int mn88473_set_frontend(struct dvb_frontend *fe)
 	if (ret)
 		goto err;
 
+	/* PLP */
+	if (c->delivery_system == SYS_DVBT2) {
+		ret = regmap_write(dev->regmap[2], 0x36, c->stream_id);
+		if (ret)
+			goto err;
+	}
+
 	/* Reset FSM */
 	ret = regmap_write(dev->regmap[2], 0xf8, 0x9f);
 	if (ret)
@@ -309,6 +316,7 @@ static int mn88473_read_status(struct dvb_frontend *fe, enum fe_status *status)
 	}
 
 	/* Signal strength */
+	c->strength.len = 1;
 	if (*status & FE_HAS_SIGNAL) {
 		for (i = 0; i < 2; i++) {
 			ret = regmap_bulk_read(dev->regmap[2], 0x86 + i,
@@ -345,8 +353,11 @@ static int mn88473_read_status(struct dvb_frontend *fe, enum fe_status *status)
 			stmp = 0;
 		}
 
+		c->cnr.len = 2;
 		c->cnr.stat[0].svalue = stmp;
 		c->cnr.stat[0].scale = FE_SCALE_DECIBEL;
+		c->cnr.stat[1].svalue = (stmp / 500) * 656;
+		c->cnr.stat[1].scale = FE_SCALE_RELATIVE;;
 	} else if (*status & FE_HAS_VITERBI &&
 		   c->delivery_system == SYS_DVBT2) {
 		/* DVB-T2 CNR */
@@ -379,8 +390,11 @@ static int mn88473_read_status(struct dvb_frontend *fe, enum fe_status *status)
 			stmp = 0;
 		}
 
+		c->cnr.len = 2;
 		c->cnr.stat[0].svalue = stmp;
 		c->cnr.stat[0].scale = FE_SCALE_DECIBEL;
+		c->cnr.stat[1].svalue = (stmp / 500) * 656;
+		c->cnr.stat[1].scale = FE_SCALE_RELATIVE;;
 	} else if (*status & FE_HAS_VITERBI &&
 		   c->delivery_system == SYS_DVBC_ANNEX_A) {
 		/* DVB-C CNR */
@@ -401,13 +415,18 @@ static int mn88473_read_status(struct dvb_frontend *fe, enum fe_status *status)
 			stmp = 0;
 		}
 
+		c->cnr.len = 2;
 		c->cnr.stat[0].svalue = stmp;
 		c->cnr.stat[0].scale = FE_SCALE_DECIBEL;
+		c->cnr.stat[1].svalue = (stmp / 500) * 656;
+		c->cnr.stat[1].scale = FE_SCALE_RELATIVE;;
 	} else {
+		c->cnr.len = 1;
 		c->cnr.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
 	}
 
 	/* BER */
+	c->post_bit_error.len = c->post_bit_count.len = 1;
 	if (*status & FE_HAS_LOCK && (c->delivery_system == SYS_DVBT ||
 				      c->delivery_system == SYS_DVBC_ANNEX_A)) {
 		/* DVB-T & DVB-C BER */
@@ -431,6 +450,7 @@ static int mn88473_read_status(struct dvb_frontend *fe, enum fe_status *status)
 	}
 
 	/* PER */
+	c->block_error.len = c->block_count.len = 1;
 	if (*status & FE_HAS_LOCK) {
 		ret = regmap_bulk_read(dev->regmap[0], 0xdd, buf, 4);
 		if (ret)
@@ -454,6 +474,46 @@ static int mn88473_read_status(struct dvb_frontend *fe, enum fe_status *status)
 err:
 	dev_dbg(&client->dev, "failed=%d\n", ret);
 	return ret;
+}
+
+static int mn88473_read_signal_strength(struct dvb_frontend *fe, u16 *strength)
+{
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+	int i;
+
+	*strength = 0;
+	for (i=0; i < c->strength.len; i++)
+	{
+		if (c->strength.stat[i].scale == FE_SCALE_RELATIVE)
+			*strength = (u16)c->strength.stat[i].uvalue;
+		else if (c->strength.stat[i].scale == FE_SCALE_DECIBEL)
+			*strength = ((100000 + (s32)c->strength.stat[i].svalue)/1000) * 656;
+	}
+	return 0;
+}
+
+static int mn88473_read_snr(struct dvb_frontend *fe, u16 *snr)
+{
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+	int i;
+
+	*snr = 0;
+	for (i=0; i < c->cnr.len; i++)
+		if (c->cnr.stat[i].scale == FE_SCALE_RELATIVE)
+		  *snr = (u16)c->cnr.stat[i].uvalue;
+	return 0;
+}
+
+static int mn88473_read_ber(struct dvb_frontend *fe, u32 *ber)
+{
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+
+	if (c->post_bit_error.stat[0].scale == FE_SCALE_COUNTER)
+		*ber = c->post_bit_error.stat[0].uvalue;
+	else
+		*ber = 0;
+
+	return 0;
 }
 
 static int mn88473_init(struct dvb_frontend *fe)
@@ -592,7 +652,8 @@ static const struct dvb_frontend_ops mn88473_ops = {
 			FE_CAN_GUARD_INTERVAL_AUTO     |
 			FE_CAN_HIERARCHY_AUTO          |
 			FE_CAN_MUTE_TS                 |
-			FE_CAN_2G_MODULATION
+			FE_CAN_2G_MODULATION           |
+			FE_CAN_MULTISTREAM
 	},
 
 	.get_tune_settings = mn88473_get_tune_settings,
@@ -603,6 +664,10 @@ static const struct dvb_frontend_ops mn88473_ops = {
 	.set_frontend = mn88473_set_frontend,
 
 	.read_status = mn88473_read_status,
+
+	.read_ber = mn88473_read_ber,
+	.read_signal_strength = mn88473_read_signal_strength,
+	.read_snr = mn88473_read_snr,
 };
 
 static int mn88473_probe(struct i2c_client *client,

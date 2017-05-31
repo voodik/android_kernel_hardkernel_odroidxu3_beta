@@ -530,7 +530,7 @@ static int si2157_probe(struct i2c_client *client,
 		dev->pad[TUNER_PAD_AUD_OUT].flags = MEDIA_PAD_FL_SOURCE;
 
 		ret = media_entity_pads_init(&dev->ent, TUNER_NUM_PADS,
-					     &dev->pad[0]);
+					     &dev->pad[0], 0);
 
 		if (ret)
 			goto err_kfree;

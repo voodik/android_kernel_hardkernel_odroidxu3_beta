@@ -140,18 +140,6 @@ static struct tda18271_config pv_tda18271_config = {
 	.small_i2c = TDA18271_03_BYTE_CHUNK_INIT,
 };
 
-static const struct si2165_config hauppauge_930C_HD_1113xx_si2165_config = {
-	.i2c_addr	= 0x64,
-	.chip_mode	= SI2165_MODE_PLL_XTAL,
-	.ref_freq_Hz	= 16000000,
-};
-
-static const struct si2165_config pctv_quatro_stick_1114xx_si2165_config = {
-	.i2c_addr	= 0x64,
-	.chip_mode	= SI2165_MODE_PLL_EXT,
-	.ref_freq_Hz	= 24000000,
-};
-
 static struct lgdt3306a_config hauppauge_955q_lgdt3306a_config = {
 	.i2c_addr           = 0x59,
 	.qam_if_khz         = 4000,
@@ -540,17 +528,17 @@ static int attach_xc5000(u8 addr, struct cx231xx *dev)
 	cfg.i2c_adap = cx231xx_get_i2c_adap(dev, dev->board.tuner_i2c_master);
 	cfg.i2c_addr = addr;
 
-	if (!dev->dvb->frontend) {
+	if (!dev->dvb[0]->frontend) {
 		dev_err(dev->dev, "%s/2: dvb frontend not attached. "
 		       "Can't attach xc5000\n", dev->name);
 		return -EINVAL;
 	}
 
-	fe = dvb_attach(xc5000_attach, dev->dvb->frontend, &cfg);
+	fe = dvb_attach(xc5000_attach, dev->dvb[0]->frontend, &cfg);
 	if (!fe) {
 		dev_err(dev->dev, "%s/2: xc5000 attach failed\n", dev->name);
-		dvb_frontend_detach(dev->dvb->frontend);
-		dev->dvb->frontend = NULL;
+		dvb_frontend_detach(dev->dvb[0]->frontend);
+		dev->dvb[0]->frontend = NULL;
 		return -EINVAL;
 	}
 
@@ -750,9 +738,16 @@ static void unregister_dvb(struct cx231xx_dvb *dvb)
 	dvb->demux.dmx.remove_frontend(&dvb->demux.dmx, &dvb->fe_hw);
 	dvb_dmxdev_release(&dvb->dmxdev);
 	dvb_dmx_release(&dvb->demux);
-#if 0
+
 	client = dvb->i2c_client_tuner;
 	/* remove I2C tuner */
+	client = dvb->i2c_client_tuner;
+	if (client) {
+		module_put(client->dev.driver->owner);
+		i2c_unregister_device(client);
+	}
+	/* remove I2C demod */
+	client = dvb->i2c_client_demod;
 	if (client) {
 		module_put(client->dev.driver->owner);
 		i2c_unregister_device(client);
@@ -766,7 +761,7 @@ static void unregister_dvb(struct cx231xx_dvb *dvb)
 		module_put(client->dev.driver->owner);
 		i2c_unregister_device(client);
 	}
-#endif
+
 	dvb_unregister_adapter(&dvb->adapter);
 }
 
@@ -795,7 +790,7 @@ static int tbs_cx_mac(struct i2c_adapter *i2c_adap, u8 count, u8 *mac)
 		memcpy(&e[0x40 * i], b , 64);
 	}
 	
-	memcpy(mac, &e[0x58 + 6 + 0x10*count], 6);
+    memcpy(mac, &e[0x61 + 0x10*count], 6);
 	
 	return 0;
 }
@@ -957,18 +952,37 @@ static int dvb_init(struct cx231xx *dev)
 		break;
 
 	case CX231XX_BOARD_HAUPPAUGE_930C_HD_1113xx:
+	{
+		struct i2c_client *client;
+		struct i2c_board_info info;
+		struct si2165_platform_data si2165_pdata;
 
-		dev->dvb[i]->frontend = dvb_attach(si2165_attach,
-			&hauppauge_930C_HD_1113xx_si2165_config,
-			demod_i2c
-			);
+		/* attach demod */
+		memset(&si2165_pdata, 0, sizeof(si2165_pdata));
+		si2165_pdata.fe = &dev->dvb[i]->frontend;
+		si2165_pdata.chip_mode = SI2165_MODE_PLL_XTAL,
+		si2165_pdata.ref_freq_Hz = 16000000,
 
-		if (dev->dvb[i]->frontend == NULL) {
+		memset(&info, 0, sizeof(struct i2c_board_info));
+		strlcpy(info.type, "si2165", I2C_NAME_SIZE);
+		info.addr = 0x64;
+		info.platform_data = &si2165_pdata;
+		request_module(info.type);
+		client = i2c_new_device(demod_i2c, &info);
+		if (client == NULL || client->dev.driver == NULL || dev->dvb[i]->frontend == NULL) {
 			dev_err(dev->dev,
 				"Failed to attach SI2165 front end\n");
 			result = -EINVAL;
 			goto out_free;
 		}
+
+		if (!try_module_get(client->dev.driver->owner)) {
+			i2c_unregister_device(client);
+			result = -ENODEV;
+			goto out_free;
+		}
+
+		dvb->i2c_client_demod = client;
 
 		dev->dvb[i]->frontend->ops.i2c_gate_ctrl = NULL;
 
@@ -982,26 +996,42 @@ static int dvb_init(struct cx231xx *dev)
 
 		dev->cx231xx_reset_analog_tuner = NULL;
 		break;
-
+	}
 	case CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx:
 	{
 		struct i2c_client *client;
 		struct i2c_board_info info;
+		struct si2165_platform_data si2165_pdata;
 		struct si2157_config si2157_config;
 
+		/* attach demod */
+		memset(&si2165_pdata, 0, sizeof(si2165_pdata));
+		si2165_pdata.fe = &dev->dvb[i]->frontend;
+		si2165_pdata.chip_mode = SI2165_MODE_PLL_EXT,
+		si2165_pdata.ref_freq_Hz = 24000000,
+
 		memset(&info, 0, sizeof(struct i2c_board_info));
-
-		dev->dvb[i]->frontend = dvb_attach(si2165_attach,
-			&pctv_quatro_stick_1114xx_si2165_config,
-			demod_i2c
-			);
-
-		if (dev->dvb[i]->frontend == NULL) {
+		strlcpy(info.type, "si2165", I2C_NAME_SIZE);
+		info.addr = 0x64;
+		info.platform_data = &si2165_pdata;
+		request_module(info.type);
+		client = i2c_new_device(demod_i2c, &info);
+		if (client == NULL || client->dev.driver == NULL || dev->dvb[i]->frontend == NULL) {
 			dev_err(dev->dev,
 				"Failed to attach SI2165 front end\n");
 			result = -EINVAL;
 			goto out_free;
 		}
+
+		if (!try_module_get(client->dev.driver->owner)) {
+			i2c_unregister_device(client);
+			result = -ENODEV;
+			goto out_free;
+		}
+
+		dvb->i2c_client_demod = client;
+
+		memset(&info, 0, sizeof(struct i2c_board_info));
 
 		dev->dvb[i]->frontend->ops.i2c_gate_ctrl = NULL;
 

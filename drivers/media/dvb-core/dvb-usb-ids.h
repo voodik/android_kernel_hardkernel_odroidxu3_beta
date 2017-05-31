@@ -321,6 +321,7 @@
 #define USB_PID_GRANDTEC_DVBT_USB2_COLD			0x0bc6
 #define USB_PID_GRANDTEC_DVBT_USB2_WARM			0x0bc7
 #define USB_PID_WINFAST_DTV2000DS			0x6a04
+#define USB_PID_WINFAST_DTV2000DS_PLUS			0x6f12
 #define USB_PID_WINFAST_DTV_DONGLE_COLD			0x6025
 #define USB_PID_WINFAST_DTV_DONGLE_WARM			0x6026
 #define USB_PID_WINFAST_DTV_DONGLE_STK7700P		0x6f00
@@ -386,5 +387,6 @@
 #define USB_PID_PCTV_2002E                              0x025c
 #define USB_PID_PCTV_2002E_SE                           0x025d
 #define USB_PID_SVEON_STV27                             0xd3af
+#define USB_PID_TURBOX_DTT_2000                         0xd3a4
 #define USB_PID_EVOLVEO_XTRATV_STICK                    0xa115
 #endif

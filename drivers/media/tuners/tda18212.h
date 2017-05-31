@@ -35,6 +35,8 @@ struct tda18212_config {
 	u16 if_dvbc;
 	u16 if_atsc_vsb;
 	u16 if_atsc_qam;
+	u8 loop_through:1;
+	u8 xtout:1;
 
 	/*
 	 * pointer to DVB frontend

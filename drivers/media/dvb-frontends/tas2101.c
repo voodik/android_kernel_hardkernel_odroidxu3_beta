@@ -32,7 +32,7 @@
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 7, 0)
 #if IS_ENABLED(CONFIG_I2C_MUX)
-#define TAS2101_USE_I2C_MUX
+/* #define TAS2101_USE_I2C_MUX */
 #endif
 #endif
 
@@ -210,6 +210,10 @@ static int tas2101_read_signal_strength(struct dvb_frontend *fe,
 
 		*signal_strength = (u16)val;
 	}
+	
+	c->strength.len = 1;
+	c->strength.stat[0].scale = FE_SCALE_RELATIVE;
+	c->strength.stat[0].uvalue = *signal_strength;
 
 	dev_dbg(&priv->i2c->dev, "%s() strength = 0x%04x\n",
 		__func__, *signal_strength);
@@ -245,12 +249,16 @@ static int tas2101_read_snr(struct dvb_frontend *fe, u16 *snr)
 		val /= (tas2101_snrtable[i-1].raw - tas2101_snrtable[i].raw);
 	}
 
-	c->cnr.len = 1;
+	*snr = (u16) val * 328; /* 20dB = 100% */
+	if (*snr > 0xffff)
+		*snr = 0xffff;
+
+	c->cnr.len = 2;
 	c->cnr.stat[0].scale = FE_SCALE_DECIBEL;
 	c->cnr.stat[0].uvalue = 100 * (s64) val;
-
-	*snr = (u16) val * 328; /* 20dB = 100% */
-
+	c->cnr.stat[1].scale = FE_SCALE_RELATIVE;
+	c->cnr.stat[1].uvalue = *snr;
+	
 	dev_dbg(&priv->i2c->dev, "%s() snr = 0x%04x\n",
 		__func__, *snr);
 
@@ -269,11 +277,15 @@ static int tas2101_read_ucblocks(struct dvb_frontend *fe, u32 *ucblocks)
 static int tas2101_read_status(struct dvb_frontend *fe, enum fe_status *status)
 {
 	struct tas2101_priv *priv = fe->demodulator_priv;
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
 	int ret;
 	u8 reg;
-	u16 snr;
+	u16 strength, snr;
 
 	*status = 0;
+
+	tas2101_read_signal_strength(fe, &strength);
+	*status = FE_HAS_SIGNAL | FE_HAS_CARRIER;
 
 	ret = tas2101_rd(priv, DEMOD_STATUS, &reg);
 	if (ret)
@@ -281,8 +293,7 @@ static int tas2101_read_status(struct dvb_frontend *fe, enum fe_status *status)
 
 	reg &= DEMOD_STATUS_MASK;
 	if (reg == DEMOD_LOCKED) {
-		*status = FE_HAS_SIGNAL | FE_HAS_CARRIER |
-			FE_HAS_VITERBI | FE_HAS_SYNC | FE_HAS_LOCK;
+		*status |= FE_HAS_VITERBI | FE_HAS_SYNC | FE_HAS_LOCK;
 
 		ret = tas2101_rd(priv, REG_04, &reg);
 		if (ret)
@@ -291,6 +302,10 @@ static int tas2101_read_status(struct dvb_frontend *fe, enum fe_status *status)
 			ret = tas2101_wr(priv, REG_04, reg & ~0x08);
 		
 		tas2101_read_snr(fe, &snr);
+	}
+	else {
+		c->cnr.len = 1;
+		c->cnr.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
 	}
 
 	dev_dbg(&priv->i2c->dev, "%s() status = 0x%02x\n", __func__, *status);
