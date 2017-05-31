@@ -367,7 +367,6 @@
 
 	gpio_keys {
 		compatible = "gpio-keys";
-		status = "disabled"
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <100>;
@@ -387,7 +386,6 @@
 	gpio_keys_polled {
 		compatible =
 			"gpio-keys-polled";
-		status = "disabled"
 		#address-cells = <1>;
 		#size-cells = <0>;
         poll-interval = <100>;
