@@ -57,11 +57,15 @@ void mxr_get_mbus_fmt(struct mxr_device *mdev,
 	struct v4l2_mbus_framefmt *mbus_fmt)
 {
 	struct v4l2_subdev *sd;
+	struct v4l2_subdev_format fmt = {
+		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+	};
 	int ret;
 
 	mutex_lock(&mdev->mutex);
 	sd = to_outsd(mdev);
-	ret = v4l2_subdev_call(sd, video, g_mbus_fmt, mbus_fmt);
+	ret = v4l2_subdev_call(sd, pad, get_fmt, NULL, &fmt);
+	*mbus_fmt = fmt.format;
 	WARN(ret, "failed to get mbus_fmt for output %s\n", sd->name);
 	mutex_unlock(&mdev->mutex);
 }
@@ -106,7 +110,7 @@ static int mxr_streamer_get(struct mxr_device *mdev, struct v4l2_subdev *sd)
 	struct mxr_layer *layer;
 	struct media_pad *pad;
 	struct s5p_mxr_platdata *pdata = mdev->pdata;
-	struct v4l2_mbus_framefmt mbus_fmt;
+//	struct v4l2_mbus_framefmt mbus_fmt;
 	struct v4l2_control ctrl;
 
 	mutex_lock(&mdev->s_mutex);
@@ -155,6 +159,10 @@ static int mxr_streamer_get(struct mxr_device *mdev, struct v4l2_subdev *sd)
 
 	if ((mdev->n_streamer == 1 && local == 1) ||
 	    (mdev->n_streamer == 2 && local == 2)) {
+		struct v4l2_subdev_format fmt = {
+			.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+		};
+                struct v4l2_mbus_framefmt *mbus_fmt = &fmt.format;
 #if defined(CONFIG_TV_USE_BUS_DEVFREQ)
 		if (is_ip_ver_5a)
 			pm_qos_add_request(&exynos5_tv_mif_qos, PM_QOS_BUS_THROUGHPUT, 800000);
@@ -184,7 +192,8 @@ static int mxr_streamer_get(struct mxr_device *mdev, struct v4l2_subdev *sd)
 
 		mxr_reg_s_output(mdev, to_output(mdev)->cookie);
 
-		ret = v4l2_subdev_call(sd, video, g_mbus_fmt, &mbus_fmt);
+//		ret = v4l2_subdev_call(sd, video, g_mbus_fmt, &mbus_fmt);
+		ret = v4l2_subdev_call(sd, pad, get_fmt, NULL, &fmt);
 		if (ret) {
 			mxr_err(mdev, "failed to get mbus_fmt for output %s\n",
 					sd->name);
@@ -198,8 +207,10 @@ static int mxr_streamer_get(struct mxr_device *mdev, struct v4l2_subdev *sd)
 			goto out;
 		}
 
-		mxr_reg_set_mbus_fmt(mdev, &mbus_fmt, ctrl.value);
-		ret = v4l2_subdev_call(sd, video, s_mbus_fmt, &mbus_fmt);
+		mxr_reg_set_mbus_fmt(mdev, mbus_fmt, ctrl.value);
+
+//		ret = v4l2_subdev_call(sd, video, s_mbus_fmt, &mbus_fmt);
+                ret = v4l2_subdev_call(sd, pad, set_fmt, NULL, &fmt);
 		if (ret) {
 			mxr_err(mdev, "failed to set mbus_fmt for output %s\n",
 					sd->name);

@@ -497,8 +497,9 @@ static int hdmi_enum_dv_timings(struct v4l2_subdev *sd,
 	return 0;
 }
 
-static int hdmi_g_mbus_fmt(struct v4l2_subdev *sd,
-	  struct v4l2_mbus_framefmt *fmt)
+static int hdmi_get_fmt(struct v4l2_subdev *sd,
+		struct v4l2_subdev_fh *fh,
+		struct v4l2_subdev_format *format)
 {
 	struct hdmi_device *hdev = sd_to_hdmi_dev(sd);
 	struct device *dev = hdev->dev;
@@ -506,10 +507,13 @@ static int hdmi_g_mbus_fmt(struct v4l2_subdev *sd,
 	dev_dbg(dev, "%s\n", __func__);
 	if (!hdev->cur_conf)
 		return -EINVAL;
-	*fmt = hdev->cur_conf->mbus_fmt;
+	if (format->pad)
+		return -EINVAL;
+//	*fmt = hdev->cur_conf->mbus_fmt;
+	format->format = hdev->cur_conf->mbus_fmt;
 	return 0;
 }
-
+/*
 static int hdmi_s_mbus_fmt(struct v4l2_subdev *sd,
 	  struct v4l2_mbus_framefmt *fmt)
 {
@@ -524,6 +528,23 @@ static int hdmi_s_mbus_fmt(struct v4l2_subdev *sd,
 
 	return 0;
 }
+*/
+static int hdmi_set_mbus_fmt(struct v4l2_subdev *sd,
+		struct v4l2_subdev_fh *fh,
+		struct v4l2_subdev_format *format)
+{
+        struct hdmi_device *hdev = sd_to_hdmi_dev(sd);
+        struct device *dev = hdev->dev;
+
+        dev_dbg(dev, "%s\n", __func__);
+        if (format->format.code == V4L2_MBUS_FMT_YUV8_1X24)
+                hdev->output_fmt = HDMI_OUTPUT_YUV444;
+        else
+                hdev->output_fmt = HDMI_OUTPUT_RGB888;
+
+        return 0;
+}
+
 
 static const struct v4l2_subdev_core_ops hdmi_sd_core_ops = {
 	.s_power = hdmi_s_power,
@@ -535,14 +556,18 @@ static const struct v4l2_subdev_video_ops hdmi_sd_video_ops = {
 	.s_dv_timings = hdmi_s_dv_timings,
 	.g_dv_timings = hdmi_g_dv_timings,
 	.enum_dv_timings = hdmi_enum_dv_timings,
-	.g_mbus_fmt = hdmi_g_mbus_fmt,
-	.s_mbus_fmt = hdmi_s_mbus_fmt,
 	.s_stream = hdmi_s_stream,
+};
+
+static const struct v4l2_subdev_pad_ops hdmi_sd_pad_ops = {
+	.set_fmt = hdmi_set_mbus_fmt,
+        .get_fmt = hdmi_get_fmt,
 };
 
 static const struct v4l2_subdev_ops hdmi_sd_ops = {
 	.core = &hdmi_sd_core_ops,
 	.video = &hdmi_sd_video_ops,
+        .pad = &hdmi_sd_pad_ops,
 };
 
 static int hdmi_runtime_suspend(struct device *dev)
