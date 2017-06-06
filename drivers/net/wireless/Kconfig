@@ -290,6 +290,7 @@ source "drivers/net/wireless/rtl8192EU/Kconfig"
 source "drivers/net/wireless/rtl8723AU/Kconfig"
 source "drivers/net/wireless/rtl8811AU/Kconfig"
 source "drivers/net/wireless/rtl8812AU/Kconfig"
+source "drivers/net/wireless/rtl88x2BU/Kconfig"
 source "drivers/net/wireless/rtl8xxx_DU/Kconfig"
 source "drivers/net/wireless/rtl8xxx_EU/Kconfig"
 
