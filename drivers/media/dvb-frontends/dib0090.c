@@ -2526,11 +2526,10 @@ static int dib0090_tune(struct dvb_frontend *fe)
 	return ret;
 }
 
-static int dib0090_release(struct dvb_frontend *fe)
+static void dib0090_release(struct dvb_frontend *fe)
 {
 	kfree(fe->tuner_priv);
 	fe->tuner_priv = NULL;
-	return 0;
 }
 
 enum frontend_tune_state dib0090_get_tune_state(struct dvb_frontend *fe)

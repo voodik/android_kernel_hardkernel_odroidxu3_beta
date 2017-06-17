@@ -642,12 +642,14 @@ static int usbtv_start_streaming(struct vb2_queue *vq, unsigned int count)
 	return usbtv_start(usbtv);
 }
 
-static void usbtv_stop_streaming(struct vb2_queue *vq)
+static int usbtv_stop_streaming(struct vb2_queue *vq)
 {
 	struct usbtv *usbtv = vb2_get_drv_priv(vq);
 
 	if (usbtv->udev)
 		usbtv_stop(usbtv);
+
+	return 0;
 }
 
 static struct vb2_ops usbtv_vb2_ops = {

@@ -867,7 +867,7 @@ int au0828_start_analog_streaming(struct vb2_queue *vq, unsigned int count)
 	return rc;
 }
 
-static void au0828_stop_streaming(struct vb2_queue *vq)
+static int au0828_stop_streaming(struct vb2_queue *vq)
 {
 	struct au0828_dev *dev = vb2_get_drv_priv(vq);
 	struct au0828_dmaqueue *vidq = &dev->vidq;
@@ -895,9 +895,11 @@ static void au0828_stop_streaming(struct vb2_queue *vq)
 		list_del(&buf->list);
 	}
 	spin_unlock_irqrestore(&dev->slock, flags);
+
+	return 0;
 }
 
-void au0828_stop_vbi_streaming(struct vb2_queue *vq)
+int au0828_stop_vbi_streaming(struct vb2_queue *vq)
 {
 	struct au0828_dev *dev = vb2_get_drv_priv(vq);
 	struct au0828_dmaqueue *vbiq = &dev->vbiq;
@@ -926,6 +928,8 @@ void au0828_stop_vbi_streaming(struct vb2_queue *vq)
 
 	dev->vbi_timeout_running = 0;
 	del_timer_sync(&dev->vbi_timeout);
+
+	return 0;
 }
 
 static struct vb2_ops au0828_video_qops = {

@@ -326,7 +326,7 @@ extern int au0828_i2c_unregister(struct au0828_dev *dev);
 /* au0828-video.c */
 extern int au0828_start_analog_streaming(struct vb2_queue *vq,
 						unsigned int count);
-extern void au0828_stop_vbi_streaming(struct vb2_queue *vq);
+extern int au0828_stop_vbi_streaming(struct vb2_queue *vq);
 #ifdef CONFIG_VIDEO_AU0828_V4L2
 extern int au0828_v4l2_device_register(struct usb_interface *interface,
 				      struct au0828_dev *dev);

@@ -722,11 +722,10 @@ static int dib0070_get_frequency(struct dvb_frontend *fe, u32 *frequency)
 	return 0;
 }
 
-static int dib0070_release(struct dvb_frontend *fe)
+static void dib0070_release(struct dvb_frontend *fe)
 {
 	kfree(fe->tuner_priv);
 	fe->tuner_priv = NULL;
-	return 0;
 }
 
 static const struct dvb_tuner_ops dib0070_ops = {

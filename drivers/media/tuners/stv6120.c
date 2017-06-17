@@ -580,14 +580,12 @@ static int stv6120_get_rf_strength(struct dvb_frontend *fe, u16 *st)
 	return 0;
 }
 
-static int stv6120_release(struct dvb_frontend *fe)
+static void stv6120_release(struct dvb_frontend *fe)
 {
 	struct stv6120_state *state = fe->tuner_priv;
 
 	fe->tuner_priv = NULL;
 	kfree(state);
-
-	return 0;
 }
 
 static int stv6120_set_params(struct dvb_frontend *fe)
