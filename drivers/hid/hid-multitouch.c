@@ -1138,11 +1138,6 @@ static const struct hid_device_id mt_devices[] = {
     	HID_USB_DEVICE(USB_VENDOR_ID_FOCALTECH, 
     	    USB_DEVICE_ID_FOCALTECH_TOUCH) },
 
-    /* Elitegroup Computer Systems */
-    { .driver_data = MT_CLS_DEFAULT,
-    	HID_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP, 
-    	    USB_DEVICE_ID_ELITEGROUP_TOUCH) },
-
     /* Nexio Co., Ltd */
     { .driver_data = MT_CLS_DEFAULT,
     	HID_USB_DEVICE(USB_VENDOR_ID_NEXIO, 

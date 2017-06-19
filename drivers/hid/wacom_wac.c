@@ -64,8 +64,8 @@ static void wacom_notify_battery(struct wacom_wac *wacom_wac,
 		wacom_wac->bat_connected = bat_connected;
 		wacom_wac->ps_connected = ps_connected;
 
-		if (wacom->battery.dev)
-			power_supply_changed(&wacom->battery);
+		if (wacom->battery)
+			power_supply_changed(wacom->battery);
 	}
 }
 
@@ -1139,6 +1139,9 @@ static int wacom_wac_finger_count_touches(struct wacom_wac *wacom)
 	int count = 0;
 	int i;
 
+	if (!touch_max)
+		return 0;
+
 	if (touch_max == 1)
 		return test_bit(BTN_TOUCH, input->key) &&
 		       !wacom->shared->stylus_in_proximity;
@@ -1582,6 +1585,7 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
 		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOUCH, 0);
 		break;
 	case HID_DG_CONTACTCOUNT:
+		wacom_wac->hid_data.cc_report = field->report->id;
 		wacom_wac->hid_data.cc_index = field->index;
 		wacom_wac->hid_data.cc_value_index = usage->usage_index;
 		break;
@@ -1669,7 +1673,32 @@ static void wacom_wac_finger_pre_report(struct hid_device *hdev,
 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
 	struct hid_data* hid_data = &wacom_wac->hid_data;
 
-	if (hid_data->cc_index >= 0) {
+	if (hid_data->cc_report != 0 &&
+	    hid_data->cc_report != report->id) {
+		int i;
+
+		hid_data->cc_report = report->id;
+		hid_data->cc_index = -1;
+		hid_data->cc_value_index = -1;
+
+		for (i = 0; i < report->maxfield; i++) {
+			struct hid_field *field = report->field[i];
+			int j;
+
+			for (j = 0; j < field->maxusage; j++) {
+				if (field->usage[j].hid == HID_DG_CONTACTCOUNT) {
+					hid_data->cc_index = i;
+					hid_data->cc_value_index = j;
+
+					/* break */
+					i = report->maxfield;
+					j = field->maxusage;
+				}
+			}
+		}
+	}
+	if (hid_data->cc_report != 0 &&
+	    hid_data->cc_index >= 0) {
 		struct hid_field *field = report->field[hid_data->cc_index];
 		int value = field->value[hid_data->cc_value_index];
 		if (value)
@@ -2160,7 +2189,7 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
 		wacom_notify_battery(wacom_wac, battery, charging,
 				     battery || charging, 1);
 
-		if (!wacom->battery.dev &&
+		if (!wacom->battery &&
 		    !(features->quirks & WACOM_QUIRK_BATTERY)) {
 			features->quirks |= WACOM_QUIRK_BATTERY;
 			INIT_WORK(&wacom->work, wacom_battery_work);
@@ -2168,7 +2197,7 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
 		}
 	}
 	else if ((features->quirks & WACOM_QUIRK_BATTERY) &&
-		 wacom->battery.dev) {
+		 wacom->battery) {
 		features->quirks &= ~WACOM_QUIRK_BATTERY;
 		INIT_WORK(&wacom->work, wacom_battery_work);
 		wacom_schedule_work(wacom_wac);
@@ -2390,6 +2419,9 @@ void wacom_setup_device_quirks(struct wacom *wacom)
 
 			features->x_max = 4096;
 			features->y_max = 4096;
+		}
+		else if (features->pktlen == WACOM_PKGLEN_BBTOUCH) {
+			features->device_type |= WACOM_DEVICETYPE_PAD;
 		}
 	}
 

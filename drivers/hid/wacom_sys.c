@@ -1085,8 +1085,7 @@ static int wacom_initialize_battery(struct wacom *wacom)
 
 static void wacom_destroy_battery(struct wacom *wacom)
 {
-	if ((wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) &&
-	     wacom->battery) {
+	if (wacom->battery) {
 		power_supply_unregister(wacom->battery);
 		wacom->battery = NULL;
 		power_supply_unregister(wacom->ac);
@@ -1354,8 +1353,7 @@ static void wacom_clean_inputs(struct wacom *wacom)
 		else
 			input_free_device(wacom->wacom_wac.pad_input);
 	}
-	if (wacom->remote_dir)
-		kobject_put(wacom->remote_dir);
+	kobject_put(wacom->remote_dir);
 	wacom->wacom_wac.pen_input = NULL;
 	wacom->wacom_wac.touch_input = NULL;
 	wacom->wacom_wac.pad_input = NULL;
@@ -1504,11 +1502,11 @@ void wacom_battery_work(struct work_struct *work)
 	struct wacom *wacom = container_of(work, struct wacom, work);
 
 	if ((wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) &&
-	     !wacom->battery.dev) {
+	     !wacom->battery) {
 		wacom_initialize_battery(wacom);
 	}
 	else if (!(wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) &&
-		 wacom->battery.dev) {
+		 wacom->battery) {
 		wacom_destroy_battery(wacom);
 	}
 }
