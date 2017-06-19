@@ -74,6 +74,16 @@ struct battery_info {
 	u32 batt_is_full;	/* 0 : Not full 1: Full */
 };
 
+struct fake_device_info {
+        struct device *dev;
+        struct power_supply *wall;
+        struct power_supply *usb;
+        struct power_supply *battery;
+        struct power_supply_desc wall_desc;
+        struct power_supply_desc usb_desc;
+        struct power_supply_desc battery_desc;
+};
+
 /* lock to protect the battery info */
 static DEFINE_MUTEX(work_lock);
 
@@ -144,7 +154,7 @@ static int samsung_fake_bat_get_property(struct power_supply *bat_ps,
 					 enum power_supply_property psp,
 					 union power_supply_propval *val)
 {
-	dev_dbg(bat_ps->dev, "%s : psp = %d\n", __func__, psp);
+//	dev_dbg(bat_ps->dev, "%s : psp = %d\n", __func__, psp);
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_STATUS:
@@ -166,8 +176,8 @@ static int samsung_fake_bat_get_property(struct power_supply *bat_ps,
 		break;
 	case POWER_SUPPLY_PROP_TEMP:
 		val->intval = samsung_fake_bat_info.bat_info.batt_temp;
-		dev_dbg(bat_ps->dev, "%s : temp = %d\n", __func__,
-				val->intval);
+//		dev_dbg(bat_ps->dev, "%s : temp = %d\n", __func__,
+//				val->intval);
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
 	    val->intval = 5000; //5,0V
@@ -184,15 +194,15 @@ static int samsung_power_get_property(struct power_supply *bat_ps,
 {
 	charger_type_t charger;
 
-	dev_dbg(bat_ps->dev, "%s : psp = %d\n", __func__, psp);
+//	dev_dbg(bat_ps->dev, "%s : psp = %d\n", __func__, psp);
 
 	charger = samsung_fake_bat_info.bat_info.charging_source;
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_ONLINE:
-		if (bat_ps->type == POWER_SUPPLY_TYPE_MAINS)
+		if (bat_ps->desc->type == POWER_SUPPLY_TYPE_MAINS)
 			val->intval = (charger == CHARGER_AC ? 1 : 0);
-		else if (bat_ps->type == POWER_SUPPLY_TYPE_USB)
+		else if (bat_ps->desc->type == POWER_SUPPLY_TYPE_USB)
 			val->intval = (charger == CHARGER_USB ? 1 : 0);
 		else
 			val->intval = 0;
@@ -206,7 +216,7 @@ static int samsung_power_get_property(struct power_supply *bat_ps,
 
 #define SAMSUNG_FAKE_BAT_ATTR(_name)			\
 {							\
-	.attr = { .name = #_name,},			\
+	.attr = { .name = #_name, .mode = S_IRUGO, },			\
 	.show = samsung_fake_bat_show_property,		\
 	.store = samsung_fake_bat_store_property,	\
 }
@@ -334,7 +344,8 @@ static char *supply_list[] = {
 	"battery",
 };
 
-static struct power_supply samsung_power_supplies[] = {
+/*
+static struct power_supply_desc samsung_power_supplies[] = {
 	{
 		.name = "battery",
 		.type = POWER_SUPPLY_TYPE_BATTERY,
@@ -344,21 +355,22 @@ static struct power_supply samsung_power_supplies[] = {
 	}, {
 		.name = "usb",
 		.type = POWER_SUPPLY_TYPE_USB,
-		.supplied_to = supply_list,
-		.num_supplicants = ARRAY_SIZE(supply_list),
+//		.supplied_to = supply_list,
+//		.num_supplicants = ARRAY_SIZE(supply_list),
 		.properties = samsung_power_properties,
 		.num_properties = ARRAY_SIZE(samsung_power_properties),
 		.get_property = samsung_power_get_property,
 	}, {
 		.name = "ac",
 		.type = POWER_SUPPLY_TYPE_MAINS,
-		.supplied_to = supply_list,
-		.num_supplicants = ARRAY_SIZE(supply_list),
+//		.supplied_to = supply_list,
+//		.num_supplicants = ARRAY_SIZE(supply_list),
 		.properties = samsung_power_properties,
 		.num_properties = ARRAY_SIZE(samsung_power_properties),
 		.get_property = samsung_power_get_property,
 	},
 };
+*/
 
 static int samsung_cable_status_update(int status)
 {
@@ -403,7 +415,7 @@ static int samsung_cable_status_update(int status)
 		wake_lock_timeout(&vbus_wake_lock, HZ / 2);
 
 	/* if the power source changes, all power supplies may change state */
-	power_supply_changed(&samsung_power_supplies[CHARGER_BATTERY]);
+//	power_supply_changed(&samsung_power_supplies[CHARGER_BATTERY]);
 
 	dev_dbg(dev, "%s : call power_supply_changed\n", __func__);
 	return ret;
@@ -468,9 +480,30 @@ static int samsung_fake_bat_probe(struct platform_device *pdev)
 {
 	int i;
 	int ret = 0;
+        int retval = 0;
+        struct power_supply_config ac_psy_cfg, usb_psy_cfg = {};
+
+        struct fake_device_info *di;
+
+        di = devm_kzalloc(&pdev->dev, sizeof(*di), GFP_KERNEL);
+        if (!di) {
+                retval = -ENOMEM;
+                goto __end__;
+        }
+
+        platform_set_drvdata(pdev, di);
+
+        di->dev                         = &pdev->dev;
 
 	dev = &pdev->dev;
 	dev_info(dev, "%s\n", __func__);
+
+        ac_psy_cfg.supplied_to = supply_list;
+        ac_psy_cfg.num_supplicants = ARRAY_SIZE(supply_list);
+//        ac_psy_cfg.drv_data = &di->ac_chg;
+        usb_psy_cfg.supplied_to = supply_list;
+        usb_psy_cfg.num_supplicants = ARRAY_SIZE(supply_list);
+//        usb_psy_cfg.drv_data = &di->usb_chg;
 
 	samsung_fake_bat_info.present = 1;
 
@@ -487,24 +520,66 @@ static int samsung_fake_bat_probe(struct platform_device *pdev)
 	samsung_fake_bat_info.bat_info.charging_enabled = 0;
 	samsung_fake_bat_info.bat_info.batt_health = POWER_SUPPLY_HEALTH_GOOD;
 
-	/* init power supplier framework */
+
+
+        di->wall_desc.name = "ac";
+        di->wall_desc.type = POWER_SUPPLY_TYPE_MAINS;
+        di->wall_desc.properties = samsung_power_properties;
+        di->wall_desc.num_properties = ARRAY_SIZE(samsung_power_properties);
+        di->wall_desc.get_property = samsung_power_get_property;
+        di->wall = power_supply_register(&pdev->dev, &di->wall_desc,
+                                            &ac_psy_cfg);
+        if (IS_ERR(di->wall)) {
+                ret = PTR_ERR(di->wall);
+                goto __end__;
+        }
+
+        di->usb_desc.name = "usb",
+        di->usb_desc.type = POWER_SUPPLY_TYPE_USB;
+        di->usb_desc.properties = samsung_power_properties;
+        di->usb_desc.num_properties = ARRAY_SIZE(samsung_power_properties);
+        di->usb_desc.get_property = samsung_power_get_property;
+        di->usb = power_supply_register(&pdev->dev, &di->usb_desc, &usb_psy_cfg);
+        if (IS_ERR(di->usb)) {
+                ret = PTR_ERR(di->usb);
+                goto __end__;
+        }
+
+        di->battery_desc.name = "battery",
+        di->battery_desc.properties = samsung_fake_battery_properties;
+        di->battery_desc.num_properties = ARRAY_SIZE(samsung_fake_battery_properties);
+        di->battery_desc.get_property = samsung_fake_bat_get_property;
+//        di->battery_desc.use_for_apm = 1;
+        di->battery = power_supply_register(&pdev->dev,
+                                                       &di->battery_desc,
+                                                       NULL);
+        if (IS_ERR(di->battery)) {
+                 ret = PTR_ERR(di->battery);
+                 goto __end__;
+        }
+
+
+/*
 	for (i = 0; i < ARRAY_SIZE(samsung_power_supplies); i++) {
+		di->bat_desc[i] = samsung_power_supplies[i];
+		psy_cfg[i].drv_data                = di;
+
 		ret = power_supply_register(&pdev->dev,
-				&samsung_power_supplies[i]);
+				&di->bat_desc[i], &psy_cfg[i]);
 		if (ret) {
 			dev_err(dev, "Failed to register"
 					"power supply %d,%d\n", i, ret);
 			goto __end__;
 		}
 	}
-
+*/
 	/* create sec detail attributes */
-	samsung_fake_bat_create_attrs(samsung_power_supplies[CHARGER_BATTERY].dev);
+
+	samsung_fake_bat_create_attrs(&di->battery->dev);
 
 	samsung_fake_battery_initial = 1;
 
-	samsung_fake_bat_status_update(
-			&samsung_power_supplies[CHARGER_BATTERY]);
+	samsung_fake_bat_status_update(di->battery);
 
 __end__:
 	return ret;
@@ -512,10 +587,13 @@ __end__:
 
 static int samsung_fake_bat_remove(struct platform_device *pdev)
 {
-	int i;
 
-	for (i = 0; i < ARRAY_SIZE(samsung_power_supplies); i++)
-		power_supply_unregister(&samsung_power_supplies[i]);
+        struct fake_device_info *di = platform_get_drvdata(pdev);
+
+        power_supply_unregister(di->battery);
+        power_supply_unregister(di->usb);
+        power_supply_unregister(di->wall);
+
 
 	return 0;
 }
