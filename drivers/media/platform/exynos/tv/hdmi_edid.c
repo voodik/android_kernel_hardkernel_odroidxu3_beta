@@ -114,23 +114,29 @@ static struct edid_preset {
 	char *name;
 	bool supported;
 } edid_presets[] = {
-	{ V4L2_DV_BT_DMT_640X480P60,	640,  480,  60, FB_VMODE_NONINTERLACED, "480p@60" },
-	{ V4L2_DV_BT_CEA_720X480P59_94,	720,  480,  59, FB_VMODE_NONINTERLACED, "480p@59.94" },
-	{ V4L2_DV_BT_CEA_720X576P50,	720, 576,  50, FB_VMODE_NONINTERLACED, "576p@50" },
-	{ V4L2_DV_BT_CEA_480X800P60,	480, 800,  60, FB_VMODE_NONINTERLACED, "480x800@60" },
-	{ V4L2_DV_BT_CEA_800X480P60,	800, 480,  60, FB_VMODE_NONINTERLACED, "800x480@60" },
-	{ V4L2_DV_BT_DMT_800X600P60,	800, 600,  60, FB_VMODE_NONINTERLACED, "600@60" },
-	{ V4L2_DV_BT_DMT_1024X600P43,	1024, 600,  60, FB_VMODE_NONINTERLACED, "1024x600@43" },
-	{ V4L2_DV_BT_DMT_1024X768P60,	1024, 768,  60, FB_VMODE_NONINTERLACED, "768@60" },
+	{ V4L2_DV_BT_DMT_640X480P60,	640, 480, 60, FB_VMODE_NONINTERLACED, "480p@60" },
+	{ V4L2_DV_BT_CEA_720X480P59_94,	720, 480, 59, FB_VMODE_NONINTERLACED, "480p@59.94" },
+	{ V4L2_DV_BT_CEA_720X576P50,	720, 576, 50, FB_VMODE_NONINTERLACED, "576p@50" },
+	{ V4L2_DV_BT_CEA_480X800P60,	480, 800, 60, FB_VMODE_NONINTERLACED, "480x800@60" },
+	{ V4L2_DV_BT_CEA_800X480P60,	800, 480, 60, FB_VMODE_NONINTERLACED, "800x480@60" },
+	{ V4L2_DV_BT_DMT_800X600P60,	800, 600, 60, FB_VMODE_NONINTERLACED, "600@60" },
+	{ V4L2_DV_BT_DMT_848X480P60,	848, 480, 60, FB_VMODE_NONINTERLACED, "848x480@60" },
+	{ V4L2_DV_BT_DMT_1024X600P60,	1024, 600, 60, FB_VMODE_NONINTERLACED, "1024x600@60" },
+	{ V4L2_DV_BT_DMT_1024X768P60,	1024, 768, 60, FB_VMODE_NONINTERLACED, "768@60" },
+	{ V4L2_DV_BT_DMT_1152X864P75,	1152, 864, 75, FB_VMODE_NONINTERLACED, "1152x864@75" },
 	{ V4L2_DV_BT_CEA_1280X720P50,	1280, 720,  50, FB_VMODE_NONINTERLACED, "720p@50" },
 	{ V4L2_DV_BT_CEA_1280X720P60,	1280, 720,  60, FB_VMODE_NONINTERLACED, "720p@60" },
+	{ V4L2_DV_BT_DMT_1280X768P60,	1280, 768, 60, FB_VMODE_NONINTERLACED, "1280x768@60" },
 	{ V4L2_DV_BT_DMT_1280X800P60_RB,	1280, 800,  59, FB_VMODE_NONINTERLACED, "800p@59" },
 	{ V4L2_DV_BT_DMT_1280X960P60,	1280, 960,  60, FB_VMODE_NONINTERLACED, "960@60" },
 	{ V4L2_DV_BT_DMT_1440X900P60,	1440, 900,  60, FB_VMODE_NONINTERLACED, "900@60" },
+	{ V4L2_DV_BT_DMT_1400X1050P60, 1400, 1050, 60, FB_VMODE_NONINTERLACED, "1400x1050@60" },
 	{ V4L2_DV_BT_DMT_1280X1024P60,	1280, 1024,  60, FB_VMODE_NONINTERLACED, "1024p@60" },
 	{ V4L2_DV_BT_DMT_1360X768P60_2,	1360, 768,  60, FB_VMODE_NONINTERLACED, "1360x768@60" },
 	{ V4L2_DV_BT_DMT_1600X900P60,	1600, 900,  60, FB_VMODE_NONINTERLACED, "1600x900@60" },
-	{ V4L2_DV_BT_DMT_1600X1200P60 ,	1600, 1200,  60, FB_VMODE_NONINTERLACED, "1600x1200@60" },
+	{ V4L2_DV_BT_DMT_1600X1200P60,	1600, 1200,  60, FB_VMODE_NONINTERLACED, "1600x1200@60" },
+	{ V4L2_DV_BT_DMT_1792X1344P60,	1792, 1344, 60, FB_VMODE_NONINTERLACED, "1792x1344@60" },
+	{ V4L2_DV_BT_DMT_1920X800P60,	1920, 800, 60, FB_VMODE_NONINTERLACED, "1920x800@60" },
 	{ V4L2_DV_BT_CEA_1920X1080I50,	1920, 1080, 50, FB_VMODE_INTERLACED, "1080i@50" },
 	{ V4L2_DV_BT_CEA_1920X1080I60,	1920, 1080, 60, FB_VMODE_INTERLACED, "1080i@60" },
 	{ V4L2_DV_BT_CEA_1920X1080P24,	1920, 1080, 24, FB_VMODE_NONINTERLACED, "1080p@24" },
@@ -430,38 +436,50 @@ static void edid_bootarg_preset(void)
 	printk("###########################################\n");
 
 	if (strncmp(HdmiPHYBootArgs, "1920x1200p60hz", 14) == 0)
-		preferred_preset = hdmi_conf[24].dv_timings;
+		preferred_preset = hdmi_conf[30].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080p60hz", 9) == 0)
-		preferred_preset = hdmi_conf[23].dv_timings;
+		preferred_preset = hdmi_conf[29].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080p50hz", 9) == 0)
-		preferred_preset = hdmi_conf[22].dv_timings;
+		preferred_preset = hdmi_conf[28].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080p30hz", 9) == 0)
-		preferred_preset = hdmi_conf[21].dv_timings;
+		preferred_preset = hdmi_conf[27].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080i60hz", 9) == 0)
-		preferred_preset = hdmi_conf[18].dv_timings;
+		preferred_preset = hdmi_conf[24].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080i50hz", 9) == 0)
-		preferred_preset = hdmi_conf[17].dv_timings;
+		preferred_preset = hdmi_conf[23].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1920x800p60hz", 13) == 0)
+		preferred_preset = hdmi_conf[22].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1792x1344p60hz", 14) == 0)
+		preferred_preset = hdmi_conf[21].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1600x1200p60hz", 14) == 0)
-		preferred_preset = hdmi_conf[16].dv_timings;
+		preferred_preset = hdmi_conf[20].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1600x900p60hz", 13) == 0)
-		preferred_preset = hdmi_conf[15].dv_timings;
+		preferred_preset = hdmi_conf[19].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1360x768p60hz", 13) == 0)
-		preferred_preset = hdmi_conf[14].dv_timings;
+		preferred_preset = hdmi_conf[18].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1024p60hz", 9) == 0)
-		preferred_preset = hdmi_conf[13].dv_timings;
+		preferred_preset = hdmi_conf[17].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1400x1050p60hz", 14) == 0)
+		preferred_preset = hdmi_conf[16].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "900p60hz", 8) == 0)
-		preferred_preset = hdmi_conf[12].dv_timings;
+		preferred_preset = hdmi_conf[15].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "960p60hz", 8) == 0)
-		preferred_preset = hdmi_conf[11].dv_timings;
+		preferred_preset = hdmi_conf[14].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "800p59hz", 8) == 0)
-		preferred_preset = hdmi_conf[10].dv_timings;
+		preferred_preset = hdmi_conf[13].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1280x768p60hz", 13) == 0)
+		preferred_preset = hdmi_conf[12].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "720p60hz", 8) == 0)
-		preferred_preset = hdmi_conf[9].dv_timings;
+		preferred_preset = hdmi_conf[11].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "720p50hz", 8) == 0)
-		preferred_preset = hdmi_conf[8].dv_timings;
+		preferred_preset = hdmi_conf[10].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1152x864p75hz", 13) == 0)
+		preferred_preset = hdmi_conf[9].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "768p60hz", 8) == 0)
+		preferred_preset = hdmi_conf[8].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1024x600p60hz", 13) == 0)
 		preferred_preset = hdmi_conf[7].dv_timings;
-	else if (strncmp(HdmiPHYBootArgs, "1024x600p43hz", 13) == 0)
+	else if (strncmp(HdmiPHYBootArgs, "848x480p60hz", 12) == 0)
 		preferred_preset = hdmi_conf[6].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "600p60hz", 8) == 0)
 		preferred_preset = hdmi_conf[5].dv_timings;
@@ -476,7 +494,7 @@ static void edid_bootarg_preset(void)
 	else if (strncmp(HdmiPHYBootArgs, "480p60hz", 8) == 0)
 		preferred_preset = hdmi_conf[0].dv_timings;
 	else
-		preferred_preset = hdmi_conf[9].dv_timings;
+		preferred_preset = hdmi_conf[11].dv_timings;
 
 	for (i = 0; i < ARRAY_SIZE(edid_presets); i++)
 		edid_presets[i].supported =
