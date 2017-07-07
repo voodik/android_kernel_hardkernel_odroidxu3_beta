@@ -729,6 +729,16 @@
 	spi_1: spi@12d30000 {
 		status = "okay";
 		cs-gpios = <&gpa2 5 0>;
+		spidev@0 {
+			reg = <0>;
+			compatible = "spidev";
+			spi-max-frequency = <1000000>;
+
+			controller-data {
+				cs-gpio = <&gpa2 5 0>;
+				samsung,spi-feedback-delay = <0>;
+			};
+		};
 	};
 
 	spi_2: spi@12d40000 {
