@@ -86,6 +86,7 @@ typedef u8         mali_bool8;
  * Maximum and minimum values for integer types
  * @{
  */
+/*
 #define U64_MAX	 UINT64_MAX
 #define U32_MAX	 UINT32_MAX
 #define U16_MAX	 UINT16_MAX
@@ -99,6 +100,7 @@ typedef u8         mali_bool8;
 #define S16_MIN  INT16_MIN
 #define S8_MAX   INT8_MAX
 #define S8_MIN   INT8_MIN
+*/
 /* @} */
 
 /**
