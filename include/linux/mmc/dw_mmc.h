@@ -20,9 +20,6 @@
 
 #define MAX_MCI_SLOTS	2
 
-#define DW_MMC_BYPASS_SECTOR		0
-#define DW_MMC_ENCRYPTION_SECTOR	1
-
 enum dw_mci_state {
 	STATE_IDLE = 0,
 	STATE_SENDING_CMD,
@@ -78,6 +75,87 @@ struct dw_mci_slot {
 #define DW_MMC_CARD_NEED_INIT	1
 	int			id;
 	int			last_detect_state;
+};
+
+/**
+ * struct dw_mci_debug_data - DwMMC debugging infomation
+ * @host_count: a number of all hosts
+ * @info_count: a number of set of debugging information
+ * @info_index: index of debugging information for each host
+ * @host: pointer of each dw_mci structure
+ * @debug_info: debugging information structure
+ */
+
+struct dw_mci_cmd_log {
+	u64	send_time;
+	u64	done_time;
+	u8	cmd;
+	u32	arg;
+	u8	data_size;
+	/* no data CMD = CD, data CMD = DTO */
+	/*
+	 * 0b1000 0000	: new_cmd with without send_cmd
+	 * 0b0000 1000	: error occurs
+	 * 0b0000 0100	: data_done : DTO(Data Transfer Over)
+	 * 0b0000 0010	: resp : CD(Command Done)
+	 * 0b0000 0001	: send_cmd : set 1 only start_command
+	 */
+	u8	seq_status;	/* 0bxxxx xxxx : error data_done resp send */
+#define DW_MCI_FLAG_SEND_CMD	BIT(0)
+#define DW_MCI_FLAG_CD		BIT(1)
+#define DW_MCI_FLAG_DTO		BIT(2)
+#define DW_MCI_FLAG_ERROR	BIT(3)
+#define DW_MCI_FLAG_NEW_CMD_ERR	BIT(7)
+
+	u16	rint_sts;	/* RINTSTS value in case of error */
+	u32	resp0;		/* resp0 is needed to check eMMC status when CD */
+	u32	status_count;	/* TBD : It can be changed */
+};
+
+enum dw_mci_req_log_state {
+	STATE_REQ_START = 0,
+	STATE_REQ_CMD_PROCESS,
+	STATE_REQ_DATA_PROCESS,
+	STATE_REQ_END,
+};
+
+struct dw_mci_req_log {
+	u64				timestamp;
+	u32				info0;
+	u32				info1;
+	u32				info2;
+	u32				info3;
+	u32				pending_events;
+	u32				completed_events;
+	enum dw_mci_state		state_cmd;
+	enum dw_mci_state		state_dat;
+	enum dw_mci_req_log_state	log_state;
+};
+
+#define DWMCI_LOG_MAX		0x80
+#define DWMCI_REQ_LOG_MAX	0x40
+struct dw_mci_debug_info {
+	struct dw_mci_cmd_log		cmd_log[DWMCI_LOG_MAX];
+	atomic_t			cmd_log_count;
+	struct dw_mci_req_log		req_log[DWMCI_REQ_LOG_MAX];
+	atomic_t			req_log_count;
+	unsigned char			en_logging;
+#define DW_MCI_DEBUG_ON_CMD	BIT(0)
+#define DW_MCI_DEBUG_ON_REQ	BIT(1)
+};
+
+#define DWMCI_DBG_NUM_HOST	3
+
+#define DWMCI_DBG_NUM_INFO	2			/* configurable */
+#define DWMCI_DBG_MASK_INFO	(BIT(0) | BIT(2))	/* configurable */
+#define DWMCI_DBG_BIT_HOST(x)	BIT(x)
+
+struct dw_mci_debug_data {
+	unsigned char			host_count;
+	unsigned char			info_count;
+	unsigned char			info_index[DWMCI_DBG_NUM_HOST];
+	struct dw_mci			*host[DWMCI_DBG_NUM_HOST];
+	struct dw_mci_debug_info	debug_info[DWMCI_DBG_NUM_INFO];
 };
 
 /**
@@ -230,6 +308,10 @@ struct dw_mci {
 	atomic_t		ciu_en_win;
 	struct dw_mci_slot	*slot[MAX_MCI_SLOTS];
 
+	/* pinctrl handles */
+	struct pinctrl		*pinctrl;
+	struct pinctrl_state	*pins_direction;
+
 	/* FIFO push and pull */
 	int			fifo_depth;
 	int			data_shift;
@@ -271,6 +353,7 @@ struct dw_mci {
 #define DW_MMC_REQ_IDLE		0
 #define DW_MMC_REQ_BUSY		1
 	unsigned int		req_state;
+	struct dw_mci_debug_info	*debug_info;	/* debug info */
 };
 
 /* DMA ops for Internal/External DMAC interface */
@@ -302,6 +385,18 @@ struct dw_mci_dma_ops {
 #define DW_MMC_QUIRK_FIXED_VOLTAGE		BIT(7)
 /* Use S/W data timeout */
 #define DW_MMC_QUIRK_SW_DATA_TIMEOUT		BIT(8)
+/* Retry CRC error */
+#define DW_MMC_QUIRK_RETRY_ERROR		BIT(9)
+/* Use CPU mode for tuning */
+#define DW_MMC_QUIRK_USE_CPU_MODE_TUNING	BIT(10)
+/* W/A to fix AXI hang-up for mismatch of sector size*/
+#define DW_MMC_QUIRK_FMP_SIZE_MISMATCH		BIT(11)
+/* Not allow DMA single transfer */
+#define DW_MMC_QUIRK_NOT_ALLOW_SINGLE_DMA	BIT(12)
+/* Use the security management unit */
+#define DW_MCI_QUIRK_USE_SMU			BIT(13)
+/* Enables ultra low power mode */
+#define DW_MCI_QUIRK_ENABLE_ULP			BIT(14)
 
 /* Slot level quirks */
 /* This slot has no write protect */
@@ -372,11 +467,14 @@ struct dw_mci_board {
 	int (*get_cd)(u32 slot_id);
 	int (*get_ocr)(u32 slot_id);
 	int (*get_bus_wd)(u32 slot_id);
-	void (*hw_reset)(u32 slot_id);
+	void (*hw_reset)(struct dw_mci *host);
 
 	/* INT QOS khz */
 	unsigned int qos_int_level;
 
+	unsigned char io_mode;
+
+	u32 error_retry_cnt;
 	/* cd_type: Type of Card Detection method (see cd_types enum above) */
 	enum dw_mci_cd_types cd_type;
 
@@ -392,9 +490,9 @@ struct dw_mci_board {
 	*/
 
 	int (*ext_cd_init)(void (*notify_func)
-			(struct platform_device *, int state));
+			(void *dev_id, int state), void *dev_id);
 	int (*ext_cd_cleanup)(void (*notify_func)
-			(struct platform_device *, int state));
+			(void *dev_id, int state), void *dev_id);
 
 	/*
 	 * Enable power to selected slot and set voltage to desired level.
@@ -411,6 +509,19 @@ struct dw_mci_board {
 	struct dw_mci_mon_table *tp_mon_tbl;
 	unsigned int sw_timeout;
 	bool use_gate_clock;
+	bool enable_cclk_on_suspend;
+	bool on_suspend;
+	unsigned int dev_drv_str;
+	void (*ext_setpower)(struct dw_mci *host, u32 flag);
+	/* host->vmmc : SDcard power */
+#define DW_MMC_EXT_VMMC_ON 		BIT(0)
+	/* host->vqmmc : SDcard I/F power */
+#define DW_MMC_EXT_VQMMC_ON		BIT(1)
+
+#if defined(CONFIG_MMC_DW_CMD_LOGGING)
+	atomic_t log_count;
+	bool dw_mci_cmd_logging;
+#endif
 };
 
 #endif /* LINUX_MMC_DW_MMC_H */

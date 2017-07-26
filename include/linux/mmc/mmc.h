@@ -302,6 +302,7 @@ struct _mmc_csd {
 #define EXT_CSD_PART_CONFIG		179	/* R/W */
 #define EXT_CSD_ERASED_MEM_CONT		181	/* RO */
 #define EXT_CSD_BUS_WIDTH		183	/* R/W */
+#define EXT_CSD_STORBE_SUPPORT		184	/* R/W */
 #define EXT_CSD_HS_TIMING		185	/* R/W */
 #define EXT_CSD_POWER_CLASS		187	/* R/W */
 #define EXT_CSD_REV			192	/* RO */
@@ -340,6 +341,22 @@ struct _mmc_csd {
 #define EXT_CSD_MAX_PACKED_READS	501	/* RO */
 #define EXT_CSD_BKOPS_SUPPORT		502	/* RO */
 #define EXT_CSD_HPI_FEATURES		503	/* RO */
+
+/* additional : eMMC v5.0 or later Only */
+#define EXT_CSD_DEVICE_LIFE_TIME_EST_TYPE_B	269	/* RO */
+#define EXT_CSD_DEVICE_LIFE_TIME_EST_TYPE_A	268	/* RO */
+#define EXT_CSD_PRE_EOL_INFO			267	/* RO */
+#define EXT_CSD_OPTIMAL_TRIM_UNIT_SIZE		264	/* RO */
+#define EXT_CSD_DEVICE_VERSION			262	/* RO, 2Byte */
+#define EXT_CSD_FIRMWARE_VERSION		254	/* RO, 8Byte */
+
+/* additional : eMMC moviNAND VMX(PRE eMMC v5.0) device Only */
+#define EXT_CSD_PREv5_FIRMWARE_VERSION		259	/* RO */
+#define EXT_CSD_PREv5_CTRL_VERSION		258	/* RO */
+#define EXT_CSD_PREv5_OPT_ERASE_SIZE		257	/* RO */
+#define EXT_CSD_PREv5_OPT_WRITE_SIZE		256	/* RO */
+#define EXT_CSD_PREv5_PRE_EOL_INFO		255	/* RO */
+#define EXT_CSD_PREv5_LIFE_TIME_EST		254	/* RO */
 
 /*
  * EXT_CSD field definitions
@@ -387,6 +404,7 @@ struct _mmc_csd {
 #define EXT_CSD_BUS_WIDTH_8	2	/* Card is in 8 bit mode */
 #define EXT_CSD_DDR_BUS_WIDTH_4	5	/* Card is in 4 bit DDR mode */
 #define EXT_CSD_DDR_BUS_WIDTH_8	6	/* Card is in 8 bit DDR mode */
+#define EXT_CSD_STROBE_ENHANCED_EN	(1<<7)	/* Card in enhanced strobe mode */
 
 #define EXT_CSD_SEC_ER_EN	BIT(0)
 #define EXT_CSD_SEC_BD_BLK_EN	BIT(2)
@@ -440,16 +458,6 @@ struct _mmc_csd {
 #define CID_MANFID_TOSHIBA	0x11
 #define CID_MANFID_MICRON	0x13
 #define CID_MANFID_SAMSUNG	0x15
-
-/*
- * Device Output Driver Type
- */
-#define MMC_DRIVER_TYPE_0	0	/* Default, x1 */
-#define MMC_DRIVER_TYPE_1	1	/* x1.5 */
-#define MMC_DRIVER_TYPE_2	2	/* x0.75 */
-#define MMC_DRIVER_TYPE_3	3	/* x0.5 */
-#define MMC_DRIVER_TYPE_4	4	/* x1.2 */
-#define MMC_DRIVER_TYPE_5	5	/* x2 */
 
 /*
  * HS_TIMING

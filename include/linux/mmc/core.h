@@ -112,6 +112,7 @@ struct mmc_data {
 #define MMC_DATA_WRITE	(1 << 8)
 #define MMC_DATA_READ	(1 << 9)
 #define MMC_DATA_STREAM	(1 << 10)
+#define MMC_DATA_DIRECT	(1 << 11)
 
 	unsigned int		bytes_xfered;
 
@@ -195,6 +196,7 @@ extern int mmc_try_claim_host(struct mmc_host *host);
 
 extern int mmc_flush_cache(struct mmc_card *);
 extern int mmc_bkops_enable(struct mmc_host *host, u8 value);
+extern int mmc_poweroff_notify(struct mmc_card *card, unsigned int notify_type);
 
 extern int mmc_detect_card_removed(struct mmc_host *host);
 
