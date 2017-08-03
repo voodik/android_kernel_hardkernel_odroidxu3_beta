@@ -509,6 +509,15 @@ static void dw_mci_exynos_prepare_command(struct dw_mci *host, u32 *cmdr)
 		*cmdr |= SDMMC_CMD_USE_HOLD_REG;
 }
 
+#if defined(CONFIG_MACH_ODROIDXU3)
+static void dw_mci_exynos_set_ddr200_etc(struct dw_mci *host)
+{
+	struct dw_mci_exynos_priv_data *priv = host->priv;
+	priv->ddr200_timing = SDMMC_CLKSEL_TIMING(2, 1, 2, 0);
+	return;
+}
+#endif
+
 /**
  * dw_mci_exynos_set_bus_hz - try to set the ciu clock; update host->bus_hz.
  *
@@ -1640,6 +1649,11 @@ static int dw_mci_exynos_misc_control(struct dw_mci *host,
 	case CTRL_SET_ETC_GPIO:
 		dw_mci_exynos_set_etc_gpio(host);
 		break;
+#if defined(CONFIG_MACH_ODROIDXU3)
+	case CTRL_SET_DDR200_TIMING:
+		dw_mci_exynos_set_ddr200_etc(host);
+		break;
+#endif
 	default:
 		dev_err(host->dev, "dw_mmc exynos: wrong case\n");
 		return -ENODEV;

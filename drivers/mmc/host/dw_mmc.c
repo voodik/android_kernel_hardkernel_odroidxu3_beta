@@ -1688,6 +1688,18 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	u32 regs;
 	bool cclk_request_turn_off = 0;
 
+#if defined(CONFIG_MACH_ODROIDXU3)
+	struct dw_mci *host = slot->host;
+	struct mmc_card *card = mmc->card;
+
+	if (mmc->card) {
+		if ((card->cid.manfid == 0x11) && (ios->timing == MMC_TIMING_MMC_HS200_DDR)
+				&& drv_data && drv_data->misc_control) {
+			drv_data->misc_control(host,
+				CTRL_SET_DDR200_TIMING, NULL);
+		}
+	}
+#endif
 	switch (ios->bus_width) {
 	case MMC_BUS_WIDTH_4:
 		slot->ctype = SDMMC_CTYPE_4BIT;
