@@ -207,6 +207,7 @@ const struct hdmiphy_conf hdmiphy_conf[] = {
 	{ V4L2_DV_BT_DMT_1920X800P60, hdmiphy_conf125_59 },
 	{ V4L2_DV_BT_CEA_1920X1080I50, hdmiphy_conf74_25 },
 	{ V4L2_DV_BT_CEA_1920X1080I60, hdmiphy_conf74_25 },
+	{ V4L2_DV_BT_CEA_1920X1080P23_976, hdmiphy_conf74_175 },
 	{ V4L2_DV_BT_CEA_1920X1080P24, hdmiphy_conf74_25 },
 	{ V4L2_DV_BT_CEA_1920X1080P25, hdmiphy_conf74_25 },
 	{ V4L2_DV_BT_CEA_1920X1080P30, hdmiphy_conf74_175 },

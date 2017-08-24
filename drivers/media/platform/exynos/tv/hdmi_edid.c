@@ -139,6 +139,7 @@ static struct edid_preset {
 	{ V4L2_DV_BT_DMT_1920X800P60,	1920, 800, 60, FB_VMODE_NONINTERLACED, "1920x800@60" },
 	{ V4L2_DV_BT_CEA_1920X1080I50,	1920, 1080, 50, FB_VMODE_INTERLACED, "1080i@50" },
 	{ V4L2_DV_BT_CEA_1920X1080I60,	1920, 1080, 60, FB_VMODE_INTERLACED, "1080i@60" },
+	{ V4L2_DV_BT_CEA_1920X1080P23_976,	1920, 1080, 23, FB_VMODE_NONINTERLACED, "1080p@23.976" },
 	{ V4L2_DV_BT_CEA_1920X1080P24,	1920, 1080, 24, FB_VMODE_NONINTERLACED, "1080p@24" },
 	{ V4L2_DV_BT_CEA_1920X1080P25,	1920, 1080, 25, FB_VMODE_NONINTERLACED, "1080p@25" },
 	{ V4L2_DV_BT_CEA_1920X1080P30,	1920, 1080, 30, FB_VMODE_NONINTERLACED, "1080p@30" },
@@ -436,13 +437,19 @@ static void edid_bootarg_preset(void)
 	printk("###########################################\n");
 
 	if (strncmp(HdmiPHYBootArgs, "1920x1200p60hz", 14) == 0)
-		preferred_preset = hdmi_conf[30].dv_timings;
+		preferred_preset = hdmi_conf[31].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080p60hz", 9) == 0)
-		preferred_preset = hdmi_conf[29].dv_timings;
+		preferred_preset = hdmi_conf[30].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080p50hz", 9) == 0)
-		preferred_preset = hdmi_conf[28].dv_timings;
+		preferred_preset = hdmi_conf[29].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080p30hz", 9) == 0)
+		preferred_preset = hdmi_conf[28].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1080p25hz", 9) == 0)
 		preferred_preset = hdmi_conf[27].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1080p24hz", 9) == 0)
+		preferred_preset = hdmi_conf[26].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1080p23.976hz", 13) == 0)
+		preferred_preset = hdmi_conf[25].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080i60hz", 9) == 0)
 		preferred_preset = hdmi_conf[24].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080i50hz", 9) == 0)
