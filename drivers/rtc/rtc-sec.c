@@ -481,8 +481,8 @@ static int s2m_rtc_init_reg(struct s2m_rtc_info *info)
 			__func__, ret);
 		return ret;
 	}
-	/* FREEZE */
-	ret = sec_rtc_update(info->iodev, S2M_RTC_UPDATE, 0x00, 0x04);
+	/* FREEZE disable & RTC Wake enable */
+	ret = sec_rtc_update(info->iodev, S2M_RTC_UPDATE, 0x08, 0x0C);
 	if (ret < 0) {
 		dev_err(info->dev, "%s: fail to update rtc update reg(%d)\n",
 			__func__, ret);
