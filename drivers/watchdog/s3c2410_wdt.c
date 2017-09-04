@@ -50,14 +50,14 @@
 #include <plat/regs-watchdog.h>
 #include <plat/watchdog.h>
 
-#define CONFIG_S3C2410_WATCHDOG_ATBOOT		(0)
+#define CONFIG_S3C2410_WATCHDOG_ATBOOT		(1)
 #define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME	(15)
 
 static bool nowayout	= WATCHDOG_NOWAYOUT;
-static int tmr_margin;
+static int tmr_margin	= CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME;
 static int tmr_atboot	= CONFIG_S3C2410_WATCHDOG_ATBOOT;
-static int soft_noboot;
-static int debug;
+static int soft_noboot	=0;
+static int debug	=1;
 
 module_param(tmr_margin,  int, 0);
 module_param(tmr_atboot,  int, 0);
@@ -122,16 +122,15 @@ static int s3c2410wdt_stop(struct watchdog_device *wdd)
 	return 0;
 }
 
-#ifdef CONFIG_PM
-static int s3c2410wdt_int_clear(struct watchdog_device *wdd)
+static int s3c2410wdt_stop_intclear(struct watchdog_device *wdd)
 {
 	spin_lock(&wdt_lock);
+	__s3c2410wdt_stop();
 	writel(1, wdt_base + S3C2410_WTCLRINT);
 	spin_unlock(&wdt_lock);
 
 	return 0;
 }
-#endif
 
 static int s3c2410wdt_start(struct watchdog_device *wdd)
 {
@@ -353,7 +352,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
 
 	/* Enable pmu watchdog reset control */
 	if (pdata != NULL && pdata->pmu_wdt_control != NULL) {
-		s3c2410wdt_int_clear(&s3c2410_wdd);
+		/* Prevent watchdog reset while setting */
+		s3c2410wdt_stop_intclear(&s3c2410_wdd);
 		pdata->pmu_wdt_control(1, pdata->pmu_wdt_reset_type);
 	}
 
@@ -476,8 +476,7 @@ static int s3c2410wdt_resume(struct platform_device *dev)
 
 	pdata = dev_get_platdata(&dev->dev);
 	/* Stop and clear watchdog interrupt */
-	s3c2410wdt_stop(&s3c2410_wdd);
-	s3c2410wdt_int_clear(&s3c2410_wdd);
+	s3c2410wdt_stop_intclear(&s3c2410_wdd);
 
 	/* Enable pmu watchdog reset control */
 	if (pdata != NULL && pdata->pmu_wdt_control != NULL)
@@ -527,7 +526,17 @@ static struct platform_driver s3c2410wdt_driver = {
 	},
 };
 
-module_platform_driver(s3c2410wdt_driver);
+static int __init s3c2410_wdt_init(void)
+{
+	return platform_driver_register(&s3c2410wdt_driver);
+}
+subsys_initcall(s3c2410_wdt_init);
+
+static void __exit s3c2410_wdt_exit(void)
+{
+	platform_driver_unregister(&s3c2410wdt_driver);
+}
+module_exit(s3c2410_wdt_exit);
 
 MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>, "
 	      "Dimitry Andric <dimitry.andric@tomtom.com>");

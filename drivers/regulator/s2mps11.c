@@ -396,6 +396,28 @@ int s2mps11_pmic_ethonoff(unsigned char status)
 
 EXPORT_SYMBOL(s2mps11_pmic_ethonoff);
 //////////////////////////////////////
+int s2mps11_wdt_enable(struct platform_device *pdev)
+{
+	struct sec_pmic_dev *iodev = dev_get_drvdata(pdev->dev.parent);
+
+	/* PWR_HOLD bit-set when power on */
+	if(sec_reg_update(iodev, S2MPS11_REG_CTRL1, 0x0A, 0xff)) {
+		printk(KERN_EMERG "%s : S2MPS11 REG CTRL1 PWR_HOLD bit clear error!", __func__);
+	}
+        if(sec_reg_update(iodev, S2MPS11_REG_OFFSRC, 0x04, 0xff)) {
+		printk(KERN_EMERG "%s : S2MPS11 OFFSRC timeout signal error", __func__);
+        }
+	mdelay(500);
+	if(sec_reg_update(iodev, S2MPS11_REG_CTRL1, 0x1A, 0xff)) {
+		printk(KERN_EMERG "%s : S2MPS11 REG CTRL1 PWR_HOLD bit set error!", __func__);
+	}
+	mdelay(500);
+        if(sec_reg_update(iodev, S2MPS11_REG_CTRL1, 0x0A, 0xff))    {
+		printk(KERN_EMERG "%s : S2MPS11 REG CTRL1 PWR_HOLD bit clear error!", __func__);
+        }
+        return 0;
+}
+
 
 static int s2mps11_pmic_probe(struct platform_device *pdev)
 {
@@ -448,6 +470,7 @@ static int s2mps11_pmic_probe(struct platform_device *pdev)
 			goto err;
 		}
 	}
+	s2mps11_wdt_enable(pdev);
 
 	return 0;
 err:

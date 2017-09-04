@@ -92,13 +92,14 @@
 		};
 	};
 
-	watchdog@10020000 {
+	watchdog:watchdog0@101D0000 {
 		compatible = "samsung,s3c2410-wdt";
 		reg = <0x101D0000 0x100>;
+		status = "disabled";
 		interrupts = <0 42 0>;
 		clocks = <&clock 1508>, <&clock 1508>;
 		clock-names = "rate_watchdog", "gate_watchdog";
-		timeout-sec = <30>;
+		timeout-sec = <5>;
 		pmu_wdt_reset_type = <1>;
 	};
 
