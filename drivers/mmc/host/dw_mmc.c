@@ -1693,10 +1693,12 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	struct mmc_card *card = mmc->card;
 
 	if (mmc->card) {
-		if ((card->cid.manfid == 0x11) && (ios->timing == MMC_TIMING_MMC_HS200_DDR)
+		if ((card->cid.manfid == 0x11) || (card->cid.manfid == 0x15)) {
+			if ((ios->timing == MMC_TIMING_MMC_HS200_DDR)
 				&& drv_data && drv_data->misc_control) {
-			drv_data->misc_control(host,
-				CTRL_SET_DDR200_TIMING, NULL);
+				drv_data->misc_control(host,
+					CTRL_SET_DDR200_TIMING, NULL);
+			}
 		}
 	}
 #endif
