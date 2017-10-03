@@ -44,35 +44,35 @@
 /*--------------------------Exported Function prototype---------------------*/
 u32
 PHY_QueryBBReg_8723B(
-	IN	PADAPTER	Adapter,
-	IN	u32		RegAddr,
-	IN	u32		BitMask
-	);
+    IN	PADAPTER	Adapter,
+    IN	u32		RegAddr,
+    IN	u32		BitMask
+);
 
 VOID
 PHY_SetBBReg_8723B(
-	IN	PADAPTER	Adapter,
-	IN	u32		RegAddr,
-	IN	u32		BitMask,
-	IN	u32		Data
-	);
+    IN	PADAPTER	Adapter,
+    IN	u32		RegAddr,
+    IN	u32		BitMask,
+    IN	u32		Data
+);
 
 u32
 PHY_QueryRFReg_8723B(
-	IN	PADAPTER			Adapter,
-	IN	u8				eRFPath,
-	IN	u32				RegAddr,
-	IN	u32				BitMask
-	);
+    IN	PADAPTER			Adapter,
+    IN	u8				eRFPath,
+    IN	u32				RegAddr,
+    IN	u32				BitMask
+);
 
 VOID
 PHY_SetRFReg_8723B(
-	IN	PADAPTER			Adapter,
-	IN	u8				eRFPath,
-	IN	u32				RegAddr,
-	IN	u32				BitMask,
-	IN	u32				Data
-	);
+    IN	PADAPTER			Adapter,
+    IN	u8				eRFPath,
+    IN	u32				RegAddr,
+    IN	u32				BitMask,
+    IN	u32				Data
+);
 
 /* MAC/BB/RF HAL config */
 int PHY_BBConfig8723B(PADAPTER	Adapter	);
@@ -83,66 +83,66 @@ s32 PHY_MACConfig8723B(PADAPTER padapter);
 
 int
 PHY_ConfigRFWithParaFile_8723B(
-	IN	PADAPTER			Adapter,
-	IN	u8* 				pFileName,
-	RF_PATH				eRFPath
+    IN	PADAPTER			Adapter,
+    IN	u8* 				pFileName,
+    RF_PATH				eRFPath
 );
 
 VOID
 PHY_SetTxPowerIndex_8723B(
-	IN	PADAPTER			Adapter,
-	IN	u32					PowerIndex,
-	IN	u8					RFPath,	
-	IN	u8					Rate
-	);
+    IN	PADAPTER			Adapter,
+    IN	u32					PowerIndex,
+    IN	u8					RFPath,
+    IN	u8					Rate
+);
 
 u8
 PHY_GetTxPowerIndex_8723B(
-	IN	PADAPTER			pAdapter,
-	IN	u8					RFPath,
-	IN	u8					Rate,	
-	IN	CHANNEL_WIDTH		BandWidth,	
-	IN	u8					Channel
-	);
+    IN	PADAPTER			pAdapter,
+    IN	u8					RFPath,
+    IN	u8					Rate,
+    IN	CHANNEL_WIDTH		BandWidth,
+    IN	u8					Channel
+);
 
-VOID	
-PHY_GetTxPowerLevel8723B(			
-	IN	PADAPTER		Adapter,
-	OUT s32*		    		powerlevel	
-	);
+VOID
+PHY_GetTxPowerLevel8723B(
+    IN	PADAPTER		Adapter,
+    OUT s32*		    		powerlevel
+);
 
 VOID
 PHY_SetTxPowerLevel8723B(
-	IN	PADAPTER		Adapter,
-	IN	u8			channel
-	);
+    IN	PADAPTER		Adapter,
+    IN	u8			channel
+);
 
 VOID
 PHY_SetBWMode8723B(
-	IN	PADAPTER				Adapter,
-	IN	CHANNEL_WIDTH			Bandwidth,	// 20M or 40M
-	IN	unsigned char				Offset		// Upper, Lower, or Don't care
+    IN	PADAPTER				Adapter,
+    IN	CHANNEL_WIDTH			Bandwidth,	// 20M or 40M
+    IN	unsigned char				Offset		// Upper, Lower, or Don't care
 );
 
 VOID
 PHY_SwChnl8723B(	// Call after initialization
-	IN	PADAPTER	Adapter,
-	IN	u8		channel
-	);
+    IN	PADAPTER	Adapter,
+    IN	u8		channel
+);
 
 VOID
 PHY_SetSwChnlBWMode8723B(
-	IN	PADAPTER			Adapter,
-	IN	u8					channel,
-	IN	CHANNEL_WIDTH		Bandwidth,
-	IN	u8					Offset40,
-	IN	u8					Offset80
+    IN	PADAPTER			Adapter,
+    IN	u8					channel,
+    IN	CHANNEL_WIDTH		Bandwidth,
+    IN	u8					Offset40,
+    IN	u8					Offset80
 );
 
 VOID PHY_SetRFPathSwitch_8723B(
-	IN	PADAPTER	pAdapter,
-	IN	BOOLEAN		bMain
-	);
+    IN	PADAPTER	pAdapter,
+    IN	BOOLEAN		bMain
+);
 /*--------------------------Exported Function prototype End---------------------*/
 
 #endif

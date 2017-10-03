@@ -29,10 +29,9 @@ CONFIG_RTL8192D = n
 CONFIG_RTL8723A = n
 CONFIG_RTL8188E = n
 CONFIG_RTL8812A = y
-CONFIG_RTL8821A = n
+CONFIG_RTL8821A = y
 CONFIG_RTL8192E = n
 CONFIG_RTL8723B = n
-CONFIG_RTL8814A = n
 ######################### Interface ###########################
 CONFIG_USB_HCI = y
 CONFIG_PCI_HCI = n
@@ -73,6 +72,7 @@ CONFIG_AP_WOWLAN = n
 CONFIG_RTW_SDIO_PM_KEEP_POWER = y
 ###################### Platform Related #######################
 CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM_RPI = n
 CONFIG_PLATFORM_ANDROID_X86 = n
 CONFIG_PLATFORM_ANDROID_INTEL_X86 = n
 CONFIG_PLATFORM_JB_X86 = n
@@ -114,25 +114,21 @@ CONFIG_PLATFORM_ACTIONS_ATM705X = n
 CONFIG_PLATFORM_ARM_RTD299X = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_6820 = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_8810 = n
-CONFIG_PLATFORM_AML = y
 CONFIG_PLATFORM_ARM_WMT = n
 CONFIG_PLATFORM_TI_DM365 = n
 CONFIG_PLATFORM_MOZART = n
 CONFIG_PLATFORM_RTK119X = n
 CONFIG_PLATFORM_NOVATEK_NT72668 = n
+CONFIG_PLATFORM_AML = y
+########################## DEBUG ##############################
+CONFIG_DEBUG = n
+CONFIG_DEBUG_CFG80211 = n
+CONFIG_DEBUG_RTL871X = n
 ###############################################################
 
 CONFIG_DRVEXT_MODULE = n
 
 export TopDIR ?= $(shell pwd)
-
-ifeq ($(CONFIG_PLATFORM_AML), y)
-EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -fno-pic
-EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DCONFIG_CONCURRENT_MODE
-EXTRA_CFLAGS += -DCONFIG_P2P_IPS
-EXTRA_CFLAGS += -DCONFIG_LPS_SLOW_TRANSITION
-EXTRA_CFLAGS += -DCONFIG_RADIO_WORK
-endif
 
 ########### COMMON  #################################
 ifeq ($(CONFIG_GSPI_HCI), y)
@@ -424,7 +420,7 @@ EXTRA_CFLAGS += -DCONFIG_RTL8188E
 
 _HAL_INTFS_FILES +=	hal/HalPwrSeqCmd.o \
 					hal/$(RTL871X)/Hal8188EPwrSeq.o\
- 					hal/$(RTL871X)/$(RTL871X)_xmit.o\
+					hal/$(RTL871X)/$(RTL871X)_xmit.o\
 					hal/$(RTL871X)/$(RTL871X)_sreset.o
 
 _HAL_INTFS_FILES +=	hal/$(RTL871X)/$(RTL871X)_hal_init.o \
@@ -706,73 +702,6 @@ _OUTSRC_FILES += hal/OUTSRC/$(RTL871X)/HalHWImg8723B_BB.o\
 
 endif
 
-########### HAL_RTL8814A #################################
-ifeq ($(CONFIG_RTL8814A), y)
-
-RTL871X = rtl8814a
-ifeq ($(CONFIG_USB_HCI), y)
-MODULE_NAME = 8814au
-endif
-ifeq ($(CONFIG_PCI_HCI), y)
-MODULE_NAME = 8814ae
-endif
-ifeq ($(CONFIG_SDIO_HCI), y)
-MODULE_NAME = 8814as
-endif
-
-EXTRA_CFLAGS += -DCONFIG_RTL8814A
-
-_HAL_INTFS_FILES +=  hal/HalPwrSeqCmd.o \
-					hal/$(RTL871X)/Hal8814PwrSeq.o \
-					hal/$(RTL871X)/$(RTL871X)_xmit.o\
-					hal/$(RTL871X)/$(RTL871X)_sreset.o
-
-_HAL_INTFS_FILES +=	hal/$(RTL871X)/$(RTL871X)_hal_init.o \
-			hal/$(RTL871X)/$(RTL871X)_phycfg.o \
-			hal/$(RTL871X)/$(RTL871X)_rf6052.o \
-			hal/$(RTL871X)/$(RTL871X)_dm.o \
-			hal/$(RTL871X)/$(RTL871X)_rxdesc.o \
-			hal/$(RTL871X)/$(RTL871X)_cmd.o \
-
-
-_HAL_INTFS_FILES +=	\
-			hal/$(RTL871X)/$(HCI_NAME)/$(HCI_NAME)_halinit.o \
-			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_NAME)_led.o \
-			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_NAME)_xmit.o \
-			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_NAME)_recv.o
-
-ifeq ($(CONFIG_SDIO_HCI), y)
-_HAL_INTFS_FILES += hal/$(RTL871X)/$(HCI_NAME)/$(HCI_NAME)_ops.o
-else
-ifeq ($(CONFIG_GSPI_HCI), y)
-_HAL_INTFS_FILES += hal/$(RTL871X)/$(HCI_NAME)/$(HCI_NAME)_ops.o
-else
-_HAL_INTFS_FILES += hal/$(RTL871X)/$(HCI_NAME)/$(HCI_NAME)_ops_linux.o
-endif
-endif
-
-ifeq ($(CONFIG_MP_INCLUDED), y)
-_HAL_INTFS_FILES += hal/$(RTL871X)/$(RTL871X)_mp.o
-endif
-
-ifeq ($(CONFIG_USB_HCI), y)
-#_HAL_INTFS_FILES +=hal/efuse/$(RTL871X)/HalEfuseMask8723B_USB.o
-endif
-ifeq ($(CONFIG_PCI_HCI), y)
-_HAL_INTFS_FILES +=hal/efuse/$(RTL871X)/HalEfuseMask8723B_PCIE.o
-endif
-
-_OUTSRC_FILES += hal/OUTSRC/$(RTL871X)/HalHWImg8814A_BB.o\
-								hal/OUTSRC/$(RTL871X)/HalHWImg8814A_MAC.o\
-								hal/OUTSRC/$(RTL871X)/HalHWImg8814A_RF.o\
-								hal/OUTSRC/$(RTL871X)/HalHWImg8814A_FW.o\
-								hal/OUTSRC/$(RTL871X)/PhyDM_IQK_8814A.o\
-								hal/OUTSRC/$(RTL871X)/phydm_RegConfig8814A.o\
-								hal/OUTSRC/$(RTL871X)/HalPhyRf_8814A.o\
-								hal/OUTSRC/$(RTL871X)/phydm_RTL8814A.o
-
-endif
-
 ########### AUTO_CFG  #################################
 
 ifeq ($(CONFIG_AUTOCFG_CP), y)
@@ -941,10 +870,26 @@ endif
 
 ifeq ($(CONFIG_PLATFORM_I386_PC), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+#EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+#EXTRA_CFLAGS += -DCONFIG_P2P_IPS
 SUBARCH := $(shell uname -m | sed -e s/i.86/i386/)
 ARCH ?= $(SUBARCH)
 CROSS_COMPILE ?=
-KVER  := $(shell uname -r)
+ifndef KVER
+KVER ?= $(shell uname -r)
+endif
+KSRC := /lib/modules/$(KVER)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+INSTALL_PREFIX :=
+endif
+
+ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+ARCH ?= arm
+CROSS_COMPILE ?=
+KVER ?= $(shell uname -r)
 KSRC := /lib/modules/$(KVER)/build
 MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
 INSTALL_PREFIX :=
@@ -956,7 +901,7 @@ EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_ANDROID -DCONFIG_PLATFO
 ARCH := $(R_ARCH)
 #CROSS_COMPILE := arm-none-linux-gnueabi-
 CROSS_COMPILE := $(R_CROSS_COMPILE)
-KVER:= 3.4.0
+KVER ?= 3.4.0
 #KSRC := ../../../../build/out/kernel
 KSRC := $(KERNEL_BUILD_PATH)
 MODULE_NAME :=wlan
@@ -992,18 +937,15 @@ ifeq ($(CONFIG_PLATFORM_MSTAR_TITANIA12), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_MSTAR -DCONFIG_PLATFORM_MSTAR_TITANIA12
 ARCH:=mips
 CROSS_COMPILE:= /usr/src/Mstar_kernel/mips-4.3/bin/mips-linux-gnu-
-KVER:= 2.6.28.9
+KVER ?= 2.6.28.9
 KSRC:= /usr/src/Mstar_kernel/2.6.28.9/
 endif
 
 ifeq ($(CONFIG_PLATFORM_MSTAR), y)
-EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
-EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
-EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_MSTAR -DCONFIG_USE_USB_BUFFER_ALLOC_TX -DCONFIG_FIX_NR_BULKIN_BUFFER -DCONFIG_PREALLOC_RX_SKB_BUFFER
-EXTRA_CFLAGS += -DCONFIG_PLATFORM_MSTAR_HIGH
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_MSTAR 		#-DCONFIG_PLATFORM_MSTAR_SCAN_BEFORE_CONNECT
 ARCH:=arm
 CROSS_COMPILE:= /usr/src/bin/arm-none-linux-gnueabi-
-KVER:= 3.1.10
+KVER ?= 3.1.10
 KSRC:= /usr/src/Mstar_kernel/3.1.10/
 endif
 
@@ -1045,7 +987,7 @@ ifeq ($(CONFIG_PLATFORM_ARM_PXA2XX), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 ARCH := arm
 CROSS_COMPILE := arm-none-linux-gnueabi-
-KVER  := 2.6.34.1
+KVER ?= 2.6.34.1
 KSRC ?= /usr/src/linux-2.6.34.1
 endif
 
@@ -1053,7 +995,7 @@ ifeq ($(CONFIG_PLATFORM_ARM_S3C2K4), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 ARCH := arm
 CROSS_COMPILE := arm-linux-
-KVER  := 2.6.24.7_$(ARCH)
+KVER ?= 2.6.24.7_$(ARCH)
 KSRC := /usr/src/kernels/linux-$(KVER)
 endif
 
@@ -1061,7 +1003,7 @@ ifeq ($(CONFIG_PLATFORM_ARM_S3C6K4), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 ARCH := arm
 CROSS_COMPILE := arm-none-linux-gnueabi-
-KVER  := 2.6.34.1
+KVER ?= 2.6.34.1
 KSRC ?= /usr/src/linux-2.6.34.1
 endif
 
@@ -1069,7 +1011,7 @@ ifeq ($(CONFIG_PLATFORM_RTD2880B), y)
 EXTRA_CFLAGS += -DCONFIG_BIG_ENDIAN -DCONFIG_PLATFORM_RTD2880B
 ARCH:=
 CROSS_COMPILE:=
-KVER:=
+KVER ?=
 KSRC:=
 endif
 
@@ -1077,7 +1019,7 @@ ifeq ($(CONFIG_PLATFORM_MIPS_RMI), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 ARCH:=mips
 CROSS_COMPILE:=mipsisa32r2-uclibc-
-KVER:=
+KVER ?=
 KSRC:= /root/work/kernel_realtek
 endif
 
@@ -1085,7 +1027,7 @@ ifeq ($(CONFIG_PLATFORM_MIPS_PLM), y)
 EXTRA_CFLAGS += -DCONFIG_BIG_ENDIAN
 ARCH:=mips
 CROSS_COMPILE:=mipsisa32r2-uclibc-
-KVER:=
+KVER ?=
 KSRC:= /root/work/kernel_realtek
 endif
 
@@ -1093,7 +1035,7 @@ ifeq ($(CONFIG_PLATFORM_MSTAR389), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_MSTAR389
 ARCH:=mips
 CROSS_COMPILE:= mips-linux-gnu-
-KVER:= 2.6.28.10
+KVER ?= 2.6.28.10
 KSRC:= /home/mstar/mstar_linux/2.6.28.9/
 endif
 
@@ -1120,7 +1062,7 @@ _PLATFORM_FILES += platform/platform_RTK_DMP_usb.o
 endif
 ARCH:=mips
 CROSS_COMPILE:=mipsel-linux-
-KVER:=
+KVER ?=
 KSRC ?= /usr/src/DMP_Kernel/jupiter/linux-2.6.12
 endif
 
@@ -1128,7 +1070,7 @@ ifeq ($(CONFIG_PLATFORM_MT53XX), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_MT53XX
 ARCH:= arm
 CROSS_COMPILE:= arm11_mtk_le-
-KVER:= 2.6.27
+KVER ?= 2.6.27
 KSRC?= /proj/mtk00802/BD_Compare/BDP/Dev/BDP_V301/BDP_Linux/linux-2.6.27
 endif
 
@@ -1136,7 +1078,7 @@ ifeq ($(CONFIG_PLATFORM_ARM_MX51_241H), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_WISTRON_PLATFORM
 ARCH := arm
 CROSS_COMPILE := /opt/freescale/usr/local/gcc-4.1.2-glibc-2.5-nptl-3/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-
-KVER  := 2.6.31
+KVER ?= 2.6.31
 KSRC ?= /lib/modules/2.6.31-770-g0e46b52/source
 endif
 
@@ -1153,7 +1095,7 @@ ifeq ($(CONFIG_PLATFORM_ACTIONS_ATJ227X), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_ACTIONS_ATJ227X
 ARCH := mips
 CROSS_COMPILE := /home/cnsd4/project/actions/tools-2.6.27/bin/mipsel-linux-gnu-
-KVER  := 2.6.27
+KVER ?= 2.6.27
 KSRC := /home/cnsd4/project/actions/linux-2.6.27.28
 endif
 
@@ -1167,14 +1109,14 @@ ARCH := arm
 CROSS_COMPILE := /opt/montavista/pro5.0/devkit/arm/v5t_le/bin/arm-linux-
 KSRC:= /home/vivotek/lsp/DM365/kernel_platform/kernel/linux-2.6.18
 KERNELOUTPUT := ${PRODUCTDIR}/tmp
-KVER  := 2.6.18
+KVER ?= 2.6.18
 endif
 
 ifeq ($(CONFIG_PLATFORM_MOZART), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_MOZART
 ARCH := arm
 CROSS_COMPILE := /home/vivotek/lsp/mozart3v2/Mozart3e_Toolchain/build_arm_nofpu/usr/bin/arm-linux-
-KVER  := $(shell uname -r)
+KVER ?= $(shell uname -r)
 KSRC:= /opt/Vivotek/lsp/mozart3v2/kernel_platform/kernel/mozart_kernel-1.17
 KERNELOUTPUT := /home/pink/sample/ODM/IP8136W-VINT/tmp/kernel
 endif
@@ -1304,7 +1246,7 @@ ifeq ($(CONFIG_PLATFORM_SZEBOOK), y)
 EXTRA_CFLAGS += -DCONFIG_BIG_ENDIAN
 ARCH:=arm
 CROSS_COMPILE:=/opt/crosstool2/bin/armeb-unknown-linux-gnueabi-
-KVER:= 2.6.31.6
+KVER ?= 2.6.31.6
 KSRC:= ../code/linux-2.6.31.6-2020/
 endif
 
@@ -1313,7 +1255,7 @@ ifeq ($(CONFIG_PLATFORM_MN10300), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_MN10300
 ARCH := mn10300
 CROSS_COMPILE := mn10300-linux-
-KVER := 2.6.32.2
+KVER ?= 2.6.32.2
 KSRC := /home/winuser/work/Plat_sLD2T_V3010/usr/src/linux-2.6.32.2
 INSTALL_PREFIX :=
 endif
@@ -1341,7 +1283,7 @@ endif
 ARCH := arm
 #CROSS_COMPILE := arm-none-linux-gnueabi-
 CROSS_COMPILE=/home/android_sdk/Allwinner/a10/android-jb42/lichee-jb42/buildroot/output/external-toolchain/bin/arm-none-linux-gnueabi-
-KVER  := 3.0.8
+KVER ?= 3.0.8
 #KSRC:= ../lichee/linux-3.0/
 KSRC=/home/android_sdk/Allwinner/a10/android-jb42/lichee-jb42/linux-3.0
 endif
@@ -1440,7 +1382,7 @@ EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_ACTIONS_ATV5201
 EXTRA_CFLAGS += -DCONFIG_SDIO_DISABLE_RXFIFO_POLLING_LOOP
 ARCH := mips
 CROSS_COMPILE := mipsel-linux-gnu-
-KVER  := $(KERNEL_VER)
+KVER ?= $(KERNEL_VER)
 KSRC:= $(CFGDIR)/../../kernel/linux-$(KERNEL_VER)
 endif
 
@@ -1520,7 +1462,7 @@ ARCH := arm
 
 # ==== Cross compile setting for Android 4.4 SDK =====
 #CROSS_COMPILE := arm-linux-gnueabihf-
-KVER  := 3.10.24
+KVER ?= 3.10.24
 #KSRC :=/home/android_sdk/Allwinner/a20/android-kitkat44/lichee/linux-3.4
 CROSS_COMPILE := /home/realtek/software_phoenix/phoenix/toolchain/usr/local/arm-2013.11/bin/arm-linux-gnueabihf-
 KSRC := /home/realtek/software_phoenix/linux-kernel
@@ -1538,7 +1480,7 @@ EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_RX
 EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_TX
 ARCH ?= arm
 CROSS_COMPILE := arm-linux-gnueabihf-
-KVER := 3.8.0
+KVER ?= 3.8.0
 KSRC := /Custom/Novatek/TCL/linux-3.8_header
 #KSRC := $(KERNELDIR)
 endif
@@ -1560,7 +1502,16 @@ endif
 
 endif
 
-USER_MODULE_NAME ?=
+ifeq ($(CONFIG_PLATFORM_AML), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_ANDROID
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+#EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_RX
+#EXTRA_CFLAGS += -DCONFIG_USE_USB_BUFFER_ALLOC_TX
+ARCH := arm
+CROSS_COMPILE := arm-linux-gnueabihf-
+KSRC := ../../../../../../common
+endif
+
 ifneq ($(USER_MODULE_NAME),)
 MODULE_NAME := $(USER_MODULE_NAME)
 endif
@@ -1592,7 +1543,7 @@ rtk_core :=	core/rtw_cmd.o \
 		core/rtw_btcoex.o \
 		core/rtw_beamforming.o \
 		core/rtw_odm.o \
-		core/efuse/rtw_efuse.o 
+		core/efuse/rtw_efuse.o
 
 $(MODULE_NAME)-y += $(rtk_core)
 
@@ -1649,19 +1600,5 @@ config_r:
 .PHONY: modules clean
 
 clean:
-	cd hal/OUTSRC/ ; rm -fr */*.mod.c */*.mod */*.o */.*.cmd */*.ko
-	cd hal/OUTSRC/ ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd hal/led ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd hal ; rm -fr */*/*.mod.c */*/*.mod */*/*.o */*/.*.cmd */*/*.ko
-	cd hal ; rm -fr */*.mod.c */*.mod */*.o */.*.cmd */*.ko
-	cd hal ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd core/efuse ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd core ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd os_dep/linux ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd os_dep ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd platform ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	rm -fr Module.symvers ; rm -fr Module.markers ; rm -fr modules.order
-	rm -fr *.mod.c *.mod *.o .*.cmd *.ko *~
-	rm -fr .tmp_versions
+	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd) clean
 endif
-

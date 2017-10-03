@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -18,11 +18,11 @@
  *
  ******************************************************************************/
 #ifndef __IOCTL_CFG80211_H__
-#define __IOCTL_CFG80211_H__ 
+#define __IOCTL_CFG80211_H__
 
 
 #if defined(RTW_USE_CFG80211_STA_EVENT)
-	#undef CONFIG_CFG80211_FORCE_COMPATIBLE_2_6_37_UNDER
+#undef CONFIG_CFG80211_FORCE_COMPATIBLE_2_6_37_UNDER
 #endif
 
 struct rtw_wdev_invit_info {
@@ -77,10 +77,9 @@ struct rtw_wdev_nego_info {
 		(nego_info)->conf_op_ch = 0; \
 	} while (0)
 
-struct rtw_wdev_priv
-{	
+struct rtw_wdev_priv {
 	struct wireless_dev *rtw_wdev;
-	
+
 	_adapter *padapter;
 
 	struct cfg80211_scan_request *scan_request;
@@ -102,9 +101,9 @@ struct rtw_wdev_priv
 
 #ifdef CONFIG_CONCURRENT_MODE
 	ATOMIC_T ro_ch_to;
-	ATOMIC_T switch_ch_to;	
-#endif	
-	
+	ATOMIC_T switch_ch_to;
+#endif
+
 };
 
 #define wiphy_to_adapter(x) (*((_adapter**)wiphy_priv(x)))
@@ -146,10 +145,10 @@ bool rtw_cfg80211_pwr_mgmt(_adapter *adapter);
 #define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->pnetdev, freq, sig_dbm, buf, len, gfp)
 #elif (LINUX_VERSION_CODE < KERNEL_VERSION(3,12,0))
 #define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev, freq, sig_dbm, buf, len, gfp)
-#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3 , 18 , 0))
-#define rtw_cfg80211_rx_mgmt(adapter , freq , sig_dbm , buf , len , gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev , freq , sig_dbm , buf , len , 0 , gfp)
+#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3,17,0))
+#define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev, freq, sig_dbm, buf, len, 0, gfp)
 #else
-#define rtw_cfg80211_rx_mgmt(adapter , freq , sig_dbm , buf , len , gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev , freq , sig_dbm , buf , len , 0)
+#define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev, freq, sig_dbm, buf, len, gfp)
 #endif
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0))  && !defined(COMPAT_KERNEL_RELEASE)
@@ -178,4 +177,3 @@ bool rtw_cfg80211_pwr_mgmt(_adapter *adapter);
 #include "rtw_cfgvendor.h"
 
 #endif //__IOCTL_CFG80211_H__
-

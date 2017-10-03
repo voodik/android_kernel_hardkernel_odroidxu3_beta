@@ -38,7 +38,7 @@
 /*--------------------------Define Parameters-------------------------------*/
 
 
-/*------------------------------Define structure----------------------------*/ 
+/*------------------------------Define structure----------------------------*/
 
 #define MAX_PG_GROUP 13
 
@@ -47,7 +47,7 @@
 /* BB/RF related */
 
 
-/*------------------------------Define structure----------------------------*/ 
+/*------------------------------Define structure----------------------------*/
 
 
 /*------------------------Export global variable----------------------------*/
@@ -63,21 +63,21 @@
 // BB and RF register read/write
 //
 u32	PHY_QueryBBReg8188E(	IN	PADAPTER	Adapter,
-								IN	u32		RegAddr,
-								IN	u32		BitMask	);
+                            IN	u32		RegAddr,
+                            IN	u32		BitMask	);
 void	PHY_SetBBReg8188E(	IN	PADAPTER	Adapter,
-								IN	u32		RegAddr,
-								IN	u32		BitMask,
-								IN	u32		Data	);
+                            IN	u32		RegAddr,
+                            IN	u32		BitMask,
+                            IN	u32		Data	);
 u32	PHY_QueryRFReg8188E(	IN	PADAPTER	Adapter,
-								IN	u8				eRFPath,
-								IN	u32				RegAddr,
-								IN	u32				BitMask	);
+                            IN	u8				eRFPath,
+                            IN	u32				RegAddr,
+                            IN	u32				BitMask	);
 void	PHY_SetRFReg8188E(	IN	PADAPTER		Adapter,
-								IN	u8				eRFPath,
-								IN	u32				RegAddr,
-								IN	u32				BitMask,
-								IN	u32				Data	);
+                            IN	u8				eRFPath,
+                            IN	u32				RegAddr,
+                            IN	u32				BitMask,
+                            IN	u32				Data	);
 
 //
 // Initialization related function
@@ -96,43 +96,43 @@ void	rtl8192c_PHY_GetHWRegOriginalValue(	IN	PADAPTER		Adapter	);
 //
 // RF Power setting
 //
-//extern	BOOLEAN	PHY_SetRFPowerState(IN	PADAPTER			Adapter, 
+//extern	BOOLEAN	PHY_SetRFPowerState(IN	PADAPTER			Adapter,
 //									IN	RT_RF_POWER_STATE	eRFPowerState);
 
 //
 // BB TX Power R/W
 //
 void	PHY_GetTxPowerLevel8188E(	IN	PADAPTER		Adapter,
-											OUT s32*    		powerlevel	);
+                                    OUT s32*    		powerlevel	);
 void	PHY_SetTxPowerLevel8188E(	IN	PADAPTER		Adapter,
-											IN	u8			channel	);
+                                    IN	u8			channel	);
 BOOLEAN	PHY_UpdateTxPowerDbm8188E(	IN	PADAPTER	Adapter,
-											IN	int		powerInDbm	);
+                                    IN	int		powerInDbm	);
 
 VOID
 PHY_SetTxPowerIndex_8188E(
-	IN	PADAPTER			Adapter,
-	IN	u32					PowerIndex,
-	IN	u8					RFPath,	
-	IN	u8					Rate
-	);
+    IN	PADAPTER			Adapter,
+    IN	u32					PowerIndex,
+    IN	u8					RFPath,
+    IN	u8					Rate
+);
 
 u8
 PHY_GetTxPowerIndex_8188E(
-	IN	PADAPTER		pAdapter,
-	IN	u8				RFPath,
-	IN	u8				Rate,	
-	IN	CHANNEL_WIDTH	BandWidth,	
-	IN	u8				Channel
-	);
+    IN	PADAPTER		pAdapter,
+    IN	u8				RFPath,
+    IN	u8				Rate,
+    IN	CHANNEL_WIDTH	BandWidth,
+    IN	u8				Channel
+);
 
 //
 // Switch bandwidth for 8192S
 //
 //extern	void	PHY_SetBWModeCallback8192C(	IN	PRT_TIMER		pTimer	);
 void	PHY_SetBWMode8188E(	IN	PADAPTER			pAdapter,
-									IN	CHANNEL_WIDTH	ChnlWidth,
-									IN	unsigned char	Offset	);
+                            IN	CHANNEL_WIDTH	ChnlWidth,
+                            IN	unsigned char	Offset	);
 
 //
 // Set FW CMD IO for 8192S.
@@ -144,8 +144,8 @@ void	PHY_SetBWMode8188E(	IN	PADAPTER			pAdapter,
 // Set A2 entry to fw for 8192S
 //
 extern	void FillA2Entry8192C(		IN	PADAPTER			Adapter,
-										IN	u8				index,
-										IN	u8*				val);
+                                    IN	u8				index,
+                                    IN	u8*				val);
 
 
 //
@@ -153,51 +153,51 @@ extern	void FillA2Entry8192C(		IN	PADAPTER			Adapter,
 //
 //extern	void	PHY_SwChnlCallback8192C(	IN	PRT_TIMER		pTimer	);
 void	PHY_SwChnl8188E(	IN	PADAPTER		pAdapter,
-									IN	u8			channel	);
+                            IN	u8			channel	);
 
 VOID
 PHY_SetSwChnlBWMode8188E(
-	IN	PADAPTER			Adapter,
-	IN	u8					channel,
-	IN	CHANNEL_WIDTH	Bandwidth,
-	IN	u8					Offset40,
-	IN	u8					Offset80
+    IN	PADAPTER			Adapter,
+    IN	u8					channel,
+    IN	CHANNEL_WIDTH	Bandwidth,
+    IN	u8					Offset40,
+    IN	u8					Offset80
 );
 
 //
 // BB/MAC/RF other monitor API
 //
 void	PHY_SetMonitorMode8192C(IN	PADAPTER	pAdapter,
-										IN	BOOLEAN		bEnableMonitorMode	);
+                                IN	BOOLEAN		bEnableMonitorMode	);
 
 BOOLEAN	PHY_CheckIsLegalRfPath8192C(IN	PADAPTER	pAdapter,
-											IN	u32		eRFPath	);
+                                    IN	u32		eRFPath	);
 
 VOID PHY_SetRFPathSwitch_8188E(IN	PADAPTER	pAdapter, IN	BOOLEAN		bMain);
 
 extern	VOID
 PHY_SwitchEphyParameter(
-	IN	PADAPTER			Adapter
-	);
+    IN	PADAPTER			Adapter
+);
 
 extern	VOID
 PHY_EnableHostClkReq(
-	IN	PADAPTER			Adapter
-	);
+    IN	PADAPTER			Adapter
+);
 
 BOOLEAN
 SetAntennaConfig92C(
-	IN	PADAPTER	Adapter,
-	IN	u8		DefaultAnt	
-	);
+    IN	PADAPTER	Adapter,
+    IN	u8		DefaultAnt
+);
 
 VOID
 storePwrIndexDiffRateOffset(
-	IN	PADAPTER	Adapter,
-	IN	u32		RegAddr,
-	IN	u32		BitMask,
-	IN	u32		Data
-	);
+    IN	PADAPTER	Adapter,
+    IN	u32		RegAddr,
+    IN	u32		BitMask,
+    IN	u32		Data
+);
 /*--------------------------Exported Function prototype---------------------*/
 
 //
@@ -212,7 +212,7 @@ storePwrIndexDiffRateOffset(
 
 //==================================================================
 // Note: If SIC_ENABLE under PCIE, because of the slow operation
-//	you should 
+//	you should
 //	2) "#define RTL8723_FPGA_VERIFICATION	1"				in Precomp.h.WlanE.Windows
 //	3) "#define RTL8190_Download_Firmware_From_Header	0"	in Precomp.h.WlanE.Windows if needed.
 //

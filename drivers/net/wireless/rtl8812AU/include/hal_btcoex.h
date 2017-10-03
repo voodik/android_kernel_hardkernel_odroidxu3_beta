@@ -24,8 +24,7 @@
 
 // Some variables can't get from outsrc BT-Coex,
 // so we need to save here
-typedef struct _BT_COEXIST
-{
+typedef struct _BT_COEXIST {
 	u8 bBtExist;
 	u8 btTotalAntNum;
 	u8 btChipType;
@@ -83,11 +82,9 @@ void hal_btcoex_SetBtPatchVersion(PADAPTER,u16 btHciVer,u16 btPatchVer);
 void hal_btcoex_SetHciVersion(PADAPTER, u16 hciVersion);
 void hal_btcoex_SendScanNotify(PADAPTER, u8 type);
 void hal_btcoex_StackUpdateProfileInfo(void);
-void hal_btcoex_BTOffOnNotify(PADAPTER padapter, u8 bBTON);
 void hal_btcoex_SetAntIsolationType(PADAPTER padapter, u8 anttype);
 #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 int hal_btcoex_AntIsolationConfig_ParaFile(IN PADAPTER	Adapter,IN char* pFileName);
 int hal_btcoex_ParseAntIsolationConfigFile(PADAPTER Adapter, char*	buffer);
 #endif // CONFIG_LOAD_PHY_PARA_FROM_FILE
 #endif // !__HAL_BTCOEX_H__
-

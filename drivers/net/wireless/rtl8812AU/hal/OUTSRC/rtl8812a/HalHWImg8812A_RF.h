@@ -1,21 +1,21 @@
-/****************************************************************************** 
-* 
-* Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved. 
-* 
-* This program is free software; you can redistribute it and/or modify it 
-* under the terms of version 2 of the GNU General Public License as 
-* published by the Free Software Foundation. 
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT 
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for 
-* more details. 
-* 
-* You should have received a copy of the GNU General Public License along with 
-* this program; if not, write to the Free Software Foundation, Inc., 
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
-* 
-* 
+/******************************************************************************
+*
+* Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of version 2 of the GNU General Public License as
+* published by the Free Software Foundation.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along with
+* this program; if not, write to the Free Software Foundation, Inc.,
+* 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+*
+*
 ******************************************************************************/
 
 #if (RTL8812A_SUPPORT == 1)
@@ -29,7 +29,7 @@
 
 void
 ODM_ReadAndConfig_MP_8812A_RadioA( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
+    IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_RadioA(void);
 
@@ -39,7 +39,7 @@ u4Byte ODM_GetVersion_MP_8812A_RadioA(void);
 
 void
 ODM_ReadAndConfig_MP_8812A_RadioB( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
+    IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_RadioB(void);
 
@@ -49,7 +49,7 @@ u4Byte ODM_GetVersion_MP_8812A_RadioB(void);
 
 void
 ODM_ReadAndConfig_MP_8812A_TxPowerTrack_AP( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
+    IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_AP(void);
 
@@ -59,7 +59,7 @@ u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_AP(void);
 
 void
 ODM_ReadAndConfig_MP_8812A_TxPowerTrack_PCIE( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
+    IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_PCIE(void);
 
@@ -69,7 +69,7 @@ u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_PCIE(void);
 
 void
 ODM_ReadAndConfig_MP_8812A_TxPowerTrack_RFE3( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
+    IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_RFE3(void);
 
@@ -79,7 +79,7 @@ u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_RFE3(void);
 
 void
 ODM_ReadAndConfig_MP_8812A_TxPowerTrack_RFE4( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
+    IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_RFE4(void);
 
@@ -89,7 +89,7 @@ u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_RFE4(void);
 
 void
 ODM_ReadAndConfig_MP_8812A_TxPowerTrack_USB( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
+    IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_USB(void);
 
@@ -99,7 +99,7 @@ u4Byte ODM_GetVersion_MP_8812A_TxPowerTrack_USB(void);
 
 void
 ODM_ReadAndConfig_MP_8812A_TXPWR_LMT( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
+    IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_TXPWR_LMT(void);
 
@@ -109,7 +109,7 @@ u4Byte ODM_GetVersion_MP_8812A_TXPWR_LMT(void);
 
 void
 ODM_ReadAndConfig_MP_8812A_TXPWR_LMT_HM812A03( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
+    IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_TXPWR_LMT_HM812A03(void);
 

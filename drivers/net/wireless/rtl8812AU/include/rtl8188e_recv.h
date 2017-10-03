@@ -24,8 +24,7 @@
 
 #define TX_RPT1_PKT_LEN 8
 
-typedef struct rxreport_8188e
-{
+typedef struct rxreport_8188e {
 	//Offset 0
 	u32 pktlen:14;
 	u32 crc32:1;
@@ -94,7 +93,7 @@ typedef struct rxreport_8188e
 	u32 pattern9match:1;
 	u32 patternamatch:1;
 	u32 patternbmatch:1;
-	u32 patterncmatch:1;	
+	u32 patterncmatch:1;
 	u32 rsvd1613:19;
 	*/
 	u32 rsvd16;

@@ -26,19 +26,19 @@
 #ifdef PLATFORM_OS_CE
 #define MAX_RECVBUF_SZ (8192+1024) // 8K+1k
 #else
-	#ifdef CONFIG_MINIMAL_MEMORY_USAGE
-		#define MAX_RECVBUF_SZ (4000) // about 4K
-	#else
-		#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-			#define MAX_RECVBUF_SZ (rtw_rtkm_get_buff_size()) /*depend rtkm*/
-		#else
-		#define MAX_RECVBUF_SZ (32768) // 32k
-		#endif
-		//#define MAX_RECVBUF_SZ (20480) //20K
-		//#define MAX_RECVBUF_SZ (10240) //10K 
-		//#define MAX_RECVBUF_SZ (16384) //  16k - 92E RX BUF :16K
-		//#define MAX_RECVBUF_SZ (8192+1024) // 8K+1k		
-	#endif
+#ifdef CONFIG_MINIMAL_MEMORY_USAGE
+#define MAX_RECVBUF_SZ (4000) // about 4K
+#else
+#ifdef CONFIG_PLATFORM_MSTAR
+#define MAX_RECVBUF_SZ (8192) // 8K
+#else
+#define MAX_RECVBUF_SZ (32768) // 32k
+#endif
+//#define MAX_RECVBUF_SZ (20480) //20K
+//#define MAX_RECVBUF_SZ (10240) //10K
+//#define MAX_RECVBUF_SZ (16384) //  16k - 92E RX BUF :16K
+//#define MAX_RECVBUF_SZ (8192+1024) // 8K+1k
+#endif
 #endif
 #endif //!MAX_RECVBUF_SZ
 
@@ -46,7 +46,7 @@
 //#ifndef CONFIG_MINIMAL_MEMORY_USAGE
 //	#define MAX_RECVBUF_SZ (9100)
 //#else
-	#define MAX_RECVBUF_SZ (4000) // about 4K
+#define MAX_RECVBUF_SZ (4000) // about 4K
 //#endif
 
 

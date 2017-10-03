@@ -23,7 +23,7 @@
 //#include "hal_com.h"
 #include "hal_data.h"
 
-//include HAL Related header after HAL Related compiling flags 
+//include HAL Related header after HAL Related compiling flags
 #include "rtl8188e_spec.h"
 #include "Hal8188EPhyReg.h"
 #include "Hal8188EPhyCfg.h"
@@ -39,47 +39,47 @@
 #endif
 
 #if 0
-	// Fw Array
-	#define Rtl8188E_FwImageArray				Rtl8188EFwImgArray
-	#define Rtl8188E_FWImgArrayLength			Rtl8188EFWImgArrayLength
+// Fw Array
+#define Rtl8188E_FwImageArray				Rtl8188EFwImgArray
+#define Rtl8188E_FWImgArrayLength			Rtl8188EFWImgArrayLength
 #ifdef CONFIG_WOWLAN
-	#define Rtl8188E_FwWoWImageArray			Array_MP_8188E_FW_WoWLAN
-	#define Rtl8188E_FwWoWImgArrayLength		ArrayLength_MP_8188E_FW_WoWLAN
+#define Rtl8188E_FwWoWImageArray			Array_MP_8188E_FW_WoWLAN
+#define Rtl8188E_FwWoWImgArrayLength		ArrayLength_MP_8188E_FW_WoWLAN
 #endif //CONFIG_WOWLAN
 #endif
 
 
-	#define RTL8188E_FW_IMG					"rtl8188e/FW_NIC.bin"
-	#define RTL8188E_FW_WW_IMG				"rtl8188e/FW_WoWLAN.bin"
-	#define RTL8188E_PHY_REG					"rtl8188e/PHY_REG.txt" 
-	#define RTL8188E_PHY_RADIO_A				"rtl8188e/RadioA.txt"
-	#define RTL8188E_PHY_RADIO_B				"rtl8188e/RadioB.txt"
-	#define RTL8188E_TXPWR_TRACK				"rtl8188e/TxPowerTrack.txt"			
-	#define RTL8188E_AGC_TAB					"rtl8188e/AGC_TAB.txt"
-	#define RTL8188E_PHY_MACREG 				"rtl8188e/MAC_REG.txt"
-	#define RTL8188E_PHY_REG_PG				"rtl8188e/PHY_REG_PG.txt"
-	#define RTL8188E_PHY_REG_MP 				"rtl8188e/PHY_REG_MP.txt" 
-	#define RTL8188E_TXPWR_LMT				"rtl8188e/TXPWR_LMT.txt" 
+#define RTL8188E_FW_IMG					"rtl8188e/FW_NIC.bin"
+#define RTL8188E_FW_WW_IMG				"rtl8188e/FW_WoWLAN.bin"
+#define RTL8188E_PHY_REG					"rtl8188e/PHY_REG.txt"
+#define RTL8188E_PHY_RADIO_A				"rtl8188e/RadioA.txt"
+#define RTL8188E_PHY_RADIO_B				"rtl8188e/RadioB.txt"
+#define RTL8188E_TXPWR_TRACK				"rtl8188e/TxPowerTrack.txt"
+#define RTL8188E_AGC_TAB					"rtl8188e/AGC_TAB.txt"
+#define RTL8188E_PHY_MACREG 				"rtl8188e/MAC_REG.txt"
+#define RTL8188E_PHY_REG_PG				"rtl8188e/PHY_REG_PG.txt"
+#define RTL8188E_PHY_REG_MP 				"rtl8188e/PHY_REG_MP.txt"
+#define RTL8188E_TXPWR_LMT				"rtl8188e/TXPWR_LMT.txt"
 
-	//---------------------------------------------------------------------
-	//		RTL8188E Power Configuration CMDs for USB/SDIO/PCIE interfaces
-	//---------------------------------------------------------------------
-	#define Rtl8188E_NIC_PWR_ON_FLOW				rtl8188E_power_on_flow
-	#define Rtl8188E_NIC_RF_OFF_FLOW				rtl8188E_radio_off_flow
-	#define Rtl8188E_NIC_DISABLE_FLOW				rtl8188E_card_disable_flow
-	#define Rtl8188E_NIC_ENABLE_FLOW				rtl8188E_card_enable_flow
-	#define Rtl8188E_NIC_SUSPEND_FLOW				rtl8188E_suspend_flow
-	#define Rtl8188E_NIC_RESUME_FLOW				rtl8188E_resume_flow
-	#define Rtl8188E_NIC_PDN_FLOW					rtl8188E_hwpdn_flow
-	#define Rtl8188E_NIC_LPS_ENTER_FLOW			rtl8188E_enter_lps_flow
-	#define Rtl8188E_NIC_LPS_LEAVE_FLOW			rtl8188E_leave_lps_flow
+//---------------------------------------------------------------------
+//		RTL8188E Power Configuration CMDs for USB/SDIO/PCIE interfaces
+//---------------------------------------------------------------------
+#define Rtl8188E_NIC_PWR_ON_FLOW				rtl8188E_power_on_flow
+#define Rtl8188E_NIC_RF_OFF_FLOW				rtl8188E_radio_off_flow
+#define Rtl8188E_NIC_DISABLE_FLOW				rtl8188E_card_disable_flow
+#define Rtl8188E_NIC_ENABLE_FLOW				rtl8188E_card_enable_flow
+#define Rtl8188E_NIC_SUSPEND_FLOW				rtl8188E_suspend_flow
+#define Rtl8188E_NIC_RESUME_FLOW				rtl8188E_resume_flow
+#define Rtl8188E_NIC_PDN_FLOW					rtl8188E_hwpdn_flow
+#define Rtl8188E_NIC_LPS_ENTER_FLOW			rtl8188E_enter_lps_flow
+#define Rtl8188E_NIC_LPS_LEAVE_FLOW			rtl8188E_leave_lps_flow
 
 
 #if 1 // download firmware related data structure
 #define MAX_FW_8188E_SIZE			0x8000 //32768,32k / 16384,16k
 
 #define FW_8188E_SIZE				0x4000 //16384,16k
-#define FW_8188E_SIZE_2			0x8000 //32768,32k 
+#define FW_8188E_SIZE_2			0x8000 //32768,32k
 
 #define FW_8188E_START_ADDRESS	0x1000
 #define FW_8188E_END_ADDRESS		0x1FFF //0x5FFF
@@ -101,8 +101,7 @@ typedef struct _RT_FIRMWARE_8188E {
 // This structure must be cared byte-ordering
 //
 
-typedef struct _RT_8188E_FIRMWARE_HDR
-{
+typedef struct _RT_8188E_FIRMWARE_HDR {
 	// 8-byte alinment required
 
 	//--- LONG WORD 0 ----
@@ -130,7 +129,7 @@ typedef struct _RT_8188E_FIRMWARE_HDR
 	//--- LONG WORD 3 ----
 	u32		Rsvd4;
 	u32		Rsvd5;
-}RT_8188E_FIRMWARE_HDR, *PRT_8188E_FIRMWARE_HDR;
+} RT_8188E_FIRMWARE_HDR, *PRT_8188E_FIRMWARE_HDR;
 #endif // download firmware related data structure
 
 
@@ -142,13 +141,13 @@ typedef struct _RT_8188E_FIRMWARE_HDR
 #define MAX_RX_DMA_BUFFER_SIZE_88E(__Adapter)	((!IS_VENDOR_8188E_I_CUT_SERIES(__Adapter))?0x2400:0x3C00)
 
 
-#define MAX_TX_REPORT_BUFFER_SIZE			0x0400 // 1k 
+#define MAX_TX_REPORT_BUFFER_SIZE			0x0400 // 1k
 
 
 // Note: We will divide number of page equally for each queue other than public queue!
 // 22k = 22528 bytes = 176 pages (@page =  128 bytes)
 // must reserved about 7 pages for LPS =>  176-7 = 169 (0xA9)
-// 2*BCN / 1*ps-poll / 1*null-data /1*prob_rsp /1*QOS null-data /1*BT QOS null-data 
+// 2*BCN / 1*ps-poll / 1*null-data /1*prob_rsp /1*QOS null-data /1*BT QOS null-data
 
 #define BCNQ_PAGE_NUM_88E		0x08
 
@@ -201,7 +200,7 @@ typedef struct _RT_8188E_FIRMWARE_HDR
 // leave 1byte and program full section
 // 9bytes + 1byt + 5bytes and pre 1byte.
 // For worst case:
-// | 1byte|----8bytes----|1byte|--5bytes--| 
+// | 1byte|----8bytes----|1byte|--5bytes--|
 // |         |            Reserved(14bytes)	      |
 //
 #define EFUSE_OOB_PROTECT_BYTES 		15	// PG data exclude header, dummy 6 bytes frome CP test and reserved 1byte.
@@ -255,7 +254,7 @@ u8 GetEEPROMSize8188E(PADAPTER padapter);
 void Hal_InitPGData88E(PADAPTER padapter);
 void Hal_EfuseParseIDCode88E(PADAPTER padapter, u8 *hwinfo);
 void Hal_ReadTxPowerInfo88E(PADAPTER padapter,u8* hwinfo,BOOLEAN	AutoLoadFail);
-	
+
 void Hal_EfuseParseEEPROMVer88E(PADAPTER padapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
 void rtl8188e_EfuseParseChnlPlan(PADAPTER padapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
 void Hal_EfuseParseCustomerID88E(PADAPTER padapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
@@ -266,7 +265,7 @@ void Hal_EfuseParseBoardType88E(PADAPTER pAdapter,u8* hwinfo,BOOLEAN AutoLoadFai
 void Hal_ReadPowerSavingMode88E(PADAPTER pAdapter,u8* hwinfo,BOOLEAN AutoLoadFail);
 
 BOOLEAN HalDetectPwrDownMode88E(PADAPTER Adapter);
-	
+
 #ifdef CONFIG_WOWLAN
 void Hal_DetectWoWMode(PADAPTER pAdapter);
 #endif //CONFIG_WOWLAN
@@ -301,9 +300,9 @@ void ResumeTxBeacon(PADAPTER padapter);
 void StopTxBeacon(PADAPTER padapter);
 u8
 GetHalDefVar8188E(
-	IN	PADAPTER				Adapter,
-	IN	HAL_DEF_VARIABLE		eVariable,
-	IN	PVOID					pValue
-	);
+    IN	PADAPTER				Adapter,
+    IN	HAL_DEF_VARIABLE		eVariable,
+    IN	PVOID					pValue
+);
 #endif //__RTL8188E_HAL_H__
 

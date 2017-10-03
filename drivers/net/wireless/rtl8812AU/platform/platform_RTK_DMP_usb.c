@@ -33,4 +33,3 @@ int platform_wifi_power_on(void)
 void platform_wifi_power_off(void)
 {
 }
-

@@ -103,18 +103,18 @@ const char *odm_dbg_level_str[] = {
 
 void rtw_odm_dbg_comp_msg(void *sel, _adapter *adapter)
 {
-	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(adapter);
-	DM_ODM_T *odm = &pHalData->odmpriv;
-	int cnt = 0;
-	u64 dbg_comp = 0;
+	//HAL_DATA_TYPE *pHalData = GET_HAL_DATA(adapter);
+	//DM_ODM_T *odm = &pHalData->odmpriv;
+	//int cnt = 0;
+	u64 dbg_comp;
 	int i;
 
 	rtw_hal_get_def_var(adapter, HW_DEF_ODM_DBG_FLAG, &dbg_comp);
 	DBG_871X_SEL_NL(sel, "odm.DebugComponents = 0x%016llx \n", dbg_comp);
-	for (i=0;i<RTW_ODM_COMP_MAX;i++) {
+	for (i=0; i<RTW_ODM_COMP_MAX; i++) {
 		if (odm_comp_str[i])
 			DBG_871X_SEL_NL(sel, "%cBIT%-2d %s\n",
-				(BIT0 << i) & dbg_comp ? '+' : ' ', i, odm_comp_str[i]);
+			                (BIT0 << i) & dbg_comp ? '+' : ' ', i, odm_comp_str[i]);
 	}
 }
 
@@ -125,15 +125,15 @@ inline void rtw_odm_dbg_comp_set(_adapter *adapter, u64 comps)
 
 void rtw_odm_dbg_level_msg(void *sel, _adapter *adapter)
 {
-	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(adapter);
-	DM_ODM_T *odm = &pHalData->odmpriv;
-	int cnt = 0;
-	u32 dbg_level = 0;
+	//HAL_DATA_TYPE *pHalData = GET_HAL_DATA(adapter);
+	//DM_ODM_T *odm = &pHalData->odmpriv;
+	//int cnt = 0;
+	u32 dbg_level;
 	int i;
 
 	rtw_hal_get_def_var(adapter, HW_DEF_ODM_DBG_LEVEL, &dbg_level);
 	DBG_871X_SEL_NL(sel, "odm.DebugLevel = %u\n", dbg_level);
-	for (i=0;i<RTW_ODM_DBG_LEVEL_NUM;i++) {
+	for (i=0; i<RTW_ODM_DBG_LEVEL_NUM; i++) {
 		if (odm_dbg_level_str[i])
 			DBG_871X_SEL_NL(sel, "%u %s\n", i, odm_dbg_level_str[i]);
 	}
@@ -146,18 +146,18 @@ inline void rtw_odm_dbg_level_set(_adapter *adapter, u32 level)
 
 void rtw_odm_ability_msg(void *sel, _adapter *adapter)
 {
-	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(adapter);
-	DM_ODM_T *odm = &pHalData->odmpriv;
-	int cnt = 0;
+	//HAL_DATA_TYPE *pHalData = GET_HAL_DATA(adapter);
+	//DM_ODM_T *odm = &pHalData->odmpriv;
+	//int cnt = 0;
 	u32 ability = 0;
 	int i;
 
 	rtw_hal_get_hwreg(adapter, HW_VAR_DM_FLAG, (u8*)&ability);
 	DBG_871X_SEL_NL(sel, "odm.SupportAbility = 0x%08x\n", ability);
-	for (i=0;i<RTW_ODM_ABILITY_MAX;i++) {
+	for (i=0; i<RTW_ODM_ABILITY_MAX; i++) {
 		if (odm_ability_str[i])
 			DBG_871X_SEL_NL(sel, "%cBIT%-2d %s\n",
-				(BIT0 << i) & ability ? '+' : ' ', i, odm_ability_str[i]);
+			                (BIT0 << i) & ability ? '+' : ' ', i, odm_ability_str[i]);
 	}
 }
 
@@ -177,9 +177,9 @@ void rtw_odm_adaptivity_ver_msg(void *sel, _adapter *adapter)
 void rtw_odm_adaptivity_en_msg(void *sel, _adapter *adapter)
 {
 	struct registry_priv *regsty = &adapter->registrypriv;
-	struct mlme_priv *mlme = &adapter->mlmepriv;
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
-	DM_ODM_T *odm = &hal_data->odmpriv;
+	//struct mlme_priv *mlme = &adapter->mlmepriv;
+	//HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
+	//DM_ODM_T *odm = &hal_data->odmpriv;
 
 	DBG_871X_SEL_NL(sel, "RTW_ADAPTIVITY_EN_");
 
@@ -228,17 +228,10 @@ void rtw_odm_adaptivity_dml_msg(void *sel, _adapter *adapter)
 	}
 }
 
-void rtw_odm_adaptivity_dc_backoff_msg(void *sel, _adapter *adapter)
-{
-	struct registry_priv *regsty = &adapter->registrypriv;
-
-	DBG_871X_SEL_NL(sel, "RTW_ADAPTIVITY_DC_BACKOFF:%u\n", regsty->adaptivity_dc_backoff);
-}
-
 bool rtw_odm_adaptivity_needed(_adapter *adapter)
 {
 	struct registry_priv *regsty = &adapter->registrypriv;
-	struct mlme_priv *mlme = &adapter->mlmepriv;
+	//struct mlme_priv *mlme = &adapter->mlmepriv;
 	bool ret = _FALSE;
 
 	if (regsty->adaptivity_en == RTW_ADAPTIVITY_EN_ENABLE)
@@ -249,7 +242,6 @@ bool rtw_odm_adaptivity_needed(_adapter *adapter)
 		rtw_odm_adaptivity_en_msg(RTW_DBGDUMP, adapter);
 		rtw_odm_adaptivity_mode_msg(RTW_DBGDUMP, adapter);
 		rtw_odm_adaptivity_dml_msg(RTW_DBGDUMP, adapter);
-		rtw_odm_adaptivity_dc_backoff_msg(RTW_DBGDUMP, adapter);
 	}
 
 	return ret;
@@ -264,28 +256,27 @@ void rtw_odm_adaptivity_parm_msg(void *sel, _adapter *adapter)
 	rtw_odm_adaptivity_en_msg(sel, adapter);
 	rtw_odm_adaptivity_mode_msg(sel, adapter);
 	rtw_odm_adaptivity_dml_msg(sel, adapter);
-	rtw_odm_adaptivity_dc_backoff_msg(sel, adapter);
 
 	DBG_871X_SEL_NL(sel, "%10s %16s %8s %7s\n"
-		, "TH_L2H_ini", "TH_EDCCA_HL_diff", "IGI_Base", "FABound");
+	                , "TH_L2H_ini", "TH_EDCCA_HL_diff", "IGI_Base", "FABound");
 	DBG_871X_SEL_NL(sel, "0x%-8x %-16d 0x%-6x %-7d\n"
-		, (u8)odm->TH_L2H_ini
-		, odm->TH_EDCCA_HL_diff
-		, odm->IGI_Base
-		, odm->FABound
-	);
+	                , (u8)odm->TH_L2H_ini
+	                , odm->TH_EDCCA_HL_diff
+	                , odm->IGI_Base
+	                , odm->FABound
+	               );
 
 	DBG_871X_SEL_NL(sel, "%15s %9s\n", "AdapEnableState","Adap_Flag");
 	DBG_871X_SEL_NL(sel, "%-15x %-9x \n"
-		, odm->Adaptivity_enable
-		, odm->adaptivity_flag
-	);
-	
-	
+	                , odm->Adaptivity_enable
+	                , odm->adaptivity_flag
+	               );
+
+
 }
 
 void rtw_odm_adaptivity_parm_set(_adapter *adapter, s8 TH_L2H_ini, s8 TH_EDCCA_HL_diff,
-	s8 IGI_Base, u32 FABound)
+                                 s8 IGI_Base, u32 FABound)
 {
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(adapter);
 	DM_ODM_T *odm = &pHalData->odmpriv;
@@ -299,10 +290,10 @@ void rtw_odm_adaptivity_parm_set(_adapter *adapter, s8 TH_L2H_ini, s8 TH_EDCCA_H
 void rtw_odm_get_perpkt_rssi(void *sel, _adapter *adapter)
 {
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
-	DM_ODM_T *odm = &(hal_data->odmpriv);	
-	
-	DBG_871X_SEL_NL(sel,"RxRate = %s, RSSI_A = %d(%%), RSSI_B = %d(%%)\n", 
-	HDATA_RATE(odm->RxRate), odm->RSSI_A, odm->RSSI_B);	
+	DM_ODM_T *odm = &(hal_data->odmpriv);
+
+	DBG_871X_SEL_NL(sel,"RxRate = %s, RSSI_A = %d(%%), RSSI_B = %d(%%)\n",
+	                HDATA_RATE(odm->RxRate), odm->RSSI_A, odm->RSSI_B);
 }
 
 
@@ -312,12 +303,11 @@ void rtw_odm_acquirespinlock(_adapter *adapter,	RT_SPINLOCK_TYPE type)
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
 	_irqL irqL;
 
-	switch(type)
-	{
-		case RT_IQK_SPINLOCK:
-			_enter_critical_bh(&pdmpriv->IQKSpinLock, &irqL);
-		default:
-			break;
+	switch(type) {
+	case RT_IQK_SPINLOCK:
+		_enter_critical_bh(&pdmpriv->IQKSpinLock, &irqL);
+	default:
+		break;
 	}
 }
 
@@ -327,12 +317,10 @@ void rtw_odm_releasespinlock(_adapter *adapter,	RT_SPINLOCK_TYPE type)
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
 	_irqL irqL;
 
-	switch(type)
-	{
-		case RT_IQK_SPINLOCK:
-			_exit_critical_bh(&pdmpriv->IQKSpinLock, &irqL);
-		default:
-			break;
+	switch(type) {
+	case RT_IQK_SPINLOCK:
+		_exit_critical_bh(&pdmpriv->IQKSpinLock, &irqL);
+	default:
+		break;
 	}
 }
-

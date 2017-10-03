@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -27,11 +27,11 @@
 //	Define the debug levels
 //
 //	1.	DBG_TRACE and DBG_LOUD are used for normal cases.
-//	So that, they can help SW engineer to develope or trace states changed 
-//	and also help HW enginner to trace every operation to and from HW, 
-//	e.g IO, Tx, Rx. 
+//	So that, they can help SW engineer to develope or trace states changed
+//	and also help HW enginner to trace every operation to and from HW,
+//	e.g IO, Tx, Rx.
 //
-//	2.	DBG_WARNNING and DBG_SERIOUS are used for unusual or error cases, 
+//	2.	DBG_WARNNING and DBG_SERIOUS are used for unusual or error cases,
 //	which help us to debug SW or HW.
 //
 //-----------------------------------------------------------------------------
@@ -41,8 +41,8 @@
 #define ODM_DBG_OFF					1
 
 //
-//	Fatal bug. 
-//	For example, Tx/Rx/IO locked up, OS hangs, memory access violation, 
+//	Fatal bug.
+//	For example, Tx/Rx/IO locked up, OS hangs, memory access violation,
 //	resource allocation failed, unexpected HW behavior, HW BUG and so on.
 //
 #define ODM_DBG_SERIOUS				2
@@ -54,8 +54,8 @@
 #define ODM_DBG_WARNING				3
 
 //
-//	Normal case with useful information about current SW or HW state. 
-//	For example, Tx/Rx descriptor to fill, Tx/Rx descriptor completed status, 
+//	Normal case with useful information about current SW or HW state.
+//	For example, Tx/Rx descriptor to fill, Tx/Rx descriptor completed status,
 //	SW protocol state change, dynamic mechanism state change and so on.
 //
 #define ODM_DBG_LOUD					4
@@ -70,8 +70,8 @@
 //
 //-----------------------------------------------------------------------------
 //BB Functions
-#define ODM_COMP_DIG					BIT0	
-#define ODM_COMP_RA_MASK				BIT1	
+#define ODM_COMP_DIG					BIT0
+#define ODM_COMP_RA_MASK				BIT1
 #define ODM_COMP_DYNAMIC_TXPWR		BIT2
 #define ODM_COMP_FA_CNT				BIT3
 #define ODM_COMP_RSSI_MONITOR		BIT4
@@ -103,18 +103,18 @@
 
 /*------------------------Export Marco Definition---------------------------*/
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	#define RT_PRINTK				DbgPrint
+#define RT_PRINTK				DbgPrint
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	#define DbgPrint	printk
-	#define RT_PRINTK(fmt, args...)	DbgPrint( "%s(): " fmt, __FUNCTION__, ## args);
-	#define	RT_DISP(dbgtype, dbgflag, printstr)
+#define DbgPrint	printk
+#define RT_PRINTK(fmt, args...)	DbgPrint( "%s(): " fmt, __FUNCTION__, ## args);
+#define	RT_DISP(dbgtype, dbgflag, printstr)
 #else
-	#define DbgPrint	panic_printk
-	#define RT_PRINTK(fmt, args...)	DbgPrint( "%s(): " fmt, __FUNCTION__, ## args);
+#define DbgPrint	panic_printk
+#define RT_PRINTK(fmt, args...)	DbgPrint( "%s(): " fmt, __FUNCTION__, ## args);
 #endif
 
 #ifndef ASSERT
-	#define ASSERT(expr)
+#define ASSERT(expr)
 #endif
 
 #if DBG
@@ -172,17 +172,17 @@
 				DbgPrint("\n");														\
 			}
 #else
-#define ODM_RT_TRACE(pDM_Odm, comp, level, fmt)
-#define ODM_RT_TRACE_F(pDM_Odm, comp, level, fmt)
-#define ODM_RT_ASSERT(pDM_Odm, expr, fmt)
-#define ODM_dbg_enter()
-#define ODM_dbg_exit()
-#define ODM_dbg_trace(str)
-#define ODM_PRINT_ADDR(pDM_Odm, comp, level, title_str, ptr)
+#define ODM_RT_TRACE(pDM_Odm, comp, level, fmt) do {} while (0)
+#define ODM_RT_TRACE_F(pDM_Odm, comp, level, fmt) do {} while (0)
+#define ODM_RT_ASSERT(pDM_Odm, expr, fmt) do {} while (0)
+#define ODM_dbg_enter() do {} while (0)
+#define ODM_dbg_exit() do {} while (0)
+#define ODM_dbg_trace(str) do {} while (0)
+#define ODM_PRINT_ADDR(pDM_Odm, comp, level, title_str, ptr) do {} while (0)
 #endif
 
 
-VOID 
+VOID
 PHYDM_InitDebugSetting(IN		PDM_ODM_T		pDM_Odm);
 
 #define	BB_TMP_BUF_SIZE		100
@@ -235,45 +235,44 @@ VOID phydm_BasicDbgMessage(	IN		PVOID			pDM_VOID);
 
 
 VOID phydm_BasicProfile(
-	IN		PVOID			pDM_VOID,
-	IN		u4Byte			*_used,
-	OUT		char				*output,
-	IN		u4Byte			*_out_len
-	);
+    IN		PVOID			pDM_VOID,
+    IN		u4Byte			*_used,
+    OUT		char				*output,
+    IN		u4Byte			*_out_len
+);
 #if(DM_ODM_SUPPORT_TYPE & (ODM_CE|ODM_AP))
 s4Byte
 phydm_cmd(
-	IN PDM_ODM_T	pDM_Odm,
-	IN char		*input,
-	IN u4Byte	in_len,
-	IN u1Byte	flag,
-	OUT char	*output,
-	IN u4Byte	out_len
+    IN PDM_ODM_T	pDM_Odm,
+    IN char		*input,
+    IN u4Byte	in_len,
+    IN u1Byte	flag,
+    OUT char	*output,
+    IN u4Byte	out_len
 );
 #endif
 VOID
 phydm_cmd_parser(
-	IN PDM_ODM_T	pDM_Odm,
-	IN char		input[][16],
-	IN u4Byte	input_num,
-	IN u1Byte	flag,
-	OUT char	*output,
-	IN u4Byte	out_len
+    IN PDM_ODM_T	pDM_Odm,
+    IN char		input[][16],
+    IN u4Byte	input_num,
+    IN u1Byte	flag,
+    OUT char	*output,
+    IN u4Byte	out_len
 );
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 void phydm_sbd_check(
-	IN	PDM_ODM_T					pDM_Odm
-	);
+    IN	PDM_ODM_T					pDM_Odm
+);
 
 void phydm_sbd_callback(
-	PRT_TIMER		pTimer
-	);
+    PRT_TIMER		pTimer
+);
 
 void phydm_sbd_workitem_callback(
     IN PVOID            pContext
-	);
+);
 #endif
 
 #endif	// __ODM_DBG_H__
-

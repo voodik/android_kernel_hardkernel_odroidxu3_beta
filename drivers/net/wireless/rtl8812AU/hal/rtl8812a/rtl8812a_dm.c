@@ -37,10 +37,9 @@
 //============================================================
 
 
-static VOID
-dm_CheckProtection(
-	IN	PADAPTER	Adapter
-	)
+static inline VOID dm_CheckProtection(
+    IN	PADAPTER	Adapter
+)
 {
 #if 0
 	PMGNT_INFO		pMgntInfo = &(Adapter->MgntInfo);
@@ -51,13 +50,10 @@ dm_CheckProtection(
 	else
 		RateThreshold = MGN_MCS3;
 
-	if(Adapter->TxStats.CurrentInitTxRate <= RateThreshold)
-	{
+	if(Adapter->TxStats.CurrentInitTxRate <= RateThreshold) {
 		pMgntInfo->bDmDisableProtect = TRUE;
 		DbgPrint("Forced disable protect: %x\n", Adapter->TxStats.CurrentInitTxRate);
-	}
-	else
-	{
+	} else {
 		pMgntInfo->bDmDisableProtect = FALSE;
 		DbgPrint("Enable protect: %x\n", Adapter->TxStats.CurrentInitTxRate);
 	}
@@ -66,8 +62,8 @@ dm_CheckProtection(
 
 static VOID
 dm_CheckStatistics(
-	IN	PADAPTER	Adapter
-	)
+    IN	PADAPTER	Adapter
+)
 {
 #if 0
 	if(!Adapter->MgntInfo.bMediaConnect)
@@ -94,8 +90,7 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 		return;
 
 #if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI)
-	if (IS_HARDWARE_TYPE_8812(padapter))
-	{
+	if (IS_HARDWARE_TYPE_8812(padapter)) {
 		tmp1byte = rtw_read8(padapter, GPIO_IO_SEL);
 		tmp1byte |= (HAL_8192C_HW_GPIO_WPS_BIT);
 		rtw_write8(padapter, GPIO_IO_SEL, tmp1byte);	//enable GPIO[2] as output mode
@@ -112,13 +107,10 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 		if (tmp1byte == 0xff)
 			return ;
 
-		if (tmp1byte&HAL_8192C_HW_GPIO_WPS_BIT)
-		{
+		if (tmp1byte&HAL_8192C_HW_GPIO_WPS_BIT) {
 			bPbcPressed = _TRUE;
 		}
-	}
-	else if (IS_HARDWARE_TYPE_8821(padapter))
-	{
+	} else if (IS_HARDWARE_TYPE_8821(padapter)) {
 		tmp1byte = rtw_read8(padapter, GPIO_IO_SEL_8811A);
 		tmp1byte |= (BIT4);
 		rtw_write8(padapter, GPIO_IO_SEL_8811A, tmp1byte);	//enable GPIO[2] as output mode
@@ -135,8 +127,7 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 		if (tmp1byte == 0xff)
 			return ;
 
-		if (tmp1byte&BIT4)
-		{
+		if (tmp1byte&BIT4) {
 			bPbcPressed = _TRUE;
 		}
 	}
@@ -144,8 +135,7 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 
 #endif
 
-	if( _TRUE == bPbcPressed)
-	{
+	if( _TRUE == bPbcPressed) {
 		// Here we only set bPbcPressed to true
 		// After trigger PBC, the variable will be set to false
 		DBG_8192C("CheckPbcGPIO - PBC is pressed\n");
@@ -167,8 +157,8 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 //
 VOID
 dm_InterruptMigration(
-	IN	PADAPTER	Adapter
-	)
+    IN	PADAPTER	Adapter
+)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	struct mlme_priv	*pmlmepriv = &(Adapter->mlmepriv);
@@ -186,9 +176,8 @@ dm_InterruptMigration(
 	// when interrupt migration is set before. 2010.03.05.
 	//
 	if(!Adapter->registrypriv.wifi_spec &&
-		(check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE) &&
-		pmlmepriv->LinkDetectInfo.bHigherBusyTraffic)
-	{
+	   (check_fwstate(pmlmepriv, _FW_LINKED)== _TRUE) &&
+	   pmlmepriv->LinkDetectInfo.bHigherBusyTraffic) {
 		IntMtToSet = _TRUE;
 
 		// To check whether we should disable Tx interrupt or not.
@@ -197,10 +186,9 @@ dm_InterruptMigration(
 	}
 
 	//Update current settings.
-	if( bCurrentIntMt != IntMtToSet ){
+	if( bCurrentIntMt != IntMtToSet ) {
 		DBG_8192C("%s(): Update interrrupt migration(%d)\n",__FUNCTION__,IntMtToSet);
-		if(IntMtToSet)
-		{
+		if(IntMtToSet) {
 			//
 			// <Roger_Notes> Set interrrupt migration timer and corresponging Tx/Rx counter.
 			// timer 25ns*0xfa0=100us for 0xf packets.
@@ -208,9 +196,7 @@ dm_InterruptMigration(
 			//
 			rtw_write32(Adapter, REG_INT_MIG, 0xff000fa0);// 0x306:Rx, 0x307:Tx
 			pHalData->bInterruptMigration = IntMtToSet;
-		}
-		else
-		{
+		} else {
 			// Reset all interrupt migration settings.
 			rtw_write32(Adapter, REG_INT_MIG, 0);
 			pHalData->bInterruptMigration = IntMtToSet;
@@ -245,10 +231,10 @@ dm_InterruptMigration(
 //
 static void
 dm_InitGPIOSetting(
-	IN	PADAPTER	Adapter
-	)
+    IN	PADAPTER	Adapter
+)
 {
-	PHAL_DATA_TYPE		pHalData = GET_HAL_DATA(Adapter);
+	//PHAL_DATA_TYPE		pHalData = GET_HAL_DATA(Adapter);
 
 	u8	tmp1byte;
 
@@ -281,7 +267,7 @@ static void Init_ODM_ComInfo_8812(PADAPTER	Adapter)
 		cut_ver = ODM_CUT_A;
 	else if(IS_B_CUT(pHalData->VersionID))
 		cut_ver = ODM_CUT_B;
-	else if(IS_C_CUT(pHalData->VersionID)) 
+	else if(IS_C_CUT(pHalData->VersionID))
 		cut_ver = ODM_CUT_C;
 	else if(IS_D_CUT(pHalData->VersionID))
 		cut_ver = ODM_CUT_D;
@@ -290,25 +276,25 @@ static void Init_ODM_ComInfo_8812(PADAPTER	Adapter)
 	else
 		cut_ver = ODM_CUT_A;
 
-	ODM_CmnInfoInit(pDM_Odm,ODM_CMNINFO_FAB_VER,fab_ver);		
+	ODM_CmnInfoInit(pDM_Odm,ODM_CMNINFO_FAB_VER,fab_ver);
 	ODM_CmnInfoInit(pDM_Odm,ODM_CMNINFO_CUT_VER,cut_ver);
 
- 	ODM_CmnInfoInit(pDM_Odm, ODM_CMNINFO_RF_ANTENNA_TYPE, pHalData->TRxAntDivType);
+	ODM_CmnInfoInit(pDM_Odm, ODM_CMNINFO_RF_ANTENNA_TYPE, pHalData->TRxAntDivType);
 
 	ODM_CmnInfoInit(pDM_Odm, ODM_CMNINFO_IQKFWOFFLOAD, pHalData->RegIQKFWOffload);
 
-	#ifdef CONFIG_DISABLE_ODM
+#ifdef CONFIG_DISABLE_ODM
 	pdmpriv->InitODMFlag = 0;
-	#else
+#else
 	pdmpriv->InitODMFlag =	ODM_RF_CALIBRATION		|
-							ODM_RF_TX_PWR_TRACK	//|
-							;	
+	                        ODM_RF_TX_PWR_TRACK	//|
+	                        ;
 	//if(pHalData->AntDivCfg)
 	//	pdmpriv->InitODMFlag |= ODM_BB_ANT_DIV;
-	#endif	
+#endif
 
 	ODM_CmnInfoUpdate(pDM_Odm,ODM_CMNINFO_ABILITY,pdmpriv->InitODMFlag);
-	
+
 }
 static void Update_ODM_ComInfo_8812(PADAPTER	Adapter)
 {
@@ -317,16 +303,16 @@ static void Update_ODM_ComInfo_8812(PADAPTER	Adapter)
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
 
 	pdmpriv->InitODMFlag = 0
-		| ODM_BB_DIG
-		| ODM_BB_RA_MASK
-		| ODM_BB_FA_CNT
-		| ODM_BB_RSSI_MONITOR
-		| ODM_BB_CFO_TRACKING
-		| ODM_RF_TX_PWR_TRACK
-		| ODM_MAC_EDCA_TURBO
-		| ODM_BB_NHM_CNT
+	                       | ODM_BB_DIG
+	                       | ODM_BB_RA_MASK
+	                       | ODM_BB_FA_CNT
+	                       | ODM_BB_RSSI_MONITOR
+	                       | ODM_BB_CFO_TRACKING
+	                       | ODM_RF_TX_PWR_TRACK
+	                       | ODM_MAC_EDCA_TURBO
+	                       | ODM_BB_NHM_CNT
 //		| ODM_BB_PWR_TRAIN
-		;
+	                       ;
 
 	if (rtw_odm_adaptivity_needed(Adapter) == _TRUE)
 		pdmpriv->InitODMFlag |= ODM_BB_ADAPTIVITY;
@@ -337,9 +323,9 @@ static void Update_ODM_ComInfo_8812(PADAPTER	Adapter)
 #if (MP_DRIVER==1)
 	if (Adapter->registrypriv.mp_mode == 1) {
 		pdmpriv->InitODMFlag = 0
-			| ODM_RF_CALIBRATION
-			| ODM_RF_TX_PWR_TRACK
-			;
+		                       | ODM_RF_CALIBRATION
+		                       | ODM_RF_TX_PWR_TRACK
+		                       ;
 	}
 #endif//(MP_DRIVER==1)
 
@@ -354,13 +340,13 @@ static void Update_ODM_ComInfo_8812(PADAPTER	Adapter)
 
 void
 rtl8812_InitHalDm(
-	IN	PADAPTER	Adapter
-	)
+    IN	PADAPTER	Adapter
+)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
 	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
-	u8	i;
+	//u8	i;
 
 #ifdef CONFIG_USB_HCI
 	dm_InitGPIOSetting(Adapter);
@@ -368,7 +354,7 @@ rtl8812_InitHalDm(
 
 	pdmpriv->DM_Type = DM_Type_ByDriver;
 	pdmpriv->DMFlag = DYNAMIC_FUNC_DISABLE;
-	
+
 	Update_ODM_ComInfo_8812(Adapter);
 	ODM_DMInit(pDM_Odm);
 
@@ -379,15 +365,15 @@ rtl8812_InitHalDm(
 
 VOID
 rtl8812_HalDmWatchDog(
-	IN	PADAPTER	Adapter
-	)
+    IN	PADAPTER	Adapter
+)
 {
 	BOOLEAN		bFwCurrentInPSMode = _FALSE;
 	BOOLEAN		bFwPSAwake = _TRUE;
 	u8 hw_init_completed = _FALSE;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
-	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
+	//struct dm_priv	*pdmpriv = &pHalData->dmpriv;
+	//PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
 #ifdef CONFIG_CONCURRENT_MODE
 	PADAPTER pbuddy_adapter = Adapter->pbuddy_adapter;
 #endif //CONFIG_CONCURRENT_MODE
@@ -412,12 +398,11 @@ rtl8812_HalDmWatchDog(
 #endif //CONFIG_P2P_PS
 
 	if( (hw_init_completed == _TRUE)
-		&& ((!bFwCurrentInPSMode) && bFwPSAwake))
-	{
+	    && ((!bFwCurrentInPSMode) && bFwPSAwake)) {
 		//
 		// Calculate Tx/Rx statistics.
 		//
-		dm_CheckStatistics(Adapter);	
+		dm_CheckStatistics(Adapter);
 		rtw_hal_check_rxfifo_full(Adapter);
 		//
 		// Dynamically switch RTS/CTS protection.
@@ -432,28 +417,27 @@ rtl8812_HalDmWatchDog(
 		//if(Adapter->HalFunc.TxCheckStuckHandler(Adapter))
 		//	PlatformScheduleWorkItem(&(GET_HAL_DATA(Adapter)->HalResetWorkItem));
 #endif
-	
+
 	}
 
 	//ODM
-	if (hw_init_completed == _TRUE)
-	{
+	if (hw_init_completed == _TRUE) {
 		u8	bLinked=_FALSE;
 		u8	bsta_state=_FALSE;
 		u8	bBtDisabled = _TRUE;
 
-		#ifdef CONFIG_DISABLE_ODM
+#ifdef CONFIG_DISABLE_ODM
 		pHalData->odmpriv.SupportAbility = 0;
-		#endif
+#endif
 
-		if(rtw_linked_check(Adapter)){			
+		if(rtw_linked_check(Adapter)) {
 			bLinked = _TRUE;
 			if (check_fwstate(&Adapter->mlmepriv, WIFI_STATION_STATE))
 				bsta_state = _TRUE;
 		}
-			
+
 #ifdef CONFIG_CONCURRENT_MODE
-		if(pbuddy_adapter && rtw_linked_check(pbuddy_adapter)){
+		if(pbuddy_adapter && rtw_linked_check(pbuddy_adapter)) {
 			bLinked = _TRUE;
 			if(pbuddy_adapter && check_fwstate(&pbuddy_adapter->mlmepriv, WIFI_STATION_STATE))
 				bsta_state = _TRUE;
@@ -469,7 +453,7 @@ rtl8812_HalDmWatchDog(
 		ODM_CmnInfoUpdate(&pHalData->odmpriv, ODM_CMNINFO_BT_ENABLED, ((bBtDisabled == _TRUE)?_FALSE:_TRUE));
 
 		ODM_DMWatchdog(&pHalData->odmpriv);
-			
+
 	}
 
 skip_dm:
@@ -488,7 +472,7 @@ void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
 	PDM_ODM_T 		podmpriv = &pHalData->odmpriv;
 
-	
+
 	_rtw_memset(pdmpriv, 0, sizeof(struct dm_priv));
 	//_rtw_spinlock_init(&(pHalData->odm_stainfo_lock));
 
@@ -502,7 +486,7 @@ void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 	}
 
 	Init_ODM_ComInfo_8812(Adapter);
-	ODM_InitAllTimers(podmpriv );	
+	ODM_InitAllTimers(podmpriv );
 	PHYDM_InitDebugSetting(podmpriv);
 
 	pHalData->TxPwrInPercentage = TX_PWR_PERCENTAGE_3;
@@ -512,10 +496,10 @@ void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 void rtl8812_deinit_dm_priv(IN PADAPTER Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
+	//struct dm_priv	*pdmpriv = &pHalData->dmpriv;
 	PDM_ODM_T 		podmpriv = &pHalData->odmpriv;
 	//_rtw_spinlock_free(&pHalData->odm_stainfo_lock);
-	ODM_CancelAllTimers(podmpriv);	
+	ODM_CancelAllTimers(podmpriv);
 }
 
 
@@ -526,17 +510,15 @@ void rtl8812_deinit_dm_priv(IN PADAPTER Adapter)
 void	AntDivCompare8812(PADAPTER Adapter, WLAN_BSSID_EX *dst, WLAN_BSSID_EX *src)
 {
 	//PADAPTER Adapter = pDM_Odm->Adapter ;
-	
+
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	if(0 != pHalData->AntDivCfg )
-	{
+	if(0 != pHalData->AntDivCfg ) {
 		//DBG_8192C("update_network=> orgRSSI(%d)(%d),newRSSI(%d)(%d)\n",dst->Rssi,query_rx_pwr_percentage(dst->Rssi),
 		//	src->Rssi,query_rx_pwr_percentage(src->Rssi));
 		//select optimum_antenna for before linked =>For antenna diversity
-		if(dst->Rssi >=  src->Rssi )//keep org parameter
-		{
+		if(dst->Rssi >=  src->Rssi ) { //keep org parameter
 			src->Rssi = dst->Rssi;
-			src->PhyInfo.Optimum_antenna = dst->PhyInfo.Optimum_antenna;						
+			src->PhyInfo.Optimum_antenna = dst->PhyInfo.Optimum_antenna;
 		}
 	}
 }
@@ -544,26 +526,24 @@ void	AntDivCompare8812(PADAPTER Adapter, WLAN_BSSID_EX *dst, WLAN_BSSID_EX *src)
 // Add new function to reset the state of antenna diversity before link.
 u8 AntDivBeforeLink8812(PADAPTER Adapter )
 {
-	
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);	
+
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	PDM_ODM_T 	pDM_Odm =&pHalData->odmpriv;
 	SWAT_T		*pDM_SWAT_Table = &pDM_Odm->DM_SWAT_Table;
 	struct mlme_priv	*pmlmepriv = &(Adapter->mlmepriv);
-	
+
 	// Condition that does not need to use antenna diversity.
-	if(pHalData->AntDivCfg==0)
-	{
+	if(pHalData->AntDivCfg==0) {
 		//DBG_8192C("odm_AntDivBeforeLink8192C(): No AntDiv Mechanism.\n");
 		return _FALSE;
 	}
 
-	if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE)	
-	{		
+	if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE) {
 		return _FALSE;
 	}
 
 
-	if(pDM_SWAT_Table->SWAS_NoLink_State == 0){
+	if(pDM_SWAT_Table->SWAS_NoLink_State == 0) {
 		//switch channel
 		pDM_SWAT_Table->SWAS_NoLink_State = 1;
 		pDM_SWAT_Table->CurAntenna = (pDM_SWAT_Table->CurAntenna==MAIN_ANT)?AUX_ANT:MAIN_ANT;
@@ -572,12 +552,10 @@ u8 AntDivBeforeLink8812(PADAPTER Adapter )
 		rtw_antenna_select_cmd(Adapter, pDM_SWAT_Table->CurAntenna, _FALSE);
 		//DBG_8192C("%s change antenna to ANT_( %s ).....\n",__FUNCTION__, (pDM_SWAT_Table->CurAntenna==MAIN_ANT)?"MAIN":"AUX");
 		return _TRUE;
-	}
-	else
-	{
+	} else {
 		pDM_SWAT_Table->SWAS_NoLink_State = 0;
 		return _FALSE;
-	}	
+	}
 
 }
 #endif

@@ -3,21 +3,21 @@
 //===========================================
 #define		BTC_RSSI_COEX_THRESH_TOL_8188C_2ANT		6
 
-typedef enum _BT_INFO_SRC_8188C_2ANT{
+typedef enum _BT_INFO_SRC_8188C_2ANT {
 	BT_INFO_SRC_8188C_2ANT_WIFI_FW			= 0x0,
 	BT_INFO_SRC_8188C_2ANT_BT_RSP				= 0x1,
 	BT_INFO_SRC_8188C_2ANT_BT_ACTIVE_SEND		= 0x2,
 	BT_INFO_SRC_8188C_2ANT_MAX
-}BT_INFO_SRC_8188C_2ANT,*PBT_INFO_SRC_8188C_2ANT;
+} BT_INFO_SRC_8188C_2ANT,*PBT_INFO_SRC_8188C_2ANT;
 
-typedef enum _BT_8188C_2ANT_BT_STATUS{
+typedef enum _BT_8188C_2ANT_BT_STATUS {
 	BT_8188C_2ANT_BT_STATUS_IDLE				= 0x0,
 	BT_8188C_2ANT_BT_STATUS_CONNECTED_IDLE	= 0x1,
 	BT_8188C_2ANT_BT_STATUS_NON_IDLE			= 0x2,
 	BT_8188C_2ANT_BT_STATUS_MAX
-}BT_8188C_2ANT_BT_STATUS,*PBT_8188C_2ANT_BT_STATUS;
+} BT_8188C_2ANT_BT_STATUS,*PBT_8188C_2ANT_BT_STATUS;
 
-typedef enum _BT_8188C_2ANT_COEX_ALGO{
+typedef enum _BT_8188C_2ANT_COEX_ALGO {
 	BT_8188C_2ANT_COEX_ALGO_UNDEFINED			= 0x0,
 	BT_8188C_2ANT_COEX_ALGO_SCO					= 0x1,
 	BT_8188C_2ANT_COEX_ALGO_HID					= 0x2,
@@ -27,9 +27,9 @@ typedef enum _BT_8188C_2ANT_COEX_ALGO{
 	BT_8188C_2ANT_COEX_ALGO_HID_PAN				= 0x6,
 	BT_8188C_2ANT_COEX_ALGO_PAN_A2DP			= 0x7,
 	BT_8188C_2ANT_COEX_ALGO_MAX
-}BT_8188C_2ANT_COEX_ALGO,*PBT_8188C_2ANT_COEX_ALGO;
+} BT_8188C_2ANT_COEX_ALGO,*PBT_8188C_2ANT_COEX_ALGO;
 
-typedef struct _COEX_DM_8188C_2ANT{
+typedef struct _COEX_DM_8188C_2ANT {
 	// fw mechanism
 	BOOLEAN		bPreBalanceOn;
 	BOOLEAN		bCurBalanceOn;
@@ -75,75 +75,75 @@ typedef struct _COEX_DM_8188C_2ANT{
 	//u1Byte		wifiChnlInfo[3];
 } COEX_DM_8188C_2ANT, *PCOEX_DM_8188C_2ANT;
 
-typedef struct _COEX_STA_8188C_2ANT{
+typedef struct _COEX_STA_8188C_2ANT {
 	u1Byte					preWifiRssiState[4];
 	BOOLEAN					bBtBusy;
 	BOOLEAN					bBtUplink;
 	BOOLEAN					bBtDownLink;
 	BOOLEAN					bA2dpBusy;
-}COEX_STA_8188C_2ANT, *PCOEX_STA_8188C_2ANT;
+} COEX_STA_8188C_2ANT, *PCOEX_STA_8188C_2ANT;
 
 //===========================================
 // The following is interface which will notify coex module.
 //===========================================
 VOID
 EXhalbtc8188c2ant_PowerOnSetting(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
+    IN	PBTC_COEXIST		pBtCoexist
+);
 VOID
 EXhalbtc8188c2ant_InitHwConfig(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	BOOLEAN				bWifiOnly
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	BOOLEAN				bWifiOnly
+);
 VOID
 EXhalbtc8188c2ant_InitCoexDm(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
+    IN	PBTC_COEXIST		pBtCoexist
+);
 VOID
 EXhalbtc8188c2ant_IpsNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8188c2ant_LpsNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8188c2ant_ScanNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8188c2ant_ConnectNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8188c2ant_MediaStatusNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				type
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u1Byte				type
+);
 VOID
 EXhalbtc8188c2ant_SpecialPacketNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				type
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u1Byte				type
+);
 VOID
 EXhalbtc8188c2ant_HaltNotify(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
+    IN	PBTC_COEXIST			pBtCoexist
+);
 VOID
 EXhalbtc8188c2ant_Periodical(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
+    IN	PBTC_COEXIST			pBtCoexist
+);
 VOID
 EXhalbtc8188c2ant_BtInfoNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	pu1Byte			tmpBuf,
-	IN	u1Byte			length
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	pu1Byte			tmpBuf,
+    IN	u1Byte			length
+);
 VOID
 EXhalbtc8188c2ant_DisplayCoexInfo(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
+    IN	PBTC_COEXIST		pBtCoexist
+);

@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -64,48 +64,48 @@ enum WIFI_FRAME_TYPE {
 	WIFI_MGT_TYPE  =	(0),
 	WIFI_CTRL_TYPE =	(BIT(2)),
 	WIFI_DATA_TYPE =	(BIT(3)),
-	WIFI_QOS_DATA_TYPE	= (BIT(7)|BIT(3)),	//!< QoS Data	
+	WIFI_QOS_DATA_TYPE	= (BIT(7)|BIT(3)),	//!< QoS Data
 };
 
 enum WIFI_FRAME_SUBTYPE {
 
-    // below is for mgt frame
-    WIFI_ASSOCREQ       = (0 | WIFI_MGT_TYPE),
-    WIFI_ASSOCRSP       = (BIT(4) | WIFI_MGT_TYPE),
-    WIFI_REASSOCREQ     = (BIT(5) | WIFI_MGT_TYPE),
-    WIFI_REASSOCRSP     = (BIT(5) | BIT(4) | WIFI_MGT_TYPE),
-    WIFI_PROBEREQ       = (BIT(6) | WIFI_MGT_TYPE),
-    WIFI_PROBERSP       = (BIT(6) | BIT(4) | WIFI_MGT_TYPE),
-    WIFI_BEACON         = (BIT(7) | WIFI_MGT_TYPE),
-    WIFI_ATIM           = (BIT(7) | BIT(4) | WIFI_MGT_TYPE),
-    WIFI_DISASSOC       = (BIT(7) | BIT(5) | WIFI_MGT_TYPE),
-    WIFI_AUTH           = (BIT(7) | BIT(5) | BIT(4) | WIFI_MGT_TYPE),
-    WIFI_DEAUTH         = (BIT(7) | BIT(6) | WIFI_MGT_TYPE),
-    WIFI_ACTION         = (BIT(7) | BIT(6) | BIT(4) | WIFI_MGT_TYPE),
-    WIFI_ACTION_NOACK = (BIT(7) | BIT(6) | BIT(5) | WIFI_MGT_TYPE),
+	// below is for mgt frame
+	WIFI_ASSOCREQ       = (0 | WIFI_MGT_TYPE),
+	WIFI_ASSOCRSP       = (BIT(4) | WIFI_MGT_TYPE),
+	WIFI_REASSOCREQ     = (BIT(5) | WIFI_MGT_TYPE),
+	WIFI_REASSOCRSP     = (BIT(5) | BIT(4) | WIFI_MGT_TYPE),
+	WIFI_PROBEREQ       = (BIT(6) | WIFI_MGT_TYPE),
+	WIFI_PROBERSP       = (BIT(6) | BIT(4) | WIFI_MGT_TYPE),
+	WIFI_BEACON         = (BIT(7) | WIFI_MGT_TYPE),
+	WIFI_ATIM           = (BIT(7) | BIT(4) | WIFI_MGT_TYPE),
+	WIFI_DISASSOC       = (BIT(7) | BIT(5) | WIFI_MGT_TYPE),
+	WIFI_AUTH           = (BIT(7) | BIT(5) | BIT(4) | WIFI_MGT_TYPE),
+	WIFI_DEAUTH         = (BIT(7) | BIT(6) | WIFI_MGT_TYPE),
+	WIFI_ACTION         = (BIT(7) | BIT(6) | BIT(4) | WIFI_MGT_TYPE),
+	WIFI_ACTION_NOACK = (BIT(7) | BIT(6) | BIT(5) | WIFI_MGT_TYPE),
 
-    // below is for control frame
-    WIFI_NDPA         = (BIT(6) | BIT(4) | WIFI_CTRL_TYPE),
-    WIFI_PSPOLL         = (BIT(7) | BIT(5) | WIFI_CTRL_TYPE),
-    WIFI_RTS            = (BIT(7) | BIT(5) | BIT(4) | WIFI_CTRL_TYPE),
-    WIFI_CTS            = (BIT(7) | BIT(6) | WIFI_CTRL_TYPE),
-    WIFI_ACK            = (BIT(7) | BIT(6) | BIT(4) | WIFI_CTRL_TYPE),
-    WIFI_CFEND          = (BIT(7) | BIT(6) | BIT(5) | WIFI_CTRL_TYPE),
-    WIFI_CFEND_CFACK    = (BIT(7) | BIT(6) | BIT(5) | BIT(4) | WIFI_CTRL_TYPE),
+	// below is for control frame
+	WIFI_NDPA         = (BIT(6) | BIT(4) | WIFI_CTRL_TYPE),
+	WIFI_PSPOLL         = (BIT(7) | BIT(5) | WIFI_CTRL_TYPE),
+	WIFI_RTS            = (BIT(7) | BIT(5) | BIT(4) | WIFI_CTRL_TYPE),
+	WIFI_CTS            = (BIT(7) | BIT(6) | WIFI_CTRL_TYPE),
+	WIFI_ACK            = (BIT(7) | BIT(6) | BIT(4) | WIFI_CTRL_TYPE),
+	WIFI_CFEND          = (BIT(7) | BIT(6) | BIT(5) | WIFI_CTRL_TYPE),
+	WIFI_CFEND_CFACK    = (BIT(7) | BIT(6) | BIT(5) | BIT(4) | WIFI_CTRL_TYPE),
 
-    // below is for data frame
-    WIFI_DATA           = (0 | WIFI_DATA_TYPE),
-    WIFI_DATA_CFACK     = (BIT(4) | WIFI_DATA_TYPE),
-    WIFI_DATA_CFPOLL    = (BIT(5) | WIFI_DATA_TYPE),
-    WIFI_DATA_CFACKPOLL = (BIT(5) | BIT(4) | WIFI_DATA_TYPE),
-    WIFI_DATA_NULL      = (BIT(6) | WIFI_DATA_TYPE),
-    WIFI_CF_ACK         = (BIT(6) | BIT(4) | WIFI_DATA_TYPE),
-    WIFI_CF_POLL        = (BIT(6) | BIT(5) | WIFI_DATA_TYPE),
-    WIFI_CF_ACKPOLL     = (BIT(6) | BIT(5) | BIT(4) | WIFI_DATA_TYPE),
-    WIFI_QOS_DATA_NULL	= (BIT(6) | WIFI_QOS_DATA_TYPE),
+	// below is for data frame
+	WIFI_DATA           = (0 | WIFI_DATA_TYPE),
+	WIFI_DATA_CFACK     = (BIT(4) | WIFI_DATA_TYPE),
+	WIFI_DATA_CFPOLL    = (BIT(5) | WIFI_DATA_TYPE),
+	WIFI_DATA_CFACKPOLL = (BIT(5) | BIT(4) | WIFI_DATA_TYPE),
+	WIFI_DATA_NULL      = (BIT(6) | WIFI_DATA_TYPE),
+	WIFI_CF_ACK         = (BIT(6) | BIT(4) | WIFI_DATA_TYPE),
+	WIFI_CF_POLL        = (BIT(6) | BIT(5) | WIFI_DATA_TYPE),
+	WIFI_CF_ACKPOLL     = (BIT(6) | BIT(5) | BIT(4) | WIFI_DATA_TYPE),
+	WIFI_QOS_DATA_NULL	= (BIT(6) | WIFI_QOS_DATA_TYPE),
 };
 
-enum WIFI_REASON_CODE	{
+enum WIFI_REASON_CODE {
 	_RSON_RESERVED_					= 0,
 	_RSON_UNSPECIFIED_				= 1,
 	_RSON_AUTH_NO_LONGER_VALID_		= 2,
@@ -200,7 +200,7 @@ enum WIFI_STATUS_CODE {
 #define WLAN_STATUS_AP_UNABLE_TO_HANDLE_NEW_STA 17
 #define WLAN_STATUS_ASSOC_DENIED_RATES 18
 #endif
-//entended 
+//entended
 /* IEEE 802.11b */
 #define WLAN_STATUS_ASSOC_DENIED_NOSHORT 19
 #define WLAN_STATUS_ASSOC_DENIED_NOPBCC 20
@@ -415,7 +415,7 @@ enum WIFI_REG_DOMAIN {
 #define SetAMsdu(pbuf, amsdu)	\
 	do	{	\
 		*(unsigned short *)(pbuf) |= cpu_to_le16( (amsdu & 1) << 7); \
-	} while(0)	
+	} while(0)
 
 #define GetAid(pbuf)	(cpu_to_le16(*(unsigned short *)((SIZE_PTR)(pbuf) + 2)) & 0x3fff)
 
@@ -436,7 +436,7 @@ enum WIFI_REG_DOMAIN {
 		(addr[4] == 0xff) && (addr[5] == 0xff) )  ? _TRUE : _FALSE \
 )
 
-__inline static int IS_MCAST(unsigned char *da)
+__inline static int IS_MCAST(const unsigned char *da)
 {
 	if ((*da) & 0x01)
 		return _TRUE;
@@ -463,18 +463,18 @@ __inline static unsigned char * get_da(unsigned char *pframe)
 	unsigned int	to_fr_ds	= (GetToDs(pframe) << 1) | GetFrDs(pframe);
 
 	switch (to_fr_ds) {
-		case 0x00:	// ToDs=0, FromDs=0
-			da = GetAddr1Ptr(pframe);
-			break;
-		case 0x01:	// ToDs=0, FromDs=1
-			da = GetAddr1Ptr(pframe);
-			break;
-		case 0x02:	// ToDs=1, FromDs=0
-			da = GetAddr3Ptr(pframe);
-			break;
-		default:	// ToDs=1, FromDs=1
-			da = GetAddr3Ptr(pframe);
-			break;
+	case 0x00:	// ToDs=0, FromDs=0
+		da = GetAddr1Ptr(pframe);
+		break;
+	case 0x01:	// ToDs=0, FromDs=1
+		da = GetAddr1Ptr(pframe);
+		break;
+	case 0x02:	// ToDs=1, FromDs=0
+		da = GetAddr3Ptr(pframe);
+		break;
+	default:	// ToDs=1, FromDs=1
+		da = GetAddr3Ptr(pframe);
+		break;
 	}
 
 	return da;
@@ -487,18 +487,18 @@ __inline static unsigned char * get_sa(unsigned char *pframe)
 	unsigned int	to_fr_ds	= (GetToDs(pframe) << 1) | GetFrDs(pframe);
 
 	switch (to_fr_ds) {
-		case 0x00:	// ToDs=0, FromDs=0
-			sa = GetAddr2Ptr(pframe);
-			break;
-		case 0x01:	// ToDs=0, FromDs=1
-			sa = GetAddr3Ptr(pframe);
-			break;
-		case 0x02:	// ToDs=1, FromDs=0
-			sa = GetAddr2Ptr(pframe);
-			break;
-		default:	// ToDs=1, FromDs=1
-			sa = GetAddr4Ptr(pframe);
-			break;
+	case 0x00:	// ToDs=0, FromDs=0
+		sa = GetAddr2Ptr(pframe);
+		break;
+	case 0x01:	// ToDs=0, FromDs=1
+		sa = GetAddr3Ptr(pframe);
+		break;
+	case 0x02:	// ToDs=1, FromDs=0
+		sa = GetAddr2Ptr(pframe);
+		break;
+	default:	// ToDs=1, FromDs=1
+		sa = GetAddr4Ptr(pframe);
+		break;
 	}
 
 	return sa;
@@ -510,18 +510,18 @@ __inline static unsigned char * get_hdr_bssid(unsigned char *pframe)
 	unsigned int	to_fr_ds	= (GetToDs(pframe) << 1) | GetFrDs(pframe);
 
 	switch (to_fr_ds) {
-		case 0x00:	// ToDs=0, FromDs=0
-			sa = GetAddr3Ptr(pframe);
-			break;
-		case 0x01:	// ToDs=0, FromDs=1
-			sa = GetAddr2Ptr(pframe);
-			break;
-		case 0x02:	// ToDs=1, FromDs=0
-			sa = GetAddr1Ptr(pframe);
-			break;
-		case 0x03:	// ToDs=1, FromDs=1
-			sa = GetAddr1Ptr(pframe);
-			break;
+	case 0x00:	// ToDs=0, FromDs=0
+		sa = GetAddr3Ptr(pframe);
+		break;
+	case 0x01:	// ToDs=0, FromDs=1
+		sa = GetAddr2Ptr(pframe);
+		break;
+	case 0x02:	// ToDs=1, FromDs=0
+		sa = GetAddr1Ptr(pframe);
+		break;
+	case 0x03:	// ToDs=1, FromDs=1
+		sa = GetAddr1Ptr(pframe);
+		break;
 	}
 
 	return sa;
@@ -600,7 +600,7 @@ __inline static int IsFrameTypeCtrl(unsigned char *pframe)
 
 #define	_RESERVED47_				47
 
-typedef	enum _ELEMENT_ID{
+typedef	enum _ELEMENT_ID {
 	EID_SsId					= 0, /* service set identifier (0:32) */
 	EID_SupRates				= 1, /* supported rates (1:8) */
 	EID_FHParms				= 2, /* FH parameter set (5) */
@@ -617,7 +617,7 @@ typedef	enum _ELEMENT_ID{
 	EID_TClass					= 14,
 	EID_Schedule				= 15,
 	//
-	
+
 	EID_Ctext					= 16, /* challenge text*/
 	EID_POWER_CONSTRAINT		= 32, /* Power Constraint*/
 
@@ -629,7 +629,7 @@ typedef	enum _ELEMENT_ID{
 
 	EID_MeasureRequest			= 38, // Measurement Request
 	EID_MeasureReport			= 39, // Measurement Report
-	
+
 	EID_ERPInfo 				= 42,
 
 	// Form 7.3.2: Information elements in 802.11E/D13.0, page 46.
@@ -638,27 +638,27 @@ typedef	enum _ELEMENT_ID{
 	EID_HTCapability			= 45,
 	EID_QoSCap					= 46,
 	//
-	
+
 	EID_WPA2					= 48,
 	EID_ExtSupRates			= 50,
 
 	EID_FTIE					= 55, // Defined in 802.11r
 	EID_Timeout				= 56, // Defined in 802.11r
-	
+
 	EID_SupRegulatory			= 59, // Supported Requlatory Classes 802.11y
 	EID_HTInfo 					= 61,
 	EID_SecondaryChnlOffset		= 62,
-	
+
 	EID_BSSCoexistence			= 72, // 20/40 BSS Coexistence
 	EID_BSSIntolerantChlReport	= 73,
 	EID_OBSS					= 74, // Overlapping BSS Scan Parameters
-	
+
 	EID_LinkIdentifier			= 101, // Defined in 802.11z
 	EID_WakeupSchedule		= 102, // Defined in 802.11z
 	EID_ChnlSwitchTimeing		= 104, // Defined in 802.11z
 	EID_PTIControl				= 105, // Defined in 802.11z
 	EID_PUBufferStatus			= 106, // Defined in 802.11z
-	
+
 	EID_EXTCapability			= 127, // Extended Capabilities
 	// From S19:Aironet IE and S21:AP IP address IE in CCX v1.13, p16 and p18.
 	EID_Aironet					= 133, // 0x85: Aironet Element for Cisco CCX
@@ -666,7 +666,7 @@ typedef	enum _ELEMENT_ID{
 
 	EID_CellPwr					= 150, // 0x96: Cell Power Limit IE. Ref. 0x96.
 
-	EID_CCKM    					= 156, 
+	EID_CCKM    					= 156,
 
 	EID_Vendor					= 221, // 0xDD: Vendor Specific
 
@@ -674,7 +674,7 @@ typedef	enum _ELEMENT_ID{
 	EID_VHTCapability 			= 191, // Based on 802.11ac D2.0
 	EID_VHTOperation 			= 192, // Based on 802.11ac D2.0
 	EID_OpModeNotification		= 199, // Based on 802.11ac D3.0
-}ELEMENT_ID, *PELEMENT_ID;
+} ELEMENT_ID, *PELEMENT_ID;
 
 /* ---------------------------------------------------------------------------
 					Below is the fixed elements...
@@ -727,7 +727,7 @@ typedef	enum _ELEMENT_ID{
 
 #ifdef CONFIG_IEEE80211W
 #define _MME_IE_LENGTH_  18
-#endif //CONFIG_IEEE80211W				
+#endif //CONFIG_IEEE80211W
 /*-----------------------------------------------------------------------------
 				Below is the definition for WMM
 ------------------------------------------------------------------------------*/
@@ -736,7 +736,7 @@ typedef	enum _ELEMENT_ID{
 
 
 /*-----------------------------------------------------------------------------
-				Below is the definition for 802.11n 
+				Below is the definition for 802.11n
 ------------------------------------------------------------------------------*/
 
 //#ifdef CONFIG_80211N_HT
@@ -756,7 +756,7 @@ typedef	enum _ELEMENT_ID{
  * This structure refers to "HT BlockAckReq" as
  * described in 802.11n draft section 7.2.1.7.1
  */
- #if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8712FW)
+#if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8712FW)
 struct rtw_ieee80211_bar {
 	unsigned short frame_control;
 	unsigned short duration;
@@ -765,24 +765,24 @@ struct rtw_ieee80211_bar {
 	unsigned short control;
 	unsigned short start_seq_num;
 } __attribute__((packed));
- #endif
+#endif
 
 /* 802.11 BAR control masks */
 #define IEEE80211_BAR_CTRL_ACK_POLICY_NORMAL     0x0000
 #define IEEE80211_BAR_CTRL_CBMTID_COMPRESSED_BA  0x0004
 
 
- #if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8712FW) || defined(PLATFORM_FREEBSD)
+#if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8712FW) || defined(PLATFORM_FREEBSD)
 
 
 
- /**
- * struct rtw_ieee80211_ht_cap - HT capabilities
- *
- * This structure refers to "HT capabilities element" as
- * described in 802.11n draft section 7.3.2.52
- */
- 
+/**
+* struct rtw_ieee80211_ht_cap - HT capabilities
+*
+* This structure refers to "HT capabilities element" as
+* described in 802.11n draft section 7.3.2.52
+*/
+
 struct rtw_ieee80211_ht_cap {
 	unsigned short 	cap_info;
 	unsigned char 	ampdu_params_info;
@@ -807,12 +807,9 @@ struct ieee80211_ht_addt_info {
 } __attribute__ ((packed));
 
 
-struct HT_caps_element
-{
-	union
-	{ 
-		struct 
-		{ 	
+struct HT_caps_element {
+	union {
+		struct {
 			unsigned short	HT_caps_info;
 			unsigned char	AMPDU_para;
 			unsigned char	MCS_rate[16];
@@ -821,32 +818,28 @@ struct HT_caps_element
 			unsigned char	ASEL_caps;
 		} HT_cap_element;
 		unsigned char HT_cap[26];
-	}u;
+	} u;
 } __attribute__ ((packed));
 
-struct HT_info_element
-{
+struct HT_info_element {
 	unsigned char	primary_channel;
 	unsigned char	infos[5];
 	unsigned char	MCS_rate[16];
 }  __attribute__ ((packed));
 
-struct AC_param
-{
+struct AC_param {
 	unsigned char		ACI_AIFSN;
 	unsigned char		CW;
 	unsigned short	TXOP_limit;
 }  __attribute__ ((packed));
 
-struct WMM_para_element
-{
+struct WMM_para_element {
 	unsigned char		QoS_info;
 	unsigned char		reserved;
 	struct AC_param	ac_param[4];
 }  __attribute__ ((packed));
 
-struct ADDBA_request
-{
+struct ADDBA_request {
 	unsigned char		dialog_token;
 	unsigned short	BA_para_set;
 	unsigned short	BA_timeout_value;
@@ -880,12 +873,9 @@ struct ieee80211_ht_addt_info {
 	unsigned char		basic_set[16];
 };
 
-struct HT_caps_element
-{
-	union
-	{ 
-		struct 
-		{ 	
+struct HT_caps_element {
+	union {
+		struct {
 			unsigned short	HT_caps_info;
 			unsigned char	AMPDU_para;
 			unsigned char	MCS_rate[16];
@@ -897,29 +887,25 @@ struct HT_caps_element
 	};
 };
 
-struct HT_info_element
-{
+struct HT_info_element {
 	unsigned char	primary_channel;
 	unsigned char	infos[5];
 	unsigned char	MCS_rate[16];
 };
 
-struct AC_param
-{
+struct AC_param {
 	unsigned char		ACI_AIFSN;
 	unsigned char		CW;
 	unsigned short	TXOP_limit;
 };
 
-struct WMM_para_element
-{
+struct WMM_para_element {
 	unsigned char		QoS_info;
 	unsigned char		reserved;
 	struct AC_param	ac_param[4];
 };
 
-struct ADDBA_request
-{
+struct ADDBA_request {
 	unsigned char		dialog_token;
 	unsigned short	BA_para_set;
 	unsigned short	BA_timeout_value;
@@ -935,8 +921,8 @@ typedef enum _HT_CAP_AMPDU_FACTOR {
 	MAX_AMPDU_FACTOR_8K		= 0,
 	MAX_AMPDU_FACTOR_16K	= 1,
 	MAX_AMPDU_FACTOR_32K	= 2,
-	MAX_AMPDU_FACTOR_64K	= 3,	
-}HT_CAP_AMPDU_FACTOR;
+	MAX_AMPDU_FACTOR_64K	= 3,
+} HT_CAP_AMPDU_FACTOR;
 
 /* 802.11n HT capabilities masks */
 #define IEEE80211_HT_CAP_LDPC_CODING		0x0001
@@ -1216,7 +1202,7 @@ typedef enum _HT_CAP_AMPDU_FACTOR {
 
 #define	P2P_FINDPHASE_EX_NONE				0	// default value, used when: (1)p2p disabed or (2)p2p enabled but only do 1 scan phase
 #define	P2P_FINDPHASE_EX_FULL				1	// used when p2p enabled and want to do 1 scan phase and P2P_FINDPHASE_EX_MAX-1 find phase
-#define	P2P_FINDPHASE_EX_SOCIAL_FIRST		(P2P_FINDPHASE_EX_FULL+1) 
+#define	P2P_FINDPHASE_EX_SOCIAL_FIRST		(P2P_FINDPHASE_EX_FULL+1)
 #define	P2P_FINDPHASE_EX_MAX					4
 #define	P2P_FINDPHASE_EX_SOCIAL_LAST		P2P_FINDPHASE_EX_MAX
 
@@ -1250,7 +1236,7 @@ enum P2P_ROLE {
 	P2P_ROLE_DISABLE = 0,
 	P2P_ROLE_DEVICE = 1,
 	P2P_ROLE_CLIENT = 2,
-	P2P_ROLE_GO = 3	
+	P2P_ROLE_GO = 3
 };
 
 enum P2P_STATE {
@@ -1262,7 +1248,7 @@ enum P2P_STATE {
 	P2P_STATE_FIND_PHASE_SEARCH = 5,				//	In the search state of find phase
 	P2P_STATE_TX_PROVISION_DIS_REQ = 6,			//	In P2P provisioning discovery
 	P2P_STATE_RX_PROVISION_DIS_RSP = 7,
-	P2P_STATE_RX_PROVISION_DIS_REQ = 8,	
+	P2P_STATE_RX_PROVISION_DIS_REQ = 8,
 	P2P_STATE_GONEGO_ING = 9,						//	Doing the group owner negoitation handshake
 	P2P_STATE_GONEGO_OK = 10,						//	finish the group negoitation handshake with success
 	P2P_STATE_GONEGO_FAIL = 11,					//	finish the group negoitation handshake with failure
@@ -1288,20 +1274,18 @@ enum P2P_WPSINFO {
 
 #define	P2P_PRIVATE_IOCTL_SET_LEN		64
 
-enum P2P_PROTO_WK_ID
-{
+enum P2P_PROTO_WK_ID {
 	P2P_FIND_PHASE_WK = 0,
 	P2P_RESTORE_STATE_WK = 1,
 	P2P_PRE_TX_PROVDISC_PROCESS_WK = 2,
-	P2P_PRE_TX_NEGOREQ_PROCESS_WK = 3,	
+	P2P_PRE_TX_NEGOREQ_PROCESS_WK = 3,
 	P2P_PRE_TX_INVITEREQ_PROCESS_WK = 4,
 	P2P_AP_P2P_CH_SWITCH_PROCESS_WK =5,
 	P2P_RO_CH_WK = 6,
 };
 
 #ifdef CONFIG_P2P_PS
-enum P2P_PS_STATE
-{
+enum P2P_PS_STATE {
 	P2P_PS_DISABLE = 0,
 	P2P_PS_ENABLE = 1,
 	P2P_PS_SCAN = 2,
@@ -1309,8 +1293,7 @@ enum P2P_PS_STATE
 	P2P_PS_ALLSTASLEEP = 4, // for P2P GO
 };
 
-enum P2P_PS_MODE
-{
+enum P2P_PS_MODE {
 	P2P_PS_NONE = 0,
 	P2P_PS_CTWINDOW = 1,
 	P2P_PS_NOA	 = 2,

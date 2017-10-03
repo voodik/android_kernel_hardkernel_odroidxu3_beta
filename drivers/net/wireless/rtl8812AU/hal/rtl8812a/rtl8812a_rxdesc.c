@@ -56,8 +56,13 @@ void rtl8812_query_rx_desc_status(union recv_frame *precvframe, u8 *pdesc)
 	//Offset 12
 	pattrib->data_rate=(u8)GET_RX_STATUS_DESC_RX_RATE_8812(pdesc);//((le32_to_cpu(pdesc->rxdw3))&0x7f);
 
-	//Offset 16
-	//Offset 20
+	/* Offset 16 */
+	pattrib->sgi = (u8)GET_RX_STATUS_DESC_SPLCP_8812(pdesc);
+	pattrib->ldpc = (u8)GET_RX_STATUS_DESC_LDPC_8812(pdesc);
+	pattrib->stbc = (u8)GET_RX_STATUS_DESC_STBC_8812(pdesc);
+	pattrib->bw = (u8)GET_RX_STATUS_DESC_BW_8812(pdesc);
 
+	/* Offset 20 */
+	/* pattrib->tsfl=(u8)GET_RX_STATUS_DESC_TSFL_8812(pdesc); */
 }
 

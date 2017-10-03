@@ -25,9 +25,8 @@
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
 
 #define NETLINK_USER 31
-#define CONNECT_PORT 30000
-#define CONNECT_PORT_BT 30001
-#define KERNEL_SOCKET_OK 0x01	
+#define CONNECT_PORT 30001
+#define KERNEL_SOCKET_OK 0x01
 #define NETLINK_SOCKET_OK 0x02
 
 #define OTHER 0
@@ -35,8 +34,6 @@
 #define RX_LEAVE_ACK 2
 #define RX_BT_LEAVE 3
 #define RX_INVITE_REQ 4
-#define RX_ATTEND_REQ 5
-#define RX_INVITE_RSP 6
 
 #define invite_req "INVITE_REQ"
 #define invite_rsp "INVITE_RSP"
@@ -49,7 +46,7 @@
 #define BT_INFO_NOTIFY_CMD 0x0106
 #define BT_INFO_LEN 8
 
-typedef struct _HCI_LINK_INFO{
+typedef struct _HCI_LINK_INFO {
 	u2Byte					ConnectHandle;
 	u1Byte					IncomingTrafficMode;
 	u1Byte					OutgoingTrafficMode;
@@ -58,11 +55,11 @@ typedef struct _HCI_LINK_INFO{
 	s1Byte					BT_RSSI;
 	u1Byte					TrafficProfile;
 	u1Byte					linkRole;
-}HCI_LINK_INFO, *PHCI_LINK_INFO;
+} HCI_LINK_INFO, *PHCI_LINK_INFO;
 
 #define	MAX_BT_ACL_LINK_NUM				8
 
-typedef struct _HCI_EXT_CONFIG{
+typedef struct _HCI_EXT_CONFIG {
 	HCI_LINK_INFO				aclLink[MAX_BT_ACL_LINK_NUM];
 	u1Byte					btOperationCode;
 	u2Byte					CurrentConnectHandle;
@@ -75,29 +72,29 @@ typedef struct _HCI_EXT_CONFIG{
 	u2Byte					HCIExtensionVer;
 
 	BOOLEAN					bEnableWifiScanNotify;
-}HCI_EXT_CONFIG, *PHCI_EXT_CONFIG;
+} HCI_EXT_CONFIG, *PHCI_EXT_CONFIG;
 
-typedef struct _HCI_PHY_LINK_BSS_INFO{
+typedef struct _HCI_PHY_LINK_BSS_INFO {
 	u2Byte						bdCap;			// capability information
 
 	// Qos related. Added by Annie, 2005-11-01.
-	//BSS_QOS						BssQos;		
-	
-}HCI_PHY_LINK_BSS_INFO, *PHCI_PHY_LINK_BSS_INFO;
+	//BSS_QOS						BssQos;
 
-typedef enum _BT_CONNECT_TYPE{
-	BT_CONNECT_AUTH_REQ								=0x00,	
+} HCI_PHY_LINK_BSS_INFO, *PHCI_PHY_LINK_BSS_INFO;
+
+typedef enum _BT_CONNECT_TYPE {
+	BT_CONNECT_AUTH_REQ								=0x00,
 	BT_CONNECT_AUTH_RSP								=0x01,
 	BT_CONNECT_ASOC_REQ								=0x02,
 	BT_CONNECT_ASOC_RSP								=0x03,
 	BT_DISCONNECT										=0x04
-}BT_CONNECT_TYPE,*PBT_CONNECT_TYPE;
+} BT_CONNECT_TYPE,*PBT_CONNECT_TYPE;
 
 
 typedef struct _PACKET_IRP_HCIEVENT_DATA {
-	    u8		EventCode;
-	    u8		Length; //total cmd length = extension event length+1(extension event code length)
-	    u8		Data[1]; // byte1 is extension event code
+	u8		EventCode;
+	u8		Length; //total cmd length = extension event length+1(extension event code length)
+	u8		Data[1]; // byte1 is extension event code
 } rtw_HCI_event;
 
 
@@ -142,7 +139,7 @@ struct btinfo_8761ATV {
 #define HCI_OCF(opCode)  ( 0x3FF & (opCode))
 
 
-typedef enum _HCI_STATUS{
+typedef enum _HCI_STATUS {
 	HCI_STATUS_SUCCESS										=0x00, //Success
 	HCI_STATUS_UNKNOW_HCI_CMD								=0x01, //Unknown HCI Command
 	HCI_STATUS_UNKNOW_CONNECT_ID							=0X02, //Unknown Connection Identifier
@@ -202,12 +199,12 @@ typedef enum _HCI_STATUS{
 	HCI_STATUS_HOST_BUSY_PAIRING								=0X38, //Host Busy - Pairing
 	HCI_STATUS_CONNECT_REJ_NOT_SUIT_CHNL_FOUND			=0X39, //Connection Rejected due to No Suitable Channel Found
 	HCI_STATUS_CONTROLLER_BUSY								=0X3a  //CONTROLLER BUSY
-}RTW_HCI_STATUS;
+} RTW_HCI_STATUS;
 
 #define HCI_EVENT_COMMAND_COMPLETE					0x0e
 
 #define OGF_EXTENSION									0X3f
-typedef enum HCI_EXTENSION_COMMANDS{
+typedef enum HCI_EXTENSION_COMMANDS {
 	HCI_SET_ACL_LINK_DATA_FLOW_MODE				=0x0010,
 	HCI_SET_ACL_LINK_STATUS							=0x0020,
 	HCI_SET_SCO_LINK_STATUS							=0x0030,
@@ -226,62 +223,48 @@ typedef enum HCI_EXTENSION_COMMANDS{
 	HCI_BT_PATCH_VERSION_NOTIFY						=0x0108,
 	HCI_BT_AFH_MAP_NOTIFY							=0x0109,
 	HCI_BT_REGISTER_VALUE_NOTIFY					=0x010a,
-	
+
 	//The following is for IVT
-	HCI_WIFI_CURRENT_CHANNEL						=0x0300,	
-	HCI_WIFI_CURRENT_BANDWIDTH						=0x0301,		
+	HCI_WIFI_CURRENT_CHANNEL						=0x0300,
+	HCI_WIFI_CURRENT_BANDWIDTH						=0x0301,
 	HCI_WIFI_CONNECTION_STATUS						=0x0302
-}RTW_HCI_EXT_CMD;
+} RTW_HCI_EXT_CMD;
 
 #define HCI_EVENT_EXTENSION_RTK						0xfe
-typedef enum HCI_EXTENSION_EVENT_RTK{
+typedef enum HCI_EXTENSION_EVENT_RTK {
 	HCI_EVENT_EXT_WIFI_SCAN_NOTIFY								=0x01,
 	HCI_EVENT_EXT_WIFI_RF_STATUS_NOTIFY						=0x02,
 	HCI_EVENT_EXT_BT_INFO_CONTROL								=0x03,
 	HCI_EVENT_EXT_BT_COEX_CONTROL								=0x04
-}RTW_HCI_EXT_EVENT;
+} RTW_HCI_EXT_EVENT;
 
-typedef enum _BT_TRAFFIC_MODE{
+typedef enum _BT_TRAFFIC_MODE {
 	BT_MOTOR_EXT_BE		= 0x00, //Best Effort. Default. for HCRP, PAN, SDP, RFCOMM-based profiles like FTP,OPP, SPP, DUN, etc.
 	BT_MOTOR_EXT_GUL		= 0x01, //Guaranteed Latency. This type of traffic is used e.g. for HID and AVRCP.
 	BT_MOTOR_EXT_GUB		= 0X02, //Guaranteed Bandwidth.
 	BT_MOTOR_EXT_GULB	= 0X03  //Guaranteed Latency and Bandwidth. for A2DP and VDP.
 } BT_TRAFFIC_MODE;
 
-typedef enum _BT_TRAFFIC_MODE_PROFILE{
-	BT_PROFILE_NONE,	
+typedef enum _BT_TRAFFIC_MODE_PROFILE {
+	BT_PROFILE_NONE,
 	BT_PROFILE_A2DP,
 	BT_PROFILE_PAN	,
 	BT_PROFILE_HID,
-	BT_PROFILE_SCO		
+	BT_PROFILE_SCO
 } BT_TRAFFIC_MODE_PROFILE;
 
-typedef enum _HCI_EXT_BT_OPERATION {
-	HCI_BT_OP_NONE				= 0x0,
-	HCI_BT_OP_INQUIRY_START		= 0x1,
-	HCI_BT_OP_INQUIRY_FINISH		= 0x2,
-	HCI_BT_OP_PAGING_START		= 0x3,
-	HCI_BT_OP_PAGING_SUCCESS		= 0x4,
-	HCI_BT_OP_PAGING_UNSUCCESS	= 0x5,
-	HCI_BT_OP_PAIRING_START		= 0x6,
-	HCI_BT_OP_PAIRING_FINISH		= 0x7,
-	HCI_BT_OP_BT_DEV_ENABLE		= 0x8,
-	HCI_BT_OP_BT_DEV_DISABLE		= 0x9,
-	HCI_BT_OP_MAX
-} HCI_EXT_BT_OPERATION, *PHCI_EXT_BT_OPERATION;
-
-typedef struct _BT_MGNT{
+typedef struct _BT_MGNT {
 	BOOLEAN				bBTConnectInProgress;
 	BOOLEAN				bLogLinkInProgress;
 	BOOLEAN				bPhyLinkInProgress;
 	BOOLEAN				bPhyLinkInProgressStartLL;
 	u1Byte				BtCurrentPhyLinkhandle;
-	u2Byte				BtCurrentLogLinkhandle;	
+	u2Byte				BtCurrentLogLinkhandle;
 	u1Byte				CurrentConnectEntryNum;
 	u1Byte				DisconnectEntryNum;
 	u1Byte				CurrentBTConnectionCnt;
 	BT_CONNECT_TYPE		BTCurrentConnectType;
-	BT_CONNECT_TYPE		BTReceiveConnectPkt;	
+	BT_CONNECT_TYPE		BTReceiveConnectPkt;
 	u1Byte				BTAuthCount;
 	u1Byte				BTAsocCount;
 	BOOLEAN				bStartSendSupervisionPkt;
@@ -299,23 +282,28 @@ typedef struct _BT_MGNT{
 	BOOLEAN				btLogoTest;
 	BOOLEAN				bRfStatusNotified;
 	BOOLEAN				bBtRsvedPageDownload;
-}BT_MGNT, *PBT_MGNT;
+} BT_MGNT, *PBT_MGNT;
 
 struct bt_coex_info {
 	/* For Kernel Socket */
-	struct socket *udpsock; 
-	struct sockaddr_in wifi_sockaddr; /*wifi socket*/
-	struct sockaddr_in bt_sockaddr;/* BT socket  */
-	struct sock *sk_store;/*back up socket for UDP RX int*/
-	
+	struct socket *udpsock;
+	struct sockaddr_in sin;
+
+	/* For Netlink Socket */
+	struct sock *nl_sk;
+	u32 pid;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0))
+	struct netlink_kernel_cfg *pnl_cfg;
+#endif
 	/* store which socket is OK */
 	u8 sock_open;
-		
+
 	u8 BT_attend;
-	u8 is_exist; /* socket exist */
+//	u8 WIFI_leave;
+	u8 is_exist; // socket exist
 	BT_MGNT BtMgnt;
-	struct workqueue_struct *btcoex_wq;
-	struct delayed_work recvmsg_work;
+	//u8 bEnableWifiScanNotify;
+	//u16 HCIExtensionVer;
 };
 #endif //CONFIG_BT_COEXIST_SOCKET_TRX
 
@@ -363,7 +351,6 @@ void rtw_btcoex_SetDBG(PADAPTER, u32 *pDbgModule);
 u32 rtw_btcoex_GetDBG(PADAPTER, u8 *pStrBuf, u32 bufSize);
 u8 rtw_btcoex_IncreaseScanDeviceNum(PADAPTER);
 u8 rtw_btcoex_IsBtLinkExist(PADAPTER);
-void rtw_btcoex_BTOffOnNotify(PADAPTER padapter, u8 bBTON);
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
 void rtw_btcoex_SetBtPatchVersion(PADAPTER padapter,u16 btHciVer, u16 btPatchVer);
 void rtw_btcoex_SetHciVersion(PADAPTER  padapter, u16 hciVersion);
@@ -371,10 +358,14 @@ void rtw_btcoex_StackUpdateProfileInfo(void);
 void rtw_btcoex_init_socket(_adapter *padapter);
 void rtw_btcoex_close_socket(_adapter *padapter);
 void rtw_btcoex_dump_tx_msg(u8 *tx_msg, u8 len, u8 *msg_name);
-u8 rtw_btcoex_sendmsgbysocket(_adapter *padapter, u8 *msg, u8 msg_size, bool force);
-u8 rtw_btcoex_create_kernel_socket(_adapter *padapter);
+u8 rtw_btcoex_sendmsgbysocket(_adapter *padapter, u8 *msg, u8 msg_size);
+void rtw_btcoex_create_nl_socket(_adapter *padapter);
+void rtw_btcoex_close_nl_socket(_adapter *padapter);
+u8 rtw_btcoex_create_kernel_socket(_adapter *padapter, u8 is_invite);
 void rtw_btcoex_close_kernel_socket(_adapter *padapter);
-void rtw_btcoex_recvmsgbysocket(void *data);
+void rtw_btcoex_recvmsgbysocket(struct sock *sk, int bytes);
+s8 rtw_btcoex_sendmsgbynetlink(_adapter *padapter, u8 *msg, u8 msg_size);
+void rtw_btcoex_recvmsgbynetlink(struct sk_buff *skb);
 u16 rtw_btcoex_parse_recv_data(u8 *msg, u8 msg_size);
 u8 rtw_btcoex_btinfo_cmd(PADAPTER padapter, u8 *pbuf, u16 length);
 void rtw_btcoex_parse_hci_cmd(_adapter *padapter, u8 *cmd, u16 len);
@@ -393,4 +384,3 @@ void rtw_btcoex_LPS_Enter(PADAPTER);
 void rtw_btcoex_LPS_Leave(PADAPTER);
 
 #endif // __RTW_BTCOEX_H__
-

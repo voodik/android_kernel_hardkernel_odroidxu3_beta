@@ -17,25 +17,16 @@
 
 #define	BTC_RSSI_COEX_THRESH_TOL_8723B_1ANT		2
 
-#define  BT_8723B_1ANT_WIFI_NOISY_THRESH							30   //max: 255
+#define  BT_8723B_1ANT_WIFI_NOISY_THRESH								30   //max: 255
 
-//for Antenna detection
-#define	BT_8723B_1ANT_ANTDET_PSDTHRES_BACKGROUND					50
-#define	BT_8723B_1ANT_ANTDET_PSDTHRES_2ANT_BADISOLATION				70
-#define	BT_8723B_1ANT_ANTDET_PSDTHRES_2ANT_GOODISOLATION			55
-#define	BT_8723B_1ANT_ANTDET_PSDTHRES_1ANT							35
-#define	BT_8723B_1ANT_ANTDET_RETRY_INTERVAL							10	//retry timer if ant det is fail, unit: second
-#define	BT_8723B_1ANT_ANTDET_ENABLE									0
-#define	BT_8723B_1ANT_ANTDET_COEXMECHANISMSWITCH_ENABLE				0
-
-typedef enum _BT_INFO_SRC_8723B_1ANT{
+typedef enum _BT_INFO_SRC_8723B_1ANT {
 	BT_INFO_SRC_8723B_1ANT_WIFI_FW			= 0x0,
 	BT_INFO_SRC_8723B_1ANT_BT_RSP				= 0x1,
 	BT_INFO_SRC_8723B_1ANT_BT_ACTIVE_SEND		= 0x2,
 	BT_INFO_SRC_8723B_1ANT_MAX
-}BT_INFO_SRC_8723B_1ANT,*PBT_INFO_SRC_8723B_1ANT;
+} BT_INFO_SRC_8723B_1ANT,*PBT_INFO_SRC_8723B_1ANT;
 
-typedef enum _BT_8723B_1ANT_BT_STATUS{
+typedef enum _BT_8723B_1ANT_BT_STATUS {
 	BT_8723B_1ANT_BT_STATUS_NON_CONNECTED_IDLE	= 0x0,
 	BT_8723B_1ANT_BT_STATUS_CONNECTED_IDLE		= 0x1,
 	BT_8723B_1ANT_BT_STATUS_INQ_PAGE				= 0x2,
@@ -43,9 +34,9 @@ typedef enum _BT_8723B_1ANT_BT_STATUS{
 	BT_8723B_1ANT_BT_STATUS_SCO_BUSY				= 0x4,
 	BT_8723B_1ANT_BT_STATUS_ACL_SCO_BUSY			= 0x5,
 	BT_8723B_1ANT_BT_STATUS_MAX
-}BT_8723B_1ANT_BT_STATUS,*PBT_8723B_1ANT_BT_STATUS;
+} BT_8723B_1ANT_BT_STATUS,*PBT_8723B_1ANT_BT_STATUS;
 
-typedef enum _BT_8723B_1ANT_WIFI_STATUS{
+typedef enum _BT_8723B_1ANT_WIFI_STATUS {
 	BT_8723B_1ANT_WIFI_STATUS_NON_CONNECTED_IDLE				= 0x0,
 	BT_8723B_1ANT_WIFI_STATUS_NON_CONNECTED_ASSO_AUTH_SCAN		= 0x1,
 	BT_8723B_1ANT_WIFI_STATUS_CONNECTED_SCAN					= 0x2,
@@ -53,9 +44,9 @@ typedef enum _BT_8723B_1ANT_WIFI_STATUS{
 	BT_8723B_1ANT_WIFI_STATUS_CONNECTED_IDLE					= 0x4,
 	BT_8723B_1ANT_WIFI_STATUS_CONNECTED_BUSY					= 0x5,
 	BT_8723B_1ANT_WIFI_STATUS_MAX
-}BT_8723B_1ANT_WIFI_STATUS,*PBT_8723B_1ANT_WIFI_STATUS;
+} BT_8723B_1ANT_WIFI_STATUS,*PBT_8723B_1ANT_WIFI_STATUS;
 
-typedef enum _BT_8723B_1ANT_COEX_ALGO{
+typedef enum _BT_8723B_1ANT_COEX_ALGO {
 	BT_8723B_1ANT_COEX_ALGO_UNDEFINED			= 0x0,
 	BT_8723B_1ANT_COEX_ALGO_SCO				= 0x1,
 	BT_8723B_1ANT_COEX_ALGO_HID				= 0x2,
@@ -68,9 +59,9 @@ typedef enum _BT_8723B_1ANT_COEX_ALGO{
 	BT_8723B_1ANT_COEX_ALGO_HID_A2DP_PANEDR	= 0x9,
 	BT_8723B_1ANT_COEX_ALGO_HID_A2DP			= 0xa,
 	BT_8723B_1ANT_COEX_ALGO_MAX				= 0xb,
-}BT_8723B_1ANT_COEX_ALGO,*PBT_8723B_1ANT_COEX_ALGO;
+} BT_8723B_1ANT_COEX_ALGO,*PBT_8723B_1ANT_COEX_ALGO;
 
-typedef struct _COEX_DM_8723B_1ANT{
+typedef struct _COEX_DM_8723B_1ANT {
 	// hw setting
 	u1Byte		preAntPosType;
 	u1Byte		curAntPosType;
@@ -128,14 +119,13 @@ typedef struct _COEX_DM_8723B_1ANT{
 	u1Byte		errorCondition;
 } COEX_DM_8723B_1ANT, *PCOEX_DM_8723B_1ANT;
 
-typedef struct _COEX_STA_8723B_1ANT{
+typedef struct _COEX_STA_8723B_1ANT {
 	BOOLEAN					bBtLinkExist;
 	BOOLEAN					bScoExist;
 	BOOLEAN					bA2dpExist;
 	BOOLEAN					bHidExist;
 	BOOLEAN					bPanExist;
 	BOOLEAN					bBtHiPriLinkExist;
-	u1Byte					nNumOfProfile;
 
 	BOOLEAN					bUnderLps;
 	BOOLEAN					bUnderIps;
@@ -164,11 +154,11 @@ typedef struct _COEX_STA_8723B_1ANT{
 	u4Byte					nCRCOK_11g;
 	u4Byte					nCRCOK_11n;
 	u4Byte					nCRCOK_11nAgg;
-	
+
 	u4Byte					nCRCErr_CCK;
 	u4Byte					nCRCErr_11g;
 	u4Byte					nCRCErr_11n;
-	u4Byte					nCRCErr_11nAgg;	
+	u4Byte					nCRCErr_11nAgg;
 
 	BOOLEAN					bCCKLock;
 	BOOLEAN					bPreCCKLock;
@@ -176,48 +166,39 @@ typedef struct _COEX_STA_8723B_1ANT{
 	u1Byte					nCoexTableType;
 
 	BOOLEAN					bForceLpsOn;
-	u4Byte					wrongProfileNotification;
-}COEX_STA_8723B_1ANT, *PCOEX_STA_8723B_1ANT;
+} COEX_STA_8723B_1ANT, *PCOEX_STA_8723B_1ANT;
 
 #define  BT_8723B_1ANT_ANTDET_PSD_POINTS			256	//MAX:1024
-#define  BT_8723B_1ANT_ANTDET_PSD_AVGNUM			1	//MAX:3
-#define	BT_8723B_1ANT_ANTDET_BUF_LEN				16
+#define  BT_8723B_1ANT_ANTDET_PSD_AVGNUM		1	//MAX:3
 
-typedef struct _PSDSCAN_STA_8723B_1ANT{
+typedef struct _PSDSCAN_STA_8723B_1ANT {
 
-u4Byte		 	nAntDet_BTLEChannel;  //BT LE Channel ex:2412
-u4Byte			nAntDet_BTTxTime;
-u4Byte			nAntDet_PrePSDScanPeakVal;
-BOOLEAN			nAntDet_IsAntDetAvailable;
-u4Byte			nAntDet_PSDScanPeakVal;
-BOOLEAN			nAntDet_IsBTReplyAvailable;
-u4Byte			nAntDet_PSDScanPeakFreq;
+	BOOLEAN			bIsAntDetEnable;
+	BOOLEAN			bIsAntIsoEnable;
+	BOOLEAN			bIsPSDScanEnable;
 
-u1Byte			nAntDet_Result;
-u1Byte			nAntDet_PeakVal[BT_8723B_1ANT_ANTDET_BUF_LEN];
-u1Byte			nAntDet_PeakFreq[BT_8723B_1ANT_ANTDET_BUF_LEN];
-u4Byte			bAntDet_TryCount;
-u4Byte			bAntDet_FailCount;
-u4Byte			nAntDet_IntevalCount;
-u4Byte			nAntDet_ThresOffset;
+	u4Byte		 	realcentFreq;  //ex:2412
+	s4Byte			realoffset;
+	u4Byte			realspan;
+	u4Byte			realseconds;
 
-u4Byte			nRealCentFreq;
-s4Byte			nRealOffset;
-u4Byte			nRealSpan;
-	
-u4Byte			nPSDBandWidth;  //unit: Hz
-u4Byte			nPSDPoint;		//128/256/512/1024
-u4Byte			nPSDReport[1024];  //unit:dB (20logx), 0~255
-u4Byte			nPSDReport_MaxHold[1024];  //unit:dB (20logx), 0~255
-u4Byte			nPSDStartPoint;
-u4Byte			nPSDStopPoint;
-u4Byte			nPSDMaxValuePoint;
-u4Byte			nPSDMaxValue;
-u4Byte			nPSDStartBase;
-u4Byte			nPSDAvgNum;	// 1/8/16/32
-u4Byte			nPSDGenCount;
-BOOLEAN			bIsPSDRunning;
-BOOLEAN			bIsPSDShowMaxOnly;
+	BOOLEAN			bAntDetFinish;
+	u1Byte			nAntIsolation;
+	u4Byte			nPSDBandWidth;  //unit: Hz
+	u4Byte			nPSDPoint;		//128/256/512/1024
+	u4Byte			nPSDReport[1024];  //unit:dB (20logx), 0~255
+	u4Byte			nPSDReport_MaxHold[1024];  //unit:dB (20logx), 0~255
+	u4Byte			nPSDStartPoint;
+	u4Byte			nPSDStopPoint;
+	u4Byte			nPSDMaxValuePoint;
+	u4Byte			nPSDMaxValue;
+	u4Byte			nPSDStartBase;
+	u4Byte			nPSDAvgNum;	// 1/8/16/32
+	u4Byte			nPSDGenCount;
+	u4Byte			nPSDGenTotalCount;
+	BOOLEAN			bIsSetupFinish;
+	BOOLEAN			bIsPSDRunning;
+	BOOLEAN			bIsPSDShowMaxOnly;
 } PSDSCAN_STA_8723B_1ANT, *PPSDSCAN_STA_8723B_1ANT;
 
 //===========================================
@@ -225,110 +206,109 @@ BOOLEAN			bIsPSDShowMaxOnly;
 //===========================================
 VOID
 EXhalbtc8723b1ant_PowerOnSetting(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
+    IN	PBTC_COEXIST		pBtCoexist
+);
 VOID
 EXhalbtc8723b1ant_PreLoadFirmware(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
+    IN	PBTC_COEXIST		pBtCoexist
+);
 VOID
 EXhalbtc8723b1ant_InitHwConfig(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	BOOLEAN				bWifiOnly
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	BOOLEAN				bWifiOnly
+);
 VOID
 EXhalbtc8723b1ant_InitCoexDm(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
+    IN	PBTC_COEXIST		pBtCoexist
+);
 VOID
 EXhalbtc8723b1ant_IpsNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8723b1ant_LpsNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8723b1ant_ScanNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8723b1ant_ConnectNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8723b1ant_MediaStatusNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				type
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u1Byte				type
+);
 VOID
 EXhalbtc8723b1ant_SpecialPacketNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				type
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u1Byte				type
+);
 VOID
 EXhalbtc8723b1ant_BtInfoNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	pu1Byte			tmpBuf,
-	IN	u1Byte			length
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	pu1Byte			tmpBuf,
+    IN	u1Byte			length
+);
 VOID
 EXhalbtc8723b1ant_RfStatusNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte					type
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u1Byte					type
+);
 VOID
 EXhalbtc8723b1ant_HaltNotify(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
+    IN	PBTC_COEXIST			pBtCoexist
+);
 VOID
 EXhalbtc8723b1ant_PnpNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				pnpState
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u1Byte				pnpState
+);
 VOID
 EXhalbtc8723b1ant_CoexDmReset(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
+    IN	PBTC_COEXIST			pBtCoexist
+);
 VOID
 EXhalbtc8723b1ant_Periodical(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
+    IN	PBTC_COEXIST			pBtCoexist
+);
 VOID
 EXhalbtc8723b1ant_DisplayCoexInfo(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
+    IN	PBTC_COEXIST		pBtCoexist
+);
 VOID
 EXhalbtc8723b1ant_AntennaDetection(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u4Byte					centFreq,
-	IN	u4Byte					offset,
-	IN	u4Byte					span,
-	IN	u4Byte					seconds
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u4Byte					centFreq,
+    IN	u4Byte					offset,
+    IN	u4Byte					span,
+    IN	u4Byte					seconds
+);
 VOID
 EXhalbtc8723b1ant_AntennaIsolation(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u4Byte					centFreq,
-	IN	u4Byte					offset,
-	IN	u4Byte					span,
-	IN	u4Byte					seconds
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u4Byte					centFreq,
+    IN	u4Byte					offset,
+    IN	u4Byte					span,
+    IN	u4Byte					seconds
+);
 
 VOID
 EXhalbtc8723b1ant_PSDScan(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u4Byte					centFreq,
-	IN	u4Byte					offset,
-	IN	u4Byte					span,
-	IN	u4Byte					seconds
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u4Byte					centFreq,
+    IN	u4Byte					offset,
+    IN	u4Byte					span,
+    IN	u4Byte					seconds
+);
 VOID
-EXhalbtc8723b1ant_DisplayAntDetection(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
-
+EXhalbtc8723b1ant_DisplayAntIsolation(
+    IN	PBTC_COEXIST			pBtCoexist
+);

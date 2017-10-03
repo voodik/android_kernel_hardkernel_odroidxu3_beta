@@ -64,8 +64,8 @@ inline struct proc_dir_entry *rtw_proc_create_dir(const char *name, struct proc_
 	return entry;
 }
 
-inline struct proc_dir_entry *rtw_proc_create_entry(const char *name, struct proc_dir_entry *parent, 
-	const struct file_operations *fops, void * data)
+inline struct proc_dir_entry *rtw_proc_create_entry(const char *name, struct proc_dir_entry *parent,
+        const struct file_operations *fops, void * data)
 {
 	struct proc_dir_entry *entry;
 
@@ -107,25 +107,26 @@ static ssize_t proc_set_log_level(struct file *file, const char __user *buffer, 
 	if (count < 1)
 		return -EINVAL;
 
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {		
+	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
 
 		int num = sscanf(tmp, "%d ", &log_level);
+		if (num != 1)
+			return -EINVAL;
 
-		if( log_level >= _drv_always_ && log_level <= _drv_debug_ )
-		{
+		if( log_level >= _drv_always_ && log_level <= _drv_debug_ ) {
 			GlobalDebugLevel= log_level;
 			printk("%d\n", GlobalDebugLevel);
 		}
 	} else {
 		return -EFAULT;
 	}
-	
+
 	return count;
 }
 
 #ifdef DBG_MEM_ALLOC
 static int proc_get_mstat(struct seq_file *m, void *v)
-{	
+{
 	rtw_mstat_dump(m);
 	return 0;
 }
@@ -151,7 +152,7 @@ static int rtw_drv_proc_open(struct inode *inode, struct file *file)
 	//struct net_device *dev = proc_get_parent_data(inode);
 	ssize_t index = (ssize_t)PDE_DATA(inode);
 	const struct rtw_proc_hdl *hdl = drv_proc_hdls+index;
-       return single_open(file, hdl->show, NULL);
+	return single_open(file, hdl->show, NULL);
 }
 
 static ssize_t rtw_drv_proc_write(struct file *file, const char __user *buffer, size_t count, loff_t *pos)
@@ -159,7 +160,7 @@ static ssize_t rtw_drv_proc_write(struct file *file, const char __user *buffer, 
 	ssize_t index = (ssize_t)PDE_DATA(file_inode(file));
 	const struct rtw_proc_hdl *hdl = drv_proc_hdls+index;
 	ssize_t (*write)(struct file *, const char __user *, size_t, loff_t *, void *) = hdl->write;
-	
+
 	if (write)
 		return write(file, buffer, count, pos, NULL);
 
@@ -193,7 +194,7 @@ int rtw_drv_proc_init(void)
 		goto exit;
 	}
 
-	for (i=0;i<drv_proc_hdls_num;i++) {
+	for (i=0; i<drv_proc_hdls_num; i++) {
 		entry = rtw_proc_create_entry(drv_proc_hdls[i].name, rtw_proc, &rtw_drv_proc_fops, (void *)i);
 		if (!entry) {
 			rtw_warn_on(1);
@@ -214,7 +215,7 @@ void rtw_drv_proc_deinit(void)
 	if (rtw_proc == NULL)
 		return;
 
-	for (i=0;i<drv_proc_hdls_num;i++)
+	for (i=0; i<drv_proc_hdls_num; i++)
 		remove_proc_entry(drv_proc_hdls[i].name, rtw_proc);
 
 	remove_proc_entry(RTW_PROC_NAME, get_proc_net);
@@ -270,19 +271,18 @@ static ssize_t proc_set_config_gpio(struct file *file, const char __user *buffer
 {
 	struct net_device *dev = data;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	char tmp[32]={0}; 
+	char tmp[32]= {0};
 	int num=0,gpio_pin=0,gpio_mode=0;//gpio_mode:0 input  1:output;
-	
+
 	if (count < 2)
 		return -EFAULT;
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) 
-	{
+	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
 		num	=sscanf(tmp, "%d %d",&gpio_pin,&gpio_mode);
 		DBG_871X("num=%d gpio_pin=%d mode=%d\n",num,gpio_pin,gpio_mode);
-      		padapter->pre_gpio_pin=gpio_pin;
+		padapter->pre_gpio_pin=gpio_pin;
 
 		if(gpio_mode==0 || gpio_mode==1  )
-			rtw_hal_config_gpio(padapter, gpio_pin,gpio_mode);	
+			rtw_hal_config_gpio(padapter, gpio_pin,gpio_mode);
 	}
 	return count;
 
@@ -291,19 +291,18 @@ static ssize_t proc_set_gpio_output_value(struct file *file, const char __user *
 {
 	struct net_device *dev = data;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	char tmp[32]={0}; 
+	char tmp[32]= {0};
 	int num=0,gpio_pin=0,pin_mode=0;//pin_mode: 1 high         0:low
-	
+
 	if (count < 2)
 		return -EFAULT;
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) 
-	{
+	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
 		num	=sscanf(tmp, "%d %d",&gpio_pin,&pin_mode);
 		DBG_871X("num=%d gpio_pin=%d pin_high=%d\n",num,gpio_pin,pin_mode);
 		padapter->pre_gpio_pin=gpio_pin;
-		
+
 		if(pin_mode==0 || pin_mode==1  )
-			rtw_hal_set_gpio_output_value(padapter, gpio_pin,pin_mode);	
+			rtw_hal_set_gpio_output_value(padapter, gpio_pin,pin_mode);
 	}
 	return count;
 }
@@ -311,13 +310,13 @@ static int proc_get_gpio(struct seq_file *m, void *v)
 {
 	u8 gpioreturnvalue=0;
 	struct net_device *dev = m->private;
-	
+
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	if(!padapter)	
+	if(!padapter)
 		return -EFAULT;
 	gpioreturnvalue = rtw_hal_get_gpio(padapter, padapter->pre_gpio_pin);
 	DBG_871X_SEL_NL(m, "get_gpio %d:%d \n",padapter->pre_gpio_pin ,gpioreturnvalue);
-	
+
 	return 0;
 
 }
@@ -325,19 +324,18 @@ static ssize_t proc_set_gpio(struct file *file, const char __user *buffer, size_
 {
 	struct net_device *dev = data;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	char tmp[32]={0}; 
+	char tmp[32]= {0};
 	int num=0,gpio_pin=0;
-	
+
 	if (count < 1)
 		return -EFAULT;
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) 
-	{
+	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
 		num	=sscanf(tmp, "%d",&gpio_pin);
 		DBG_871X("num=%d gpio_pin=%d\n",num,gpio_pin);
 		padapter->pre_gpio_pin=gpio_pin;
-		
+
 	}
-		return count;
+	return count;
 }
 #endif
 
@@ -346,9 +344,9 @@ static int proc_get_linked_info_dump(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	if(padapter)	
+	if(padapter)
 		DBG_871X_SEL_NL(m, "linked_info_dump :%s \n", (padapter->bLinkInfoDump)?"enable":"disable");
-	
+
 	return 0;
 }
 
@@ -357,9 +355,9 @@ static ssize_t proc_set_linked_info_dump(struct file *file, const char __user *b
 	struct net_device *dev = data;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 
-	char tmp[32]={0}; 
+	char tmp[32]= {0};
 	int mode=0,pre_mode=0;
-	int num=0;	
+	int num=0;
 
 	if (count < 1)
 		return -EFAULT;
@@ -367,26 +365,21 @@ static ssize_t proc_set_linked_info_dump(struct file *file, const char __user *b
 	pre_mode=padapter->bLinkInfoDump;
 	DBG_871X("pre_mode=%d \n",pre_mode);
 
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) 
-	{
+	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
 		num	=sscanf(tmp, "%d ", &mode);
 		DBG_871X("num=%d mode=%d\n",num,mode);
 
-		if(num!=1)
-		{
+		if(num!=1) {
 			DBG_871X("argument number is wrong\n");
-				return -EFAULT;
+			return -EFAULT;
 		}
-	
-		if(mode==1 || (mode==0 && pre_mode==1) ) //not consider pwr_saving 0:
-		{
-			padapter->bLinkInfoDump = mode;	
-		
-		}
-		else if( (mode==2 ) || (mode==0 && pre_mode==2))//consider power_saving
-		{		
+
+		if(mode==1 || (mode==0 && pre_mode==1) ) { //not consider pwr_saving 0:
+			padapter->bLinkInfoDump = mode;
+
+		} else if( (mode==2 ) || (mode==0 && pre_mode==2)) { //consider power_saving
 			//DBG_871X("linked_info_dump =%s \n", (padapter->bLinkInfoDump)?"enable":"disable")
-			linked_info_dump(padapter,mode);	
+			linked_info_dump(padapter,mode);
 		}
 	}
 	return count;
@@ -407,7 +400,7 @@ int proc_get_wifi_spec(struct seq_file *m, void *v)
 	struct net_device *dev = m->private;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct registry_priv	*pregpriv = &padapter->registrypriv;
-	
+
 	DBG_871X_SEL_NL(m,"wifi_spec=%d\n",pregpriv->wifi_spec);
 	return 0;
 }
@@ -417,7 +410,7 @@ static int proc_get_chan_plan(struct seq_file *m, void *v)
 	struct net_device *dev = m->private;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 
-	DBG_871X_SEL_NL(m,"Channel plan=0x%02x\n",padapter->mlmepriv.ChannelPlan);	
+	DBG_871X_SEL_NL(m,"Channel plan=0x%02x\n",padapter->mlmepriv.ChannelPlan);
 	return 0;
 }
 static ssize_t proc_set_chan_plan(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
@@ -425,20 +418,19 @@ static ssize_t proc_set_chan_plan(struct file *file, const char __user *buffer, 
 	struct net_device *dev = data;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct SetChannelPlan_param setChannelPlan_param;
-	
+
 	char tmp[32];
 	u8 chan_plan = RT_CHANNEL_DOMAIN_REALTEK_DEFINE;
-	
+
 	if (!padapter)
 		return -EFAULT;
 
-	if (count < 1)
-	{
+	if (count < 1) {
 		DBG_871X("argument size is less than 1\n");
 		return -EFAULT;
-	}	
+	}
 
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {		
+	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
 
 		int num = sscanf(tmp, "%hhx", &chan_plan);
 
@@ -451,7 +443,7 @@ static ssize_t proc_set_chan_plan(struct file *file, const char __user *buffer, 
 	setChannelPlan_param.channel_plan = chan_plan;
 	if( H2C_SUCCESS != set_chplan_hdl(padapter, (unsigned char *)&setChannelPlan_param) )
 		return -EFAULT;
-		
+
 	return count;
 
 }
@@ -462,7 +454,7 @@ static int proc_get_udpport(struct seq_file *m, void *v)
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct recv_priv *precvpriv = &(padapter->recvpriv);
 
-	DBG_871X_SEL_NL(m,"%d\n",precvpriv->sink_udpport);	
+	DBG_871X_SEL_NL(m,"%d\n",precvpriv->sink_udpport);
 	return 0;
 }
 static ssize_t proc_set_udpport(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
@@ -470,20 +462,19 @@ static ssize_t proc_set_udpport(struct file *file, const char __user *buffer, si
 	struct net_device *dev = data;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct recv_priv *precvpriv = &(padapter->recvpriv);
-	int sink_udpport = 0;	
+	int sink_udpport = 0;
 	char tmp[32];
-	
-	
+
+
 	if (!padapter)
 		return -EFAULT;
 
-	if (count < 1)
-	{
+	if (count < 1) {
 		DBG_871X("argument size is less than 1\n");
 		return -EFAULT;
-	}	
+	}
 
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {		
+	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
 
 		int num = sscanf(tmp, "%d", &sink_udpport);
 
@@ -494,7 +485,7 @@ static ssize_t proc_set_udpport(struct file *file, const char __user *buffer, si
 
 	}
 	precvpriv->sink_udpport = sink_udpport;
-	
+
 	return count;
 
 }
@@ -515,19 +506,19 @@ static int proc_get_macid_info(struct seq_file *m, void *v)
 	DBG_871X_SEL_NL(m, "\n");
 
 	DBG_871X_SEL_NL(m, "%-3s %-3s %-4s %-4s"
-		"\n"
-		, "id", "bmc", "if_g", "ch_g"
-	);
+	                "\n"
+	                , "id", "bmc", "if_g", "ch_g"
+	               );
 
-	for (i=0;i<macid_ctl->num;i++) {
+	for (i=0; i<macid_ctl->num; i++) {
 		if (rtw_macid_is_used(macid_ctl, i))
 			DBG_871X_SEL_NL(m, "%3u %3u %4d %4d"
-				"\n"
-				, i
-				, rtw_macid_is_bmc(macid_ctl, i)
-				, rtw_macid_get_if_g(macid_ctl, i)
-				, rtw_macid_get_ch_g(macid_ctl, i)
-			);
+			                "\n"
+			                , i
+			                , rtw_macid_is_bmc(macid_ctl, i)
+			                , rtw_macid_get_if_g(macid_ctl, i)
+			                , rtw_macid_get_ch_g(macid_ctl, i)
+			               );
 	}
 
 	return 0;
@@ -535,9 +526,9 @@ static int proc_get_macid_info(struct seq_file *m, void *v)
 
 static int proc_get_cam(struct seq_file *m, void *v)
 {
-	struct net_device *dev = m->private;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	u8 i;
+	//struct net_device *dev = m->private;
+	//_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
+	//u8 i;
 
 	return 0;
 }
@@ -565,11 +556,6 @@ static ssize_t proc_set_cam(struct file *file, const char __user *buffer, size_t
 		if (num < 2)
 			return count;
 
-		if (id >= CAM_ENTRY_NUM_SW_LIMIT) {
-			DBG_871X_LEVEL(_drv_err_, FUNC_ADPT_FMT" invalid id:%u\n", FUNC_ADPT_ARG(adapter), id);
-			return count;
-		}
-
 		if (strcmp("c", cmd) == 0) {
 			_clear_cam_entry(adapter, id);
 			adapter->securitypriv.hw_decrypted = _FALSE; /* temporarily set this for TX path to use SW enc */
@@ -591,27 +577,27 @@ static int proc_get_cam_cache(struct seq_file *m, void *v)
 	DBG_871X_SEL_NL(m, "cam bitmap:0x%016llx\n", dvobj->cam_ctl.bitmap);
 
 	DBG_871X_SEL_NL(m, "%-2s %-6s %-17s %-32s %-3s %-7s"
-		//" %-2s %-2s %-4s %-5s"
-		"\n"
-		, "id", "ctrl", "addr", "key", "kid", "type"
-		//, "MK", "GK", "MFB", "valid"
-	);
+	                //" %-2s %-2s %-4s %-5s"
+	                "\n"
+	                , "id", "ctrl", "addr", "key", "kid", "type"
+	                //, "MK", "GK", "MFB", "valid"
+	               );
 
-	for (i=0;i<32;i++) {
+	for (i=0; i<32; i++) {
 		if (dvobj->cam_cache[i].ctrl != 0)
 			DBG_871X_SEL_NL(m, "%2u 0x%04x "MAC_FMT" "KEY_FMT" %3u %-7s"
-				//" %2u %2u 0x%02x %5u"
-				"\n", i
-				, dvobj->cam_cache[i].ctrl
-				, MAC_ARG(dvobj->cam_cache[i].mac)
-				, KEY_ARG(dvobj->cam_cache[i].key)
-				, (dvobj->cam_cache[i].ctrl)&0x03
-				, security_type_str(((dvobj->cam_cache[i].ctrl)>>2)&0x07)
-				//, ((dvobj->cam_cache[i].ctrl)>>5)&0x01
-				//, ((dvobj->cam_cache[i].ctrl)>>6)&0x01
-				//, ((dvobj->cam_cache[i].ctrl)>>8)&0x7f
-				//, ((dvobj->cam_cache[i].ctrl)>>15)&0x01
-			);
+			                //" %2u %2u 0x%02x %5u"
+			                "\n", i
+			                , dvobj->cam_cache[i].ctrl
+			                , MAC_ARG(dvobj->cam_cache[i].mac)
+			                , KEY_ARG(dvobj->cam_cache[i].key)
+			                , (dvobj->cam_cache[i].ctrl)&0x03
+			                , security_type_str(((dvobj->cam_cache[i].ctrl)>>2)&0x07)
+			                //, ((dvobj->cam_cache[i].ctrl)>>5)&0x01
+			                //, ((dvobj->cam_cache[i].ctrl)>>6)&0x01
+			                //, ((dvobj->cam_cache[i].ctrl)>>8)&0x7f
+			                //, ((dvobj->cam_cache[i].ctrl)>>15)&0x01
+			               );
 	}
 
 	return 0;
@@ -628,14 +614,14 @@ ssize_t proc_set_btinfo_evt(struct file *file, const char __user *buffer, size_t
 	if (count < 6)
 		return -EFAULT;
 
-	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {		
+	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
 		int num = 0;
 
 		_rtw_memset(btinfo, 0, 8);
-		
+
 		num = sscanf(tmp, "%hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx"
-			, &btinfo[0], &btinfo[1], &btinfo[2], &btinfo[3]
-			, &btinfo[4], &btinfo[5], &btinfo[6], &btinfo[7]);
+		             , &btinfo[0], &btinfo[1], &btinfo[2], &btinfo[3]
+		             , &btinfo[4], &btinfo[5], &btinfo[6], &btinfo[7]);
 
 		if (num < 6)
 			return -EINVAL;
@@ -644,7 +630,7 @@ ssize_t proc_set_btinfo_evt(struct file *file, const char __user *buffer, size_t
 
 		rtw_btinfo_cmd(padapter, btinfo, btinfo[1]+2);
 	}
-	
+
 	return count;
 }
 #endif
@@ -691,7 +677,7 @@ const struct rtw_proc_hdl adapter_proc_hdls [] = {
 	{"mac_reg_dump", proc_get_mac_reg_dump, NULL},
 	{"bb_reg_dump", proc_get_bb_reg_dump, NULL},
 	{"rf_reg_dump", proc_get_rf_reg_dump, NULL},
-	
+
 #ifdef CONFIG_AP_MODE
 	{"all_sta_info", proc_get_all_sta_info, NULL},
 #endif /* CONFIG_AP_MODE */
@@ -715,7 +701,7 @@ const struct rtw_proc_hdl adapter_proc_hdls [] = {
 	{"rx_ampdu", proc_get_rx_ampdu, proc_set_rx_ampdu},
 	{"rx_ampdu_factor",proc_get_rx_ampdu_factor,proc_set_rx_ampdu_factor},
 	{"rx_ampdu_density",proc_get_rx_ampdu_density,proc_set_rx_ampdu_density},
-	{"tx_ampdu_density",proc_get_tx_ampdu_density,proc_set_tx_ampdu_density},	 
+	{"tx_ampdu_density",proc_get_tx_ampdu_density,proc_set_tx_ampdu_density},
 #endif /* CONFIG_80211N_HT */
 
 	{"en_fwps", proc_get_en_fwps, proc_set_en_fwps},
@@ -758,16 +744,14 @@ const struct rtw_proc_hdl adapter_proc_hdls [] = {
 	{"sink_udpport",proc_get_udpport,proc_set_udpport},
 #ifdef DBG_RX_COUNTER_DUMP
 	{"dump_rx_cnt_mode",proc_get_rx_cnt_dump,proc_set_rx_cnt_dump},
-#endif	
+#endif
 #ifdef CONFIG_POWER_SAVING
 	{"ps_info",proc_get_ps_info, NULL},
 #endif
 #ifdef CONFIG_TDLS
-	{"tdls_info", proc_get_tdls_info, NULL}
+	{"tdls_info", proc_get_tdls_info, NULL},
 #endif
-#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-	{"rtkm_info", proc_get_rtkm_info, NULL}
-#endif
+	{"monitor", proc_get_monitor, proc_set_monitor},
 };
 
 const int adapter_proc_hdls_num = sizeof(adapter_proc_hdls) / sizeof(struct rtw_proc_hdl);
@@ -929,14 +913,14 @@ ssize_t proc_set_odm_adaptivity(struct file *file, const char __user *buffer, si
 	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {
 
 		int num = sscanf(tmp, "%x %hhd %x %u",
-			&TH_L2H_ini, &TH_EDCCA_HL_diff, &IGI_Base, &FABound);
+		                 &TH_L2H_ini, &TH_EDCCA_HL_diff, &IGI_Base, &FABound);
 
 		if (num != 4)
 			return count;
 
 		rtw_odm_adaptivity_parm_set(padapter, (s8)TH_L2H_ini, TH_EDCCA_HL_diff, (s8)IGI_Base, FABound);
 	}
-	
+
 	return count;
 }
 
@@ -1039,7 +1023,7 @@ static ssize_t rtw_odm_proc_write(struct file *file, const char __user *buffer, 
 	ssize_t index = (ssize_t)PDE_DATA(file_inode(file));
 	const struct rtw_proc_hdl *hdl = odm_proc_hdls+index;
 	ssize_t (*write)(struct file *, const char __user *, size_t, loff_t *, void *) = hdl->write;
-	
+
 	if (write)
 		return write(file, buffer, count, pos, ((struct seq_file *)file->private_data)->private);
 
@@ -1080,7 +1064,7 @@ struct proc_dir_entry *rtw_odm_proc_init(struct net_device *dev)
 
 	adapter->dir_odm = dir_odm;
 
-	for (i=0;i<odm_proc_hdls_num;i++) {
+	for (i=0; i<odm_proc_hdls_num; i++) {
 		entry = rtw_proc_create_entry(odm_proc_hdls[i].name, dir_odm, &rtw_odm_proc_fops, (void *)i);
 		if (!entry) {
 			rtw_warn_on(1);
@@ -1104,7 +1088,7 @@ void rtw_odm_proc_deinit(_adapter	*adapter)
 		return;
 	}
 
-	for (i=0;i<odm_proc_hdls_num;i++)
+	for (i=0; i<odm_proc_hdls_num; i++)
 		remove_proc_entry(odm_proc_hdls[i].name, dir_odm);
 
 	remove_proc_entry("odm", adapter->dir_dev);
@@ -1123,7 +1107,7 @@ struct proc_dir_entry *rtw_adapter_proc_init(struct net_device *dev)
 	struct proc_dir_entry *dir_dev = NULL;
 	struct proc_dir_entry *entry = NULL;
 	_adapter *adapter = rtw_netdev_priv(dev);
-	u8 rf_type;
+	//u8 rf_type;
 	ssize_t i;
 
 	if (drv_proc == NULL) {
@@ -1144,7 +1128,7 @@ struct proc_dir_entry *rtw_adapter_proc_init(struct net_device *dev)
 
 	adapter->dir_dev = dir_dev;
 
-	for (i=0;i<adapter_proc_hdls_num;i++) {
+	for (i=0; i<adapter_proc_hdls_num; i++) {
 		entry = rtw_proc_create_entry(adapter_proc_hdls[i].name, dir_dev, &rtw_adapter_proc_fops, (void *)i);
 		if (!entry) {
 			rtw_warn_on(1);
@@ -1172,7 +1156,7 @@ void rtw_adapter_proc_deinit(struct net_device *dev)
 		return;
 	}
 
-	for (i=0;i<adapter_proc_hdls_num;i++)
+	for (i=0; i<adapter_proc_hdls_num; i++)
 		remove_proc_entry(adapter_proc_hdls[i].name, dir_dev);
 
 	rtw_odm_proc_deinit(adapter);
@@ -1196,7 +1180,7 @@ void rtw_adapter_proc_replace(struct net_device *dev)
 		return;
 	}
 
-	for (i=0;i<adapter_proc_hdls_num;i++)
+	for (i=0; i<adapter_proc_hdls_num; i++)
 		remove_proc_entry(adapter_proc_hdls[i].name, dir_dev);
 
 	rtw_odm_proc_deinit(adapter);
@@ -1210,4 +1194,3 @@ void rtw_adapter_proc_replace(struct net_device *dev)
 }
 
 #endif /* CONFIG_PROC_DEBUG */
-

@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,7 +17,7 @@
  *
  *
  ******************************************************************************/
- 
+
 #ifndef	__PHYDMANTDECT_H__
 #define    __PHYDMANTDECT_H__
 
@@ -26,27 +26,26 @@
 #if(defined(CONFIG_ANT_DETECTION))
 //#if( DM_ODM_SUPPORT_TYPE & (ODM_WIN |ODM_CE))
 //ANT Test
-#define		ANTTESTALL		0x00		//Ant A or B will be Testing   
-#define		ANTTESTA		0x01		//Ant A will be Testing	
+#define		ANTTESTALL		0x00		//Ant A or B will be Testing
+#define		ANTTESTA		0x01		//Ant A will be Testing
 #define		ANTTESTB		0x02		//Ant B will be testing
 
-#define	MAX_ANTENNA_DETECTION_CNT	10 
+#define	MAX_ANTENNA_DETECTION_CNT	10
 
 
-typedef struct _ANT_DETECTED_INFO{
+typedef struct _ANT_DETECTED_INFO {
 	BOOLEAN			bAntDetected;
 	u4Byte			dBForAntA;
 	u4Byte			dBForAntB;
 	u4Byte			dBForAntO;
-}ANT_DETECTED_INFO, *PANT_DETECTED_INFO;
+} ANT_DETECTED_INFO, *PANT_DETECTED_INFO;
 
 
-typedef enum tag_SW_Antenna_Switch_Definition
-{
+typedef enum tag_SW_Antenna_Switch_Definition {
 	Antenna_A = 1,
-	Antenna_B = 2,	
+	Antenna_B = 2,
 	Antenna_MAX = 3,
-}DM_SWAS_E;
+} DM_SWAS_E;
 
 
 
@@ -56,23 +55,23 @@ typedef enum tag_SW_Antenna_Switch_Definition
 
 VOID
 ODM_SingleDualAntennaDefaultSetting(
-	IN		PVOID		pDM_VOID
-	);
+    IN		PVOID		pDM_VOID
+);
 
 BOOLEAN
 ODM_SingleDualAntennaDetection(
-	IN		PVOID		pDM_VOID,
-	IN		u1Byte			mode
-	);
+    IN		PVOID		pDM_VOID,
+    IN		u1Byte			mode
+);
 
 //1 [2. Scan AP RSSI Method] ==================================================
 
 #define SwAntDivCheckBeforeLink	ODM_SwAntDivCheckBeforeLink
 
-BOOLEAN 
+BOOLEAN
 ODM_SwAntDivCheckBeforeLink(
-	IN		PVOID		pDM_VOID
-	);
+    IN		PVOID		pDM_VOID
+);
 
 
 
@@ -82,17 +81,15 @@ ODM_SwAntDivCheckBeforeLink(
 
 VOID
 ODM_SingleDualAntennaDetection_PSD(
-	IN		PVOID		pDM_VOID
+    IN		PVOID		pDM_VOID
 );
 
 #endif
 
 VOID
 odm_SwAntDetectInit(
-	IN		PVOID		pDM_VOID
-	);
+    IN		PVOID		pDM_VOID
+);
 
 
 #endif
-
-

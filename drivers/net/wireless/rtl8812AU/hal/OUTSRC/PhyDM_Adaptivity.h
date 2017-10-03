@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,124 +17,122 @@
  *
  *
  ******************************************************************************/
- 
+
 #ifndef	__PHYDMADAPTIVITY_H__
 #define    __PHYDMADAPTIVITY_H__
 
-#define ADAPTIVITY_VERSION	"8.3"
+#define ADAPTIVITY_VERSION	"8.2"
 
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
 typedef enum _tag_PhyDM_REGULATION_Type {
 	REGULATION_FCC = 0,
 	REGULATION_MKK = 1,
 	REGULATION_ETSI = 2,
-	REGULATION_WW = 3,	
-	
+	REGULATION_WW = 3,
+
 	MAX_REGULATION_NUM = 4
 } PhyDM_REGULATION_TYPE;
 #endif
 
 
-typedef enum tag_PhyDM_TRx_MUX_Type
-{
+typedef enum tag_PhyDM_TRx_MUX_Type {
 	PhyDM_SHUTDOWN			= 0,
 	PhyDM_STANDBY_MODE		= 1,
 	PhyDM_TX_MODE			= 2,
 	PhyDM_RX_MODE			= 3
-}PhyDM_Trx_MUX_Type;
+} PhyDM_Trx_MUX_Type;
 
-typedef enum tag_PhyDM_MACEDCCA_Type
-{
+typedef enum tag_PhyDM_MACEDCCA_Type {
 	PhyDM_IGNORE_EDCCA			= 0,
 	PhyDM_DONT_IGNORE_EDCCA	= 1
-}PhyDM_MACEDCCA_Type;
+} PhyDM_MACEDCCA_Type;
 
 
 VOID
 Phydm_CheckAdaptivity(
-	IN		PVOID			pDM_VOID
-	);
+    IN		PVOID			pDM_VOID
+);
 
 VOID
 Phydm_CheckEnvironment(
-	IN		PVOID					pDM_VOID
-	);
+    IN		PVOID					pDM_VOID
+);
 
 VOID
 Phydm_NHMCounterStatisticsInit(
-	IN		PVOID					pDM_VOID
-	);
+    IN		PVOID					pDM_VOID
+);
 
 VOID
 Phydm_NHMCounterStatistics(
-	IN		PVOID					pDM_VOID
-	);
+    IN		PVOID					pDM_VOID
+);
 
 VOID
 Phydm_NHMCounterStatisticsReset(
-	IN		PVOID			pDM_VOID
+    IN		PVOID			pDM_VOID
 );
 
 VOID
 Phydm_GetNHMCounterStatistics(
-	IN		PVOID			pDM_VOID
+    IN		PVOID			pDM_VOID
 );
 
 VOID
 Phydm_MACEDCCAState(
-	IN	PVOID					pDM_VOID,
-	IN	PhyDM_MACEDCCA_Type		State
+    IN	PVOID					pDM_VOID,
+    IN	PhyDM_MACEDCCA_Type		State
 );
 
 VOID
 Phydm_SetEDCCAThreshold(
-	IN		PVOID		pDM_VOID,
-	IN		s1Byte		H2L,
-	IN		s1Byte		L2H
+    IN		PVOID		pDM_VOID,
+    IN		s1Byte		H2L,
+    IN		s1Byte		L2H
 );
 
 VOID
 Phydm_SetTRxMux(
-	IN		PVOID			pDM_VOID,
-	IN		PhyDM_Trx_MUX_Type			txMode,
-	IN		PhyDM_Trx_MUX_Type			rxMode
-);	
+    IN		PVOID			pDM_VOID,
+    IN		PhyDM_Trx_MUX_Type			txMode,
+    IN		PhyDM_Trx_MUX_Type			rxMode
+);
 
 BOOLEAN
 Phydm_CalNHMcnt(
-	IN		PVOID		pDM_VOID
+    IN		PVOID		pDM_VOID
 );
 
 VOID
 Phydm_SearchPwdBLowerBound(
-	IN		PVOID					pDM_VOID
+    IN		PVOID					pDM_VOID
 );
 
-VOID 
+VOID
 Phydm_AdaptivityInit(
-	IN		PVOID					pDM_VOID
-	);
+    IN		PVOID					pDM_VOID
+);
 
 VOID
 Phydm_Adaptivity(
-	IN		PVOID					pDM_VOID,
-	IN		u1Byte					IGI
-	);
+    IN		PVOID					pDM_VOID,
+    IN		u1Byte					IGI
+);
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 VOID
 Phydm_DisableEDCCA(
-	IN		PVOID					pDM_VOID
+    IN		PVOID					pDM_VOID
 );
 
 VOID
 Phydm_DynamicEDCCA(
-	IN		PVOID					pDM_VOID
+    IN		PVOID					pDM_VOID
 );
 
 VOID
 Phydm_AdaptivityBSOD(
-	IN		PVOID					pDM_VOID
+    IN		PVOID					pDM_VOID
 );
 
 #endif

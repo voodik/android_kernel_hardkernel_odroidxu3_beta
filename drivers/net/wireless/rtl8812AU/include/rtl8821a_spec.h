@@ -101,4 +101,3 @@
 #define CAM_ENTRY_NUM_8821A 64
 
 #endif /* __RTL8821A_SPEC_H__ */
-

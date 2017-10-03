@@ -37,11 +37,11 @@
 
 /*--------------------------Define Parameters-------------------------------*/
 
-/*------------------------------Define structure----------------------------*/ 
+/*------------------------------Define structure----------------------------*/
 
 /* BB/RF related */
 
-/*------------------------------Define structure----------------------------*/ 
+/*------------------------------Define structure----------------------------*/
 
 
 /*------------------------Export global variable----------------------------*/
@@ -57,21 +57,21 @@
 // BB and RF register read/write
 //
 u32	PHY_QueryBBReg8192E(	IN	PADAPTER	Adapter,
-								IN	u32			RegAddr,
-								IN	u32			BitMask	);
+                            IN	u32			RegAddr,
+                            IN	u32			BitMask	);
 void	PHY_SetBBReg8192E(	IN	PADAPTER		Adapter,
-								IN	u32			RegAddr,
-								IN	u32			BitMask,
-								IN	u32			Data	);
+                            IN	u32			RegAddr,
+                            IN	u32			BitMask,
+                            IN	u32			Data	);
 u32	PHY_QueryRFReg8192E(	IN	PADAPTER	Adapter,
-								IN	u8			eRFPath,
-								IN	u32			RegAddr,
-								IN	u32			BitMask	);
+                            IN	u8			eRFPath,
+                            IN	u32			RegAddr,
+                            IN	u32			BitMask	);
 void	PHY_SetRFReg8192E(	IN	PADAPTER		Adapter,
-							IN	u8			eRFPath,
-								IN	u32			RegAddr,
-								IN	u32			BitMask,
-								IN	u32			Data	);
+                            IN	u8			eRFPath,
+                            IN	u32			RegAddr,
+                            IN	u32			BitMask,
+                            IN	u32			Data	);
 
 //
 // Initialization related function
@@ -93,29 +93,29 @@ BOOLEAN	PHY_UpdateTxPowerDbm8192E( IN PADAPTER	Adapter, IN int	powerInDbm	);
 
 VOID
 PHY_SetTxPowerIndex_8192E(
-	IN	PADAPTER			Adapter,
-	IN	u32					PowerIndex,
-	IN	u8					RFPath,	
-	IN	u8					Rate
-	);
+    IN	PADAPTER			Adapter,
+    IN	u32					PowerIndex,
+    IN	u8					RFPath,
+    IN	u8					Rate
+);
 
 u8
 PHY_GetTxPowerIndex_8192E(
-	IN	PADAPTER			pAdapter,
-	IN	u8					RFPath,
-	IN	u8					Rate,	
-	IN	CHANNEL_WIDTH		BandWidth,	
-	IN	u8					Channel
-	);
+    IN	PADAPTER			pAdapter,
+    IN	u8					RFPath,
+    IN	u8					Rate,
+    IN	CHANNEL_WIDTH		BandWidth,
+    IN	u8					Channel
+);
 
 //
 // Switch bandwidth for 8192S
 //
 VOID
 PHY_SetBWMode8192E(
-	IN	PADAPTER			pAdapter,
-	IN	CHANNEL_WIDTH	Bandwidth,
-	IN	u8					Offset
+    IN	PADAPTER			pAdapter,
+    IN	CHANNEL_WIDTH	Bandwidth,
+    IN	u8					Offset
 );
 
 //
@@ -123,31 +123,31 @@ PHY_SetBWMode8192E(
 //
 VOID
 PHY_SwChnl8192E(
-	IN	PADAPTER	Adapter,
-	IN	u8			channel
+    IN	PADAPTER	Adapter,
+    IN	u8			channel
 );
 
 
 VOID
 PHY_SetSwChnlBWMode8192E(
-	IN	PADAPTER			Adapter,
-	IN	u8					channel,
-	IN	CHANNEL_WIDTH	Bandwidth,
-	IN	u8					Offset40,
-	IN	u8					Offset80
+    IN	PADAPTER			Adapter,
+    IN	u8					channel,
+    IN	CHANNEL_WIDTH	Bandwidth,
+    IN	u8					Offset40,
+    IN	u8					Offset80
 );
 
-void 
+void
 phy_SpurCalibration_8192E(
-	IN	PADAPTER			Adapter,
-	IN	SPUR_CAL_METHOD	Method
+    IN	PADAPTER			Adapter,
+    IN	SPUR_CAL_METHOD	Method
 );
 void PHY_SpurCalibration_8192E(IN PADAPTER Adapter);
 
 #ifdef CONFIG_SPUR_CAL_NBI
-void 
+void
 phy_SpurCalibration_8192E_NBI(
-	IN	PADAPTER			Adapter
+    IN	PADAPTER			Adapter
 );
 #endif
 //
@@ -156,17 +156,17 @@ phy_SpurCalibration_8192E_NBI(
 
 VOID
 PHY_SetRFPathSwitch_8192E(
-	IN	PADAPTER	pAdapter,
-	IN	BOOLEAN		bMain
+    IN	PADAPTER	pAdapter,
+    IN	BOOLEAN		bMain
 );
 
 VOID
 storePwrIndexDiffRateOffset(
-	IN	PADAPTER	Adapter,
-	IN	u32		RegAddr,
-	IN	u32		BitMask,
-	IN	u32		Data
-	);
+    IN	PADAPTER	Adapter,
+    IN	u32		RegAddr,
+    IN	u32		BitMask,
+    IN	u32		Data
+);
 
 /*--------------------------Exported Function prototype---------------------*/
 #endif	// __INC_HAL8192CPHYCFG_H

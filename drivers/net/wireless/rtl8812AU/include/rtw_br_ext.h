@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -29,7 +29,7 @@
 #define DEBUG_INFO		//DBG_8192C
 #define DEBUG_ERR		DBG_8192C
 //#define GET_MY_HWADDR		((GET_MIB(priv))->dot11OperationEntry.hwaddr)
-#define GET_MY_HWADDR(padapter)		(adapter_mac_addr(padapter))
+#define GET_MY_HWADDR(padapter)		((padapter)->eeprompriv.mac_addr)
 #endif	// rtw_wifi_driver
 
 #define NAT25_HASH_BITS		4
@@ -42,8 +42,7 @@
 #define MAX_NETWORK_ADDR_LEN	11
 #endif
 
-struct nat25_network_db_entry
-{
+struct nat25_network_db_entry {
 	struct nat25_network_db_entry	*next_hash;
 	struct nat25_network_db_entry	**pprev_hash;
 	atomic_t						use_count;

@@ -24,7 +24,7 @@
 
 #include "hal_data.h"
 
-//include HAL Related header after HAL Related compiling flags 
+//include HAL Related header after HAL Related compiling flags
 #include "rtl8192e_spec.h"
 #include "rtl8192e_rf.h"
 #include "rtl8192e_dm.h"
@@ -45,18 +45,18 @@
 //---------------------------------------------------------------------
 //		RTL8192E From header
 //---------------------------------------------------------------------
-	#define RTL8192E_FW_IMG					"rtl8192e/FW_NIC.bin"
-	#define RTL8192E_FW_WW_IMG				"rtl8192e/FW_WoWLAN.bin"
-	#define RTL8192E_PHY_REG					"rtl8192e/PHY_REG.txt" 
-	#define RTL8192E_PHY_RADIO_A				"rtl8192e/RadioA.txt"
-	#define RTL8192E_PHY_RADIO_B				"rtl8192e/RadioB.txt"
-	#define RTL8192E_TXPWR_TRACK				"rtl8192e/TxPowerTrack.txt"
-	#define RTL8192E_AGC_TAB					"rtl8192e/AGC_TAB.txt"
-	#define RTL8192E_PHY_MACREG 				"rtl8192e/MAC_REG.txt"
-	#define RTL8192E_PHY_REG_PG				"rtl8192e/PHY_REG_PG.txt"
-	#define RTL8192E_PHY_REG_MP 				"rtl8192e/PHY_REG_MP.txt" 
-	#define RTL8192E_TXPWR_LMT					"rtl8192e/TXPWR_LMT.txt"
-	#define RTL8192E_WIFI_ANT_ISOLATION		"rtl8192e/wifi_ant_isolation.txt"
+#define RTL8192E_FW_IMG					"rtl8192e/FW_NIC.bin"
+#define RTL8192E_FW_WW_IMG				"rtl8192e/FW_WoWLAN.bin"
+#define RTL8192E_PHY_REG					"rtl8192e/PHY_REG.txt"
+#define RTL8192E_PHY_RADIO_A				"rtl8192e/RadioA.txt"
+#define RTL8192E_PHY_RADIO_B				"rtl8192e/RadioB.txt"
+#define RTL8192E_TXPWR_TRACK				"rtl8192e/TxPowerTrack.txt"
+#define RTL8192E_AGC_TAB					"rtl8192e/AGC_TAB.txt"
+#define RTL8192E_PHY_MACREG 				"rtl8192e/MAC_REG.txt"
+#define RTL8192E_PHY_REG_PG				"rtl8192e/PHY_REG_PG.txt"
+#define RTL8192E_PHY_REG_MP 				"rtl8192e/PHY_REG_MP.txt"
+#define RTL8192E_TXPWR_LMT					"rtl8192e/TXPWR_LMT.txt"
+#define RTL8192E_WIFI_ANT_ISOLATION		"rtl8192e/wifi_ant_isolation.txt"
 
 //---------------------------------------------------------------------
 //		RTL8192E Power Configuration CMDs for PCIe interface
@@ -69,7 +69,7 @@
 #define Rtl8192E_NIC_RESUME_FLOW				rtl8192E_resume_flow
 #define Rtl8192E_NIC_PDN_FLOW					rtl8192E_hwpdn_flow
 #define Rtl8192E_NIC_LPS_ENTER_FLOW			rtl8192E_enter_lps_flow
-#define Rtl8192E_NIC_LPS_LEAVE_FLOW			rtl8192E_leave_lps_flow	
+#define Rtl8192E_NIC_LPS_LEAVE_FLOW			rtl8192E_leave_lps_flow
 
 
 #if 1 // download firmware related data structure
@@ -106,7 +106,7 @@ typedef struct _RT_FIRMWARE_8192E {
 #define GET_FIRMWARE_HDR_FUNCTION_8192E(__FwHdr)		LE_BITS_TO_4BYTE(__FwHdr, 24, 8) // Reserved for different FW function indcation, for further use when driver needs to download different FW in different conditions
 #define GET_FIRMWARE_HDR_VERSION_8192E(__FwHdr)			LE_BITS_TO_4BYTE(__FwHdr+4, 0, 16)// FW Version
 #define GET_FIRMWARE_HDR_SUB_VER_8192E(__FwHdr)			LE_BITS_TO_4BYTE(__FwHdr+4, 16, 8) // FW Subversion, default 0x00
-#define GET_FIRMWARE_HDR_RSVD1_8192E(__FwHdr)			LE_BITS_TO_4BYTE(__FwHdr+4, 24, 8) 		
+#define GET_FIRMWARE_HDR_RSVD1_8192E(__FwHdr)			LE_BITS_TO_4BYTE(__FwHdr+4, 24, 8)
 
 //--- LONG WORD 1 ----
 #define GET_FIRMWARE_HDR_MONTH_8192E(__FwHdr)			LE_BITS_TO_4BYTE(__FwHdr+8, 0, 8) // Release time Month field
@@ -129,10 +129,10 @@ typedef struct _RT_FIRMWARE_8192E {
 #define DRIVER_EARLY_INT_TIME_8192E		0x05
 #define BCN_DMA_ATIME_INT_TIME_8192E		0x02
 #define RX_DMA_SIZE_8192E					0x4000	/* 16K*/
-#ifdef CONFIG_FW_C2H_DEBUG 
-	#define RX_DMA_RESERVED_SIZE_8192E	0x100	/* 256B, reserved for c2h debug message*/
+#ifdef CONFIG_FW_C2H_DEBUG
+#define RX_DMA_RESERVED_SIZE_8192E	0x100	/* 256B, reserved for c2h debug message*/
 #else
-	#define RX_DMA_RESERVED_SIZE_8192E	0x40	/* 64B, reserved for c2h event(16bytes) or ccx(8 Bytes )*/
+#define RX_DMA_RESERVED_SIZE_8192E	0x40	/* 64B, reserved for c2h event(16bytes) or ccx(8 Bytes )*/
 #endif
 #define MAX_RX_DMA_BUFFER_SIZE_8192E		(RX_DMA_SIZE_8192E-RX_DMA_RESERVED_SIZE_8192E)	/*RX 16K*/
 
@@ -206,7 +206,7 @@ typedef struct _RT_FIRMWARE_8192E {
 // <Roger_Notes> To prevent out of boundary programming case, leave 1byte and program full section
 // 9bytes + 1byt + 5bytes and pre 1byte.
 // For worst case:
-// | 1byte|----8bytes----|1byte|--5bytes--| 
+// | 1byte|----8bytes----|1byte|--5bytes--|
 // |         |            Reserved(14bytes)	      |
 //
 #define		EFUSE_OOB_PROTECT_BYTES_8192E 		15	// PG data exclude header, dummy 6 bytes frome CP test and reserved 1byte.
@@ -256,7 +256,7 @@ void	Hal_EfuseParseBTCoexistInfo8192E(PADAPTER Adapter, u8* hwinfo, BOOLEAN Auto
 u8 Hal_CrystalAFEAdjust(_adapter * Adapter);
 
 BOOLEAN HalDetectPwrDownMode8192E(PADAPTER Adapter);
-	
+
 #ifdef CONFIG_WOWLAN
 void Hal_DetectWoWMode(PADAPTER pAdapter);
 #endif //CONFIG_WOWLAN
@@ -274,16 +274,16 @@ VOID _InitRDGSetting_8192E(PADAPTER Adapter);
 void _InitID_8192E(IN  PADAPTER Adapter);
 VOID _InitNetworkType_8192E(IN  PADAPTER Adapter);
 VOID _InitWMACSetting_8192E(IN PADAPTER Adapter);
-VOID _InitAdaptiveCtrl_8192E(IN  PADAPTER Adapter);
+VOID _InitAdaptiveCtrl_8192E(IN  PADAPTER Adapter);
 VOID _InitRateFallback_8192E(IN  PADAPTER Adapter);
 VOID _InitEDCA_8192E( IN  PADAPTER Adapter);
 VOID _InitRetryFunction_8192E(	IN  PADAPTER Adapter);
 VOID _BBTurnOnBlock_8192E(IN	PADAPTER Adapter);
 VOID _InitBeaconParameters_8192E(IN  PADAPTER Adapter);
 VOID _InitBeaconMaxError_8192E(
-	IN  PADAPTER	Adapter,
-	IN	BOOLEAN		InfraMode
-	);
+    IN  PADAPTER	Adapter,
+    IN	BOOLEAN		InfraMode
+);
 void SetBeaconRelatedRegisters8192E(PADAPTER padapter);
 VOID hal_ReadRFType_8192E(PADAPTER	Adapter);
 // RTL8192E-MAC Setting
@@ -293,16 +293,16 @@ void SetHwReg8192E(PADAPTER Adapter, u8 variable, u8* val);
 void GetHwReg8192E(PADAPTER Adapter, u8 variable, u8* val);
 u8
 SetHalDefVar8192E(
-	IN	PADAPTER				Adapter,
-	IN	HAL_DEF_VARIABLE		eVariable,
-	IN	PVOID					pValue
-	);
+    IN	PADAPTER				Adapter,
+    IN	HAL_DEF_VARIABLE		eVariable,
+    IN	PVOID					pValue
+);
 u8
 GetHalDefVar8192E(
-	IN	PADAPTER				Adapter,
-	IN	HAL_DEF_VARIABLE		eVariable,
-	IN	PVOID					pValue
-	);
+    IN	PADAPTER				Adapter,
+    IN	HAL_DEF_VARIABLE		eVariable,
+    IN	PVOID					pValue
+);
 
 void rtl8192e_set_hal_ops(struct hal_ops *pHalFunc);
 void rtl8192e_init_default_value(_adapter * padapter);

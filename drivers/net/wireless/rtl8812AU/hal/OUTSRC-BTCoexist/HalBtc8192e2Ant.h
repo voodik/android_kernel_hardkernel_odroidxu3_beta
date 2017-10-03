@@ -12,20 +12,16 @@
 #define	BT_INFO_8192E_2ANT_B_SCO_ESCO				BIT1
 #define	BT_INFO_8192E_2ANT_B_CONNECTION				BIT0
 
-#define	BT_INFO_8192E_2ANT_A2DP_BASIC_RATE(_BT_INFO_EXT_)	\
-		(((_BT_INFO_EXT_&BIT0))? TRUE:FALSE)
-
 #define		BTC_RSSI_COEX_THRESH_TOL_8192E_2ANT		2
-#define 	NOISY_AP_NUM_THRESH						5
 
-typedef enum _BT_INFO_SRC_8192E_2ANT{
+typedef enum _BT_INFO_SRC_8192E_2ANT {
 	BT_INFO_SRC_8192E_2ANT_WIFI_FW			= 0x0,
 	BT_INFO_SRC_8192E_2ANT_BT_RSP				= 0x1,
 	BT_INFO_SRC_8192E_2ANT_BT_ACTIVE_SEND		= 0x2,
 	BT_INFO_SRC_8192E_2ANT_MAX
-}BT_INFO_SRC_8192E_2ANT,*PBT_INFO_SRC_8192E_2ANT;
+} BT_INFO_SRC_8192E_2ANT,*PBT_INFO_SRC_8192E_2ANT;
 
-typedef enum _BT_8192E_2ANT_BT_STATUS{
+typedef enum _BT_8192E_2ANT_BT_STATUS {
 	BT_8192E_2ANT_BT_STATUS_NON_CONNECTED_IDLE	= 0x0,
 	BT_8192E_2ANT_BT_STATUS_CONNECTED_IDLE		= 0x1,
 	BT_8192E_2ANT_BT_STATUS_INQ_PAGE				= 0x2,
@@ -33,9 +29,9 @@ typedef enum _BT_8192E_2ANT_BT_STATUS{
 	BT_8192E_2ANT_BT_STATUS_SCO_BUSY				= 0x4,
 	BT_8192E_2ANT_BT_STATUS_ACL_SCO_BUSY			= 0x5,
 	BT_8192E_2ANT_BT_STATUS_MAX
-}BT_8192E_2ANT_BT_STATUS,*PBT_8192E_2ANT_BT_STATUS;
+} BT_8192E_2ANT_BT_STATUS,*PBT_8192E_2ANT_BT_STATUS;
 
-typedef enum _BT_8192E_2ANT_COEX_ALGO{
+typedef enum _BT_8192E_2ANT_COEX_ALGO {
 	BT_8192E_2ANT_COEX_ALGO_UNDEFINED		= 0x0,
 	BT_8192E_2ANT_COEX_ALGO_SCO				= 0x1,
 	BT_8192E_2ANT_COEX_ALGO_SCO_PAN			= 0x2,
@@ -49,9 +45,9 @@ typedef enum _BT_8192E_2ANT_COEX_ALGO{
 	BT_8192E_2ANT_COEX_ALGO_HID_A2DP_PANEDR	= 0xa,
 	BT_8192E_2ANT_COEX_ALGO_HID_A2DP		= 0xb,
 	BT_8192E_2ANT_COEX_ALGO_MAX				= 0xc
-}BT_8192E_2ANT_COEX_ALGO,*PBT_8192E_2ANT_COEX_ALGO;
+} BT_8192E_2ANT_COEX_ALGO,*PBT_8192E_2ANT_COEX_ALGO;
 
-typedef struct _COEX_DM_8192E_2ANT{
+typedef struct _COEX_DM_8192E_2ANT {
 	// fw mechanism
 	u1Byte		preBtDecPwrLvl;
 	u1Byte		curBtDecPwrLvl;
@@ -65,15 +61,10 @@ typedef struct _COEX_DM_8192E_2ANT{
 	u1Byte		psTdmaDuAdjType;
 	BOOLEAN		bResetTdmaAdjust;
 	BOOLEAN		bAutoTdmaAdjust;
-	BOOLEAN		bAutoTdmaAdjustLowRssi;
 	BOOLEAN		bPrePsTdmaOn;
 	BOOLEAN		bCurPsTdmaOn;
 	BOOLEAN		bPreBtAutoReport;
 	BOOLEAN		bCurBtAutoReport;
-	u1Byte		preLps;
-	u1Byte		curLps;
-	u1Byte		preRpwm;
-	u1Byte		curRpwm;
 
 	// sw mechanism
 	BOOLEAN		bPreRfRxLpfShrink;
@@ -124,7 +115,7 @@ typedef struct _COEX_DM_8192E_2ANT{
 	u1Byte		curAmpduTimeType;
 } COEX_DM_8192E_2ANT, *PCOEX_DM_8192E_2ANT;
 
-typedef struct _COEX_STA_8192E_2ANT{	
+typedef struct _COEX_STA_8192E_2ANT {
 	BOOLEAN					bBtLinkExist;
 	BOOLEAN					bScoExist;
 	BOOLEAN					bA2dpExist;
@@ -146,86 +137,69 @@ typedef struct _COEX_STA_8192E_2ANT{
 	BOOLEAN					bC2hBtInquiryPage;
 	u1Byte					btRetryCnt;
 	u1Byte					btInfoExt;
-	u1Byte					nScanAPNum;
-
-	u4Byte					nCRCOK_CCK;
-	u4Byte					nCRCOK_11g;
-	u4Byte					nCRCOK_11n;
-	u4Byte					nCRCOK_11nAgg;
-	
-	u4Byte					nCRCErr_CCK;
-	u4Byte					nCRCErr_11g;
-	u4Byte					nCRCErr_11n;
-	u4Byte					nCRCErr_11nAgg;
-
-	u1Byte					nCoexTableType;
-	BOOLEAN					bForceLpsOn;
-
-	u1Byte					disVerInfoCnt;
-}COEX_STA_8192E_2ANT, *PCOEX_STA_8192E_2ANT;
+} COEX_STA_8192E_2ANT, *PCOEX_STA_8192E_2ANT;
 
 //===========================================
 // The following is interface which will notify coex module.
 //===========================================
 VOID
 EXhalbtc8192e2ant_PowerOnSetting(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
+    IN	PBTC_COEXIST		pBtCoexist
+);
 VOID
 EXhalbtc8192e2ant_InitHwConfig(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	BOOLEAN				bWifiOnly
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	BOOLEAN				bWifiOnly
+);
 VOID
 EXhalbtc8192e2ant_InitCoexDm(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
+    IN	PBTC_COEXIST		pBtCoexist
+);
 VOID
 EXhalbtc8192e2ant_IpsNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8192e2ant_LpsNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8192e2ant_ScanNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8192e2ant_ConnectNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	u1Byte			type
+);
 VOID
 EXhalbtc8192e2ant_MediaStatusNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				type
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u1Byte				type
+);
 VOID
 EXhalbtc8192e2ant_SpecialPacketNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				type
-	);
+    IN	PBTC_COEXIST			pBtCoexist,
+    IN	u1Byte				type
+);
 VOID
 EXhalbtc8192e2ant_BtInfoNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	pu1Byte			tmpBuf,
-	IN	u1Byte			length
-	);
+    IN	PBTC_COEXIST		pBtCoexist,
+    IN	pu1Byte			tmpBuf,
+    IN	u1Byte			length
+);
 VOID
 EXhalbtc8192e2ant_HaltNotify(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
+    IN	PBTC_COEXIST			pBtCoexist
+);
 VOID
 EXhalbtc8192e2ant_Periodical(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
+    IN	PBTC_COEXIST			pBtCoexist
+);
 VOID
 EXhalbtc8192e2ant_DisplayCoexInfo(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
-
+    IN	PBTC_COEXIST		pBtCoexist
+);

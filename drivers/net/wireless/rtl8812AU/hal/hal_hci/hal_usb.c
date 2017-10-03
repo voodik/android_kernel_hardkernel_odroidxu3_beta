@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -35,28 +35,28 @@ int	usb_init_recv_priv(_adapter *padapter, u16 ini_in_buf_sz)
 
 #ifdef PLATFORM_LINUX
 	tasklet_init(&precvpriv->recv_tasklet,
-		(void(*)(unsigned long))usb_recv_tasklet,
-		(unsigned long)padapter);
+	             (void(*)(unsigned long))usb_recv_tasklet,
+	             (unsigned long)padapter);
 #endif /* PLATFORM_LINUX */
 
 #ifdef PLATFORM_FREEBSD
 	TASK_INIT(&precvpriv->recv_tasklet, 0, rtl8192du_recv_tasklet, padapter);
-	#ifdef CONFIG_RX_INDICATE_QUEUE
+#ifdef CONFIG_RX_INDICATE_QUEUE
 	TASK_INIT(&precvpriv->rx_indicate_tasklet, 0, rtw_rx_indicate_tasklet, padapter);
-	#endif /* CONFIG_RX_INDICATE_QUEUE */
+#endif /* CONFIG_RX_INDICATE_QUEUE */
 #endif /* PLATFORM_FREEBSD */
 
 #ifdef CONFIG_USB_INTERRUPT_IN_PIPE
 #ifdef PLATFORM_LINUX
 	precvpriv->int_in_urb = usb_alloc_urb(0, GFP_KERNEL);
-	if(precvpriv->int_in_urb == NULL){
+	if(precvpriv->int_in_urb == NULL) {
 		res = _FAIL;
 		DBG_8192C("alloc_urb for interrupt in endpoint fail !!!!\n");
 		goto exit;
 	}
 #endif /* PLATFORM_LINUX */
 	precvpriv->int_in_buf = rtw_zmalloc(ini_in_buf_sz);
-	if(precvpriv->int_in_buf == NULL){
+	if(precvpriv->int_in_buf == NULL) {
 		res = _FAIL;
 		DBG_8192C("alloc_mem for interrupt in endpoint fail !!!!\n");
 		goto exit;
@@ -66,15 +66,13 @@ int	usb_init_recv_priv(_adapter *padapter, u16 ini_in_buf_sz)
 	/* init recv_buf */
 	_rtw_init_queue(&precvpriv->free_recv_buf_queue);
 	_rtw_init_queue(&precvpriv->recv_buf_pending_queue);
-	#ifndef CONFIG_USE_USB_BUFFER_ALLOC_RX
+#ifndef CONFIG_USE_USB_BUFFER_ALLOC_RX
 	/* this is used only when RX_IOBUF is sk_buff */
 	skb_queue_head_init(&precvpriv->free_recv_skb_queue);
-	#endif
+#endif
 
-	DBG_871X("NR_RECVBUFF: %d\n", NR_RECVBUFF);
-	DBG_871X("MAX_RECVBUF_SZ: %d\n", MAX_RECVBUF_SZ);
 	precvpriv->pallocated_recv_buf = rtw_zmalloc(NR_RECVBUFF *sizeof(struct recv_buf) + 4);
-	if(precvpriv->pallocated_recv_buf==NULL){
+	if(precvpriv->pallocated_recv_buf==NULL) {
 		res= _FAIL;
 		RT_TRACE(_module_rtl871x_recv_c_,_drv_err_,("alloc recv_buf fail!\n"));
 		goto exit;
@@ -84,8 +82,7 @@ int	usb_init_recv_priv(_adapter *padapter, u16 ini_in_buf_sz)
 
 	precvbuf = (struct recv_buf*)precvpriv->precv_buf;
 
-	for(i=0; i < NR_RECVBUFF ; i++)
-	{
+	for(i=0; i < NR_RECVBUFF ; i++) {
 		_rtw_init_listhead(&precvbuf->list);
 
 		_rtw_spinlock_init(&precvbuf->recvbuf_lock);
@@ -122,26 +119,19 @@ int	usb_init_recv_priv(_adapter *padapter, u16 ini_in_buf_sz)
 		SIZE_PTR alignment=0;
 		struct sk_buff *pskb=NULL;
 
-		DBG_871X("NR_PREALLOC_RECV_SKB: %d\n", NR_PREALLOC_RECV_SKB);
-#ifdef CONFIG_FIX_NR_BULKIN_BUFFER
-		DBG_871X("Enable CONFIG_FIX_NR_BULKIN_BUFFER\n");
-#endif
-		
-		for(i=0; i<NR_PREALLOC_RECV_SKB; i++)
-		{
+		for(i=0; i<NR_PREALLOC_RECV_SKB; i++) {
 #ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-			pskb = rtw_alloc_skb_premem(MAX_RECVBUF_SZ);
+			pskb = rtw_alloc_skb_premem();
 #else
 			pskb = rtw_skb_alloc(MAX_RECVBUF_SZ + RECVBUFF_ALIGN_SZ);
 #endif //CONFIG_PREALLOC_RX_SKB_BUFFER
 
-			if(pskb)
-			{
-				#ifdef PLATFORM_FREEBSD
+			if(pskb) {
+#ifdef PLATFORM_FREEBSD
 				pskb->dev = padapter->pifp;
-				#else
+#else
 				pskb->dev = padapter->pnetdev;
-				#endif //PLATFORM_FREEBSD
+#endif //PLATFORM_FREEBSD
 
 #ifndef CONFIG_PREALLOC_RX_SKB_BUFFER
 				tmpaddr = (SIZE_PTR)pskb->data;
@@ -150,6 +140,8 @@ int	usb_init_recv_priv(_adapter *padapter, u16 ini_in_buf_sz)
 #endif
 				skb_queue_tail(&precvpriv->free_recv_skb_queue, pskb);
 			}
+
+			pskb=NULL;
 		}
 	}
 #endif /* CONFIG_PREALLOC_RECV_SKB */
@@ -169,8 +161,7 @@ void usb_free_recv_priv (_adapter *padapter, u16 ini_in_buf_sz)
 
 	precvbuf = (struct recv_buf *)precvpriv->precv_buf;
 
-	for(i=0; i < NR_RECVBUFF ; i++)
-	{
+	for(i=0; i < NR_RECVBUFF ; i++) {
 		rtw_os_recvbuf_resource_free(padapter, precvbuf);
 		precvbuf++;
 	}
@@ -180,8 +171,7 @@ void usb_free_recv_priv (_adapter *padapter, u16 ini_in_buf_sz)
 
 #ifdef CONFIG_USB_INTERRUPT_IN_PIPE
 #ifdef PLATFORM_LINUX
-	if(precvpriv->int_in_urb)
-	{
+	if(precvpriv->int_in_urb) {
 		usb_free_urb(precvpriv->int_in_urb);
 	}
 #endif
@@ -202,33 +192,31 @@ void usb_free_recv_priv (_adapter *padapter, u16 ini_in_buf_sz)
 	}
 
 #if !defined(CONFIG_USE_USB_BUFFER_ALLOC_RX)
-	#if defined(CONFIG_PREALLOC_RECV_SKB) && defined(CONFIG_PREALLOC_RX_SKB_BUFFER)
+#if defined(CONFIG_PREALLOC_RECV_SKB) && defined(CONFIG_PREALLOC_RX_SKB_BUFFER)
 	{
 		struct sk_buff *skb;
 
-		while ((skb = skb_dequeue(&precvpriv->free_recv_skb_queue)) != NULL)
-		{
+		while ((skb = skb_dequeue(&precvpriv->free_recv_skb_queue)) != NULL) {
 			if (rtw_free_skb_premem(skb) != 0)
 				rtw_skb_free(skb);
 		}
 	}
-	#else
+#else
 	rtw_skb_queue_purge(&precvpriv->free_recv_skb_queue);
-	#endif /* defined(CONFIG_PREALLOC_RX_SKB_BUFFER) && defined(CONFIG_PREALLOC_RECV_SKB) */
+#endif /* defined(CONFIG_PREALLOC_RX_SKB_BUFFER) && defined(CONFIG_PREALLOC_RECV_SKB) */
 #endif /* !defined(CONFIG_USE_USB_BUFFER_ALLOC_RX) */
 
 #endif /* PLATFORM_LINUX */
 
 #ifdef PLATFORM_FREEBSD
 	struct sk_buff  *pskb;
-	while (NULL != (pskb = skb_dequeue(&precvpriv->rx_skb_queue)))
-	{
+	while (NULL != (pskb = skb_dequeue(&precvpriv->rx_skb_queue))) {
 		rtw_skb_free(pskb);
 	}
 
-	#if !defined(CONFIG_USE_USB_BUFFER_ALLOC_RX)
+#if !defined(CONFIG_USE_USB_BUFFER_ALLOC_RX)
 	rtw_skb_queue_purge(&precvpriv->free_recv_skb_queue);
-	#endif
+#endif
 
 #ifdef CONFIG_RX_INDICATE_QUEUE
 	struct mbuf *m;
@@ -305,7 +293,7 @@ int usb_async_write32(struct intf_hdl *pintfhdl, u32 addr, u32 val)
 	data = val;
 	ret = usb_write_async(udev, addr, &data, 4);
 	_func_exit_;
-	
+
 	return ret;
 }
 #endif /* CONFIG_USB_SUPPORT_ASYNC_VDN_REQ */
@@ -314,10 +302,10 @@ int usb_async_write32(struct intf_hdl *pintfhdl, u32 addr, u32 val)
 
 #ifdef CONFIG_RTL8192D
 /*	This function only works in 92DU chip.		*/
-void usb_read_reg_rf_byfw(struct intf_hdl *pintfhdl, 
-				u16 byteCount, 
-				u32 registerIndex, 
-				PVOID buffer)
+void usb_read_reg_rf_byfw(struct intf_hdl *pintfhdl,
+                          u16 byteCount,
+                          u32 registerIndex,
+                          PVOID buffer)
 {
 	u16	wPage = 0x0000, offset;
 	u32	BufferLengthRead;
@@ -326,22 +314,19 @@ void usb_read_reg_rf_byfw(struct intf_hdl *pintfhdl,
 	u8	RFPath=0,nPHY=0;
 
 	RFPath =(u8) ((registerIndex&0xff0000)>>16);
-	
-	if (pHalData->interfaceIndex!=0)
-	{ 
+
+	if (pHalData->interfaceIndex!=0) {
 		nPHY = 1; //MAC1
 		if(registerIndex&MAC1_ACCESS_PHY0)// MAC1 need to access PHY0
 			nPHY = 0;
-	}
-	else
-	{
+	} else {
 		if(registerIndex&MAC0_ACCESS_PHY1)
 			nPHY = 1;
 	}
 	registerIndex &= 0xFF;
 	wPage = ((nPHY<<7)|(RFPath<<5)|8)<<8;
 	offset = (u16)registerIndex;
-	
+
 	//
 	// IN a vendor request to read back MAC register.
 	//
@@ -359,8 +344,7 @@ static inline void usb_value_remask(struct intf_hdl *pintfhdl, u16 *value)
 	_adapter	*padapter = pintfhdl->padapter;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 
-	if ((IS_HARDWARE_TYPE_8192DU(padapter)) && (pHalData->interfaceIndex!=0))
-	{
+	if ((IS_HARDWARE_TYPE_8192DU(padapter)) && (pHalData->interfaceIndex!=0)) {
 		if(*value<0x1000)
 			*value|=0x4000;
 		else if ((*value&MAC1_ACCESS_PHY0) && !(*value&0x8000))   // MAC1 need to access PHY0
@@ -377,7 +361,7 @@ u8 usb_read8(struct intf_hdl *pintfhdl, u32 addr)
 	u16 index;
 	u16 len;
 	u8 data=0;
-	
+
 	_func_enter_;
 
 	request = 0x05;
@@ -385,25 +369,25 @@ u8 usb_read8(struct intf_hdl *pintfhdl, u32 addr)
 	index = 0;//n/a
 
 	wvalue = (u16)(addr&0x0000ffff);
-	len = 1;	
+	len = 1;
 	usb_value_remask(pintfhdl, &wvalue);
 	usbctrl_vendorreq(pintfhdl, request, wvalue, index,
-					&data, len, requesttype);
+	                  &data, len, requesttype);
 
 	_func_exit_;
 
-	return data;	
+	return data;
 }
 
 u16 usb_read16(struct intf_hdl *pintfhdl, u32 addr)
-{       
+{
 	u8 request;
 	u8 requesttype;
 	u16 wvalue;
 	u16 index;
 	u16 len;
 	u16 data=0;
-	
+
 	_func_enter_;
 
 	request = 0x05;
@@ -411,15 +395,15 @@ u16 usb_read16(struct intf_hdl *pintfhdl, u32 addr)
 	index = 0;//n/a
 
 	wvalue = (u16)(addr&0x0000ffff);
-	len = 2;	
+	len = 2;
 	usb_value_remask(pintfhdl, &wvalue);
 	usbctrl_vendorreq(pintfhdl, request, wvalue, index,
-					&data, len, requesttype);
+	                  &data, len, requesttype);
 
 	_func_exit_;
 
 	return data;
-	
+
 }
 
 u32 usb_read32(struct intf_hdl *pintfhdl, u32 addr)
@@ -430,7 +414,7 @@ u32 usb_read32(struct intf_hdl *pintfhdl, u32 addr)
 	u16 index;
 	u16 len;
 	u32 data=0;
-	
+
 	_func_enter_;
 
 	request = 0x05;
@@ -442,12 +426,12 @@ u32 usb_read32(struct intf_hdl *pintfhdl, u32 addr)
 #ifdef CONFIG_RTL8192D
 	if ((IS_HARDWARE_TYPE_8192DU(pintfhdl->padapter)) && ((addr&0xff000000)>>24 == 0x66)) {
 		usb_read_reg_rf_byfw(pintfhdl, len, addr, &data);
-	} else 
+	} else
 #endif
 	{
 		usb_value_remask(pintfhdl, &wvalue);
 		usbctrl_vendorreq(pintfhdl, request, wvalue, index,
-						&data, len, requesttype);
+		                  &data, len, requesttype);
 	}
 
 	_func_exit_;
@@ -464,7 +448,7 @@ int usb_write8(struct intf_hdl *pintfhdl, u32 addr, u8 val)
 	u16 len;
 	u8 data;
 	int ret;
-	
+
 	_func_enter_;
 
 	request = 0x05;
@@ -473,19 +457,19 @@ int usb_write8(struct intf_hdl *pintfhdl, u32 addr, u8 val)
 
 	wvalue = (u16)(addr&0x0000ffff);
 	len = 1;
-	
-	data = val;	
+
+	data = val;
 	usb_value_remask(pintfhdl, &wvalue);
 	ret = usbctrl_vendorreq(pintfhdl, request, wvalue, index,
-						&data, len, requesttype);
-	
+	                        &data, len, requesttype);
+
 	_func_exit_;
-	
+
 	return ret;
 }
 
 int usb_write16(struct intf_hdl *pintfhdl, u32 addr, u16 val)
-{	
+{
 	u8 request;
 	u8 requesttype;
 	u16 wvalue;
@@ -493,7 +477,7 @@ int usb_write16(struct intf_hdl *pintfhdl, u32 addr, u16 val)
 	u16 len;
 	u16 data;
 	int ret;
-	
+
 	_func_enter_;
 
 	request = 0x05;
@@ -502,16 +486,16 @@ int usb_write16(struct intf_hdl *pintfhdl, u32 addr, u16 val)
 
 	wvalue = (u16)(addr&0x0000ffff);
 	len = 2;
-	
+
 	data = val;
 	usb_value_remask(pintfhdl, &wvalue);
 	ret = usbctrl_vendorreq(pintfhdl, request, wvalue, index,
-						&data, len, requesttype);
-	
+	                        &data, len, requesttype);
+
 	_func_exit_;
-	
+
 	return ret;
-	
+
 }
 
 int usb_write32(struct intf_hdl *pintfhdl, u32 addr, u32 val)
@@ -523,7 +507,7 @@ int usb_write32(struct intf_hdl *pintfhdl, u32 addr, u32 val)
 	u16 len;
 	u32 data;
 	int ret;
-	
+
 	_func_enter_;
 
 	request = 0x05;
@@ -532,15 +516,15 @@ int usb_write32(struct intf_hdl *pintfhdl, u32 addr, u32 val)
 
 	wvalue = (u16)(addr&0x0000ffff);
 	len = 4;
-	data =val;		
+	data =val;
 	usb_value_remask(pintfhdl, &wvalue);
 	ret = usbctrl_vendorreq(pintfhdl, request, wvalue, index,
-						&data, len, requesttype);
+	                        &data, len, requesttype);
 
 	_func_exit_;
-	
+
 	return ret;
-	
+
 }
 
 int usb_writeN(struct intf_hdl *pintfhdl, u32 addr, u32 length, u8 *pdata)
@@ -550,9 +534,9 @@ int usb_writeN(struct intf_hdl *pintfhdl, u32 addr, u32 length, u8 *pdata)
 	u16 wvalue;
 	u16 index;
 	u16 len;
-	u8 buf[VENDOR_CMD_MAX_DATA_LEN]={0};
+	u8 buf[VENDOR_CMD_MAX_DATA_LEN]= {0};
 	int ret;
-	
+
 	_func_enter_;
 
 	request = 0x05;
@@ -561,13 +545,13 @@ int usb_writeN(struct intf_hdl *pintfhdl, u32 addr, u32 length, u8 *pdata)
 
 	wvalue = (u16)(addr&0x0000ffff);
 	len = length;
-	 _rtw_memcpy(buf, pdata, len );
+	_rtw_memcpy(buf, pdata, len );
 	usb_value_remask(pintfhdl, &wvalue);
 	ret = usbctrl_vendorreq(pintfhdl, request, wvalue, index,
-						buf, len, requesttype);
-	
+	                        buf, len, requesttype);
+
 	_func_exit_;
-	
+
 	return ret;
-	
+
 }

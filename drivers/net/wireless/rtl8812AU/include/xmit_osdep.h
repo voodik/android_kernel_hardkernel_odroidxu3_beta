@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -49,9 +49,9 @@ struct pkt_file {
 #define ETH_ALEN	6
 
 extern NDIS_STATUS rtw_xmit_entry(
-IN _nic_hdl		cnxt,
-IN NDIS_PACKET		*pkt,
-IN UINT				flags
+    IN _nic_hdl		cnxt,
+    IN NDIS_PACKET		*pkt,
+    IN UINT				flags
 );
 
 #endif

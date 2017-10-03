@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -27,7 +27,7 @@
 #include "hal_com_reg.h"
 #include "hal_com_phycfg.h"
 
-/*------------------------------ Tx Desc definition Macro ------------------------*/ 
+/*------------------------------ Tx Desc definition Macro ------------------------*/
 //#pragma mark -- Tx Desc related definition. --
 //----------------------------------------------------------------------------
 //-----------------------------------------------------------
@@ -174,9 +174,9 @@
 (rate==DESC_RATEVHTSS2MCS9)?"VHTSS2MCS9":"UNKNOW"
 
 
-enum{
+enum {
 	UP_LINK,
-	DOWN_LINK,	
+	DOWN_LINK,
 };
 typedef enum _RT_MEDIA_STATUS {
 	RT_MEDIA_DISCONNECT = 0,
@@ -214,11 +214,10 @@ typedef enum _FIRMWARE_SOURCE {
 #define PageNum_512(_Len)		(u32)(((_Len)>>9) + ((_Len)&0x1FF ? 1:0))
 #define PageNum(_Len, _Size)		(u32)(((_Len)/(_Size)) + ((_Len)&((_Size) - 1) ? 1:0))
 
-struct dbg_rx_counter
-{
+struct dbg_rx_counter {
 	u32	rx_pkt_ok;
 	u32	rx_pkt_crc_error;
-	u32	rx_pkt_drop;	
+	u32	rx_pkt_drop;
 	u32	rx_ofdm_fa;
 	u32	rx_cck_fa;
 	u32	rx_ht_fa;
@@ -245,33 +244,33 @@ void dump_chip_info(HAL_VERSION	ChipVersion);
 
 u8	//return the final channel plan decision
 hal_com_config_channel_plan(
-	IN	PADAPTER	padapter,
-	IN	u8			hw_channel_plan,	//channel plan from HW (efuse/eeprom)
-	IN	u8			sw_channel_plan,	//channel plan from SW (registry/module param)
-	IN	u8			def_channel_plan,	//channel plan used when the former two is invalid
-	IN	BOOLEAN		AutoLoadFail
-	);
+    IN	PADAPTER	padapter,
+    IN	u8			hw_channel_plan,	//channel plan from HW (efuse/eeprom)
+    IN	u8			sw_channel_plan,	//channel plan from SW (registry/module param)
+    IN	u8			def_channel_plan,	//channel plan used when the former two is invalid
+    IN	BOOLEAN		AutoLoadFail
+);
 
 BOOLEAN
 HAL_IsLegalChannel(
-	IN	PADAPTER	Adapter,
-	IN	u32			Channel
-	);
+    IN	PADAPTER	Adapter,
+    IN	u32			Channel
+);
 
 u8	MRateToHwRate(u8 rate);
 
 u8	HwRateToMRate(u8 rate);
 
 void	HalSetBrateCfg(
-	IN PADAPTER		Adapter,
-	IN u8			*mBratesOS,
-	OUT u16			*pBrateCfg);
+    IN PADAPTER		Adapter,
+    IN const u8		*mBratesOS,
+    OUT u16			*pBrateCfg);
 
 BOOLEAN
 Hal_MappingOutPipe(
-	IN	PADAPTER	pAdapter,
-	IN	u8		NumOutPipe
-	);
+    IN	PADAPTER	pAdapter,
+    IN	u8		NumOutPipe
+);
 
 void hal_init_macaddr(_adapter *adapter);
 
@@ -287,70 +286,70 @@ void rtw_hal_update_sta_rate_mask(PADAPTER padapter, struct sta_info *psta);
 
 void hw_var_port_switch(_adapter *adapter);
 
-void SetHwReg(PADAPTER padapter, u8 variable, u8 *val);
+void SetHwReg(PADAPTER padapter, u8 variable, const u8 *val);
 void GetHwReg(PADAPTER padapter, u8 variable, u8 *val);
 void rtw_hal_check_rxfifo_full(_adapter *adapter);
 
-u8 SetHalDefVar(_adapter *adapter, HAL_DEF_VARIABLE variable, void *value);
+u8 SetHalDefVar(_adapter *adapter, HAL_DEF_VARIABLE variable, const void *value);
 u8 GetHalDefVar(_adapter *adapter, HAL_DEF_VARIABLE variable, void *value);
 
-BOOLEAN 
+BOOLEAN
 eqNByte(
-	u8*	str1,
-	u8*	str2,
-	u32	num
-	);
+    u8*	str1,
+    u8*	str2,
+    u32	num
+);
 
-BOOLEAN 
+BOOLEAN
 IsHexDigit(
-	IN	char	chTmp
-	);
+    IN	char	chTmp
+);
 
 u32
 MapCharToHexDigit(
-	IN	char	chTmp
+    IN	char	chTmp
 );
 
-BOOLEAN 
+BOOLEAN
 GetHexValueFromString(
-	IN		char*			szStr,
-	IN OUT	u32*			pu4bVal,
-	IN OUT	u32*			pu4bMove
-	);
+    IN		char*			szStr,
+    IN OUT	u32*			pu4bVal,
+    IN OUT	u32*			pu4bMove
+);
 
-BOOLEAN 
+BOOLEAN
 GetFractionValueFromString(
-	IN		char*		szStr,
-	IN OUT	u8*			pInteger,
-	IN OUT	u8*			pFraction,
-	IN OUT	u32*		pu4bMove
-	);
+    IN		char*		szStr,
+    IN OUT	u8*			pInteger,
+    IN OUT	u8*			pFraction,
+    IN OUT	u32*		pu4bMove
+);
 
 BOOLEAN
 IsCommentString(
-	IN		char*		szStr
-	);
+    IN		char*		szStr
+);
 
-BOOLEAN 
+BOOLEAN
 ParseQualifiedString(
-    IN	char* In, 
-    IN OUT  u32* Start, 
-    OUT	char* Out, 
-    IN	char  LeftQualifier, 
+    IN	char* In,
+    IN OUT  u32* Start,
+    OUT	char* Out,
+    IN	char  LeftQualifier,
     IN	char  RightQualifier
-    );
+);
 
 BOOLEAN
 GetU1ByteIntegerFromStringInDecimal(
-	IN		char* Str,
-	IN OUT	u8* pInt
-	);
+    IN		char* Str,
+    IN OUT	u8* pInt
+);
 
 BOOLEAN
 isAllSpaceOrTab(
-	u8*	data,
-	u8	size
-	);
+    u8*	data,
+    u8	size
+);
 
 void linked_info_dump(_adapter *padapter,u8 benable);
 #ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
@@ -375,23 +374,22 @@ void rtw_bb_rf_gain_offset(_adapter *padapter);
 
 void dm_DynamicUsbTxAgg(_adapter *padapter, u8 from_timer);
 u8 rtw_hal_busagg_qsel_check(_adapter *padapter,u8 pre_qsel,u8 next_qsel);
-void GetHalODMVar(	
-	PADAPTER				Adapter,
-	HAL_ODM_VARIABLE		eVariable,
-	PVOID					pValue1,
-	PVOID					pValue2);
+void GetHalODMVar(
+    PADAPTER				Adapter,
+    HAL_ODM_VARIABLE		eVariable,
+    PVOID					pValue1,
+    PVOID					pValue2);
 void SetHalODMVar(
-	PADAPTER				Adapter,
-	HAL_ODM_VARIABLE		eVariable,
-	PVOID					pValue1,
-	BOOLEAN					bSet);
+    PADAPTER				Adapter,
+    HAL_ODM_VARIABLE		eVariable,
+    PVOID					pValue1,
+    BOOLEAN					bSet);
 
 #ifdef CONFIG_BACKGROUND_NOISE_MONITOR
-struct noise_info
-{
+struct noise_info {
 	u8 		bPauseDIG;
 	u8 		IGIValue;
-	u32 	max_time;//ms	
+	u32 	max_time;//ms
 	u8		chan;
 };
 #endif
@@ -409,7 +407,7 @@ int rtw_hal_disable_gpio_interrupt(_adapter* adapter, int gpio_num);
 
 #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 extern char *rtw_phy_file_path;
-extern char file_path[PATH_LENGTH_MAX];
+extern char rtw_file_path[PATH_LENGTH_MAX];
 #define GetLineFromBuffer(buffer)   strsep(&buffer, "\n")
 #endif
 
@@ -420,7 +418,3 @@ void Debug_FwC2H(PADAPTER padapter, u8 *pdata, u8 len);
 
 
 #endif //__HAL_COMMON_H__
-
-
-
-

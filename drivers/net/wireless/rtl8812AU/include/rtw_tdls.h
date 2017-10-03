@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -71,22 +71,22 @@ struct wpa_tdls_lnkid {
 	u8 resp_sta[ETH_ALEN];
 } ;
 
-static u8 TDLS_RSNIE[20]={	0x01, 0x00,	/* Version shall be set to 1 */
-							0x00, 0x0f, 0xac, 0x07,	/* Group sipher suite */
-							0x01, 0x00,	/* Pairwise cipher suite count */
-							0x00, 0x0f, 0xac, 0x04,	/* Pairwise cipher suite list; CCMP only */
-							0x01, 0x00,	/* AKM suite count */
-							0x00, 0x0f, 0xac, 0x07,	/* TPK Handshake */
-							0x0c, 0x02,
-							/* PMKID shall not be present */
-						};
+static const u8 TDLS_RSNIE[20]= {	0x01, 0x00,	/* Version shall be set to 1 */
+                            0x00, 0x0f, 0xac, 0x07,	/* Group sipher suite */
+                            0x01, 0x00,	/* Pairwise cipher suite count */
+                            0x00, 0x0f, 0xac, 0x04,	/* Pairwise cipher suite list; CCMP only */
+                            0x01, 0x00,	/* AKM suite count */
+                            0x00, 0x0f, 0xac, 0x07,	/* TPK Handshake */
+                            0x0c, 0x02,
+                            /* PMKID shall not be present */
+                          };
 
-static u8 TDLS_WMMIE[]={0x00, 0x50, 0xf2, 0x02, 0x00, 0x01, 0x00};	/* Qos info all set zero */
+static const u8 TDLS_WMMIE[]= {0x00, 0x50, 0xf2, 0x02, 0x00, 0x01, 0x00};	/* Qos info all set zero */
 
-static u8 TDLS_EXT_CAPIE[] = {0x00, 0x00, 0x00, 0x50, 0x20, 0x00, 0x00, 0x00};	/* bit(28), bit(30), bit(37) */
+static const u8 TDLS_EXT_CAPIE[] = {0x00, 0x00, 0x00, 0x50, 0x20, 0x00, 0x00, 0x00};	/* bit(28), bit(30), bit(37) */
 
 /* SRC: Supported Regulatory Classes */
-static u8 TDLS_SRC[] = { 0x01, 0x01, 0x02, 0x03, 0x04, 0x0c, 0x16, 0x17, 0x18, 0x19, 0x1b, 0x1c, 0x1d, 0x1e, 0x20, 0x21 };
+static const  u8 TDLS_SRC[] = { 0x01, 0x01, 0x02, 0x03, 0x04, 0x0c, 0x16, 0x17, 0x18, 0x19, 0x1b, 0x1c, 0x1d, 0x1e, 0x20, 0x21 };
 
 int check_ap_tdls_prohibited(u8 *pframe, u8 pkt_len);
 int check_ap_tdls_ch_switching_prohibited(u8 *pframe, u8 pkt_len);

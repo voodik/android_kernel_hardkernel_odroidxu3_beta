@@ -28,7 +28,7 @@ int platform_wifi_power_on(void)
 {
 	int err = 0;
 	err = gpio_request(WMT_PIN_GP62_SUSGPIO1, "wifi_chip_en");
-	if (err < 0){
+	if (err < 0) {
 		printk("request gpio for rtl8188eu failed!\n");
 		return err;
 	}

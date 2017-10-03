@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -31,18 +31,18 @@
 #ifdef PLATFORM_OS_CE
 #define MAX_RECVBUF_SZ (8192+1024) // 8K+1k
 #else
-	#ifndef CONFIG_MINIMAL_MEMORY_USAGE
-		//#define MAX_RECVBUF_SZ (32768) // 32k
-		//#define MAX_RECVBUF_SZ (16384) //16K
-		//#define MAX_RECVBUF_SZ (10240) //10K
-		#ifdef CONFIG_PLATFORM_MSTAR
-			#define MAX_RECVBUF_SZ (8192) // 8K
-		#else
-		        #define MAX_RECVBUF_SZ (15360) // 15k < 16k
-		#endif
-	#else
-		#define MAX_RECVBUF_SZ (4000) // about 4K
-	#endif
+#ifndef CONFIG_MINIMAL_MEMORY_USAGE
+//#define MAX_RECVBUF_SZ (32768) // 32k
+//#define MAX_RECVBUF_SZ (16384) //16K
+//#define MAX_RECVBUF_SZ (10240) //10K
+#ifdef CONFIG_PLATFORM_MSTAR
+#define MAX_RECVBUF_SZ (8192) // 8K
+#else
+#define MAX_RECVBUF_SZ (15360) // 15k < 16k
+#endif
+#else
+#define MAX_RECVBUF_SZ (4000) // about 4K
+#endif
 #endif
 #endif //!MAX_RECVBUF_SZ
 
@@ -50,7 +50,7 @@
 //#ifndef CONFIG_MINIMAL_MEMORY_USAGE
 //	#define MAX_RECVBUF_SZ (9100)
 //#else
-	#define MAX_RECVBUF_SZ (4000) // about 4K
+#define MAX_RECVBUF_SZ (4000) // about 4K
 //#endif
 
 #endif
@@ -59,7 +59,7 @@
 #define	Rx_Smooth_Factor (20)
 
 #ifdef CONFIG_USB_HCI
-typedef struct _INTERRUPT_MSG_FORMAT_EX{
+typedef struct _INTERRUPT_MSG_FORMAT_EX {
 	unsigned int C2H_MSG0;
 	unsigned int C2H_MSG1;
 	unsigned int C2H_MSG2;
@@ -67,7 +67,7 @@ typedef struct _INTERRUPT_MSG_FORMAT_EX{
 	unsigned int HISR; // from HISR Reg0x124, read to clear
 	unsigned int HISRE;// from HISRE Reg0x12c, read to clear
 	unsigned int  MSG_EX;
-}INTERRUPT_MSG_FORMAT_EX,*PINTERRUPT_MSG_FORMAT_EX;
+} INTERRUPT_MSG_FORMAT_EX,*PINTERRUPT_MSG_FORMAT_EX;
 
 void rtl8192du_init_recvbuf(_adapter *padapter, struct recv_buf *precvbuf);
 int	rtl8192du_init_recv_priv(_adapter * padapter);

@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -58,8 +58,7 @@
 #define MAX_MP_XMITBUF_SZ 	2048
 #define NR_MP_XMITFRAME		8
 
-struct mp_xmit_frame
-{
+struct mp_xmit_frame {
 	_list	list;
 
 	struct pkt_attrib attrib;
@@ -96,8 +95,7 @@ struct mp_xmit_frame
 	uint mem[(MAX_MP_XMITBUF_SZ >> 2)];
 };
 
-struct mp_wiparam
-{
+struct mp_wiparam {
 	u32 bcompleted;
 	u32 act_type;
 	u32 io_offset;
@@ -107,8 +105,7 @@ struct mp_wiparam
 typedef void(*wi_act_func)(void* padapter);
 
 #ifdef PLATFORM_WINDOWS
-struct mp_wi_cntx
-{
+struct mp_wi_cntx {
 	u8 bmpdrv_unload;
 
 	// Work Item
@@ -122,8 +119,7 @@ struct mp_wi_cntx
 };
 #endif
 
-struct mp_tx
-{
+struct mp_tx {
 	u8 stop;
 	u32 count, sended;
 	u8 payload;
@@ -137,6 +133,8 @@ struct mp_tx
 	_thread_hdl_ PktTxThread;
 };
 
+#if defined(CONFIG_RTL8192C) || defined(CONFIG_RTL8192D) || defined(CONFIG_RTL8723A) || defined(CONFIG_RTL8188E) || defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) ||defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8723B)
+
 #define MP_MAX_LINES		1000
 #define MP_MAX_LINES_BYTES	256
 #define u1Byte u8
@@ -144,25 +142,25 @@ struct mp_tx
 #define u4Byte u32
 #define s4Byte s32
 #define u1Byte		u8
-#define pu1Byte 		u8* 
+#define pu1Byte 		u8*
 
 #define u2Byte		u16
-#define pu2Byte 		u16*		
+#define pu2Byte 		u16*
 
 #define u4Byte		u32
-#define pu4Byte 		u32*	
+#define pu4Byte 		u32*
 
 #define u8Byte		u64
 #define pu8Byte 		u64*
 
 #define s1Byte		s8
-#define ps1Byte 		s8* 
+#define ps1Byte 		s8*
 
 #define s2Byte		s16
-#define ps2Byte 		s16*	
+#define ps2Byte 		s16*
 
 #define s4Byte		s32
-#define ps4Byte 		s32*	
+#define ps4Byte 		s32*
 
 #define s8Byte		s64
 #define ps8Byte 		s64*
@@ -176,8 +174,7 @@ struct mp_tx
 
 
 typedef VOID (*MPT_WORK_ITEM_HANDLER)(IN PVOID Adapter);
-typedef struct _MPT_CONTEXT
-{
+typedef struct _MPT_CONTEXT {
 	// Indicate if we have started Mass Production Test.
 	BOOLEAN			bMassProdTest;
 
@@ -191,7 +188,7 @@ typedef struct _MPT_CONTEXT
 	BOOLEAN		MptH2cRspEvent;
 	BOOLEAN		MptBtC2hEvent;
 	BOOLEAN		bMPh2c_timeout;
-	
+
 	/* 8190 PCI does not support NDIS_WORK_ITEM. */
 	// Work Item for Mass Production Test.
 	//NDIS_WORK_ITEM	MptWorkItem;
@@ -229,19 +226,19 @@ typedef struct _MPT_CONTEXT
 	// Register value kept for Single Carrier Tx test.
 	u8			btMpOfdmTxPower;
 	// For MP Tx Power index
-	u8			TxPwrLevel[4];	/* rf-A, rf-B*/
+	u8			TxPwrLevel[2];	// rf-A, rf-B
 	u32			RegTxPwrLimit;
 	// Content of RCR Regsiter for Mass Production Test.
 	ULONG			MptRCR;
 	// TRUE if we only receive packets with specific pattern.
 	BOOLEAN			bMptFilterPattern;
- 	// Rx OK count, statistics used in Mass Production Test.
- 	ULONG			MptRxOkCnt;
- 	// Rx CRC32 error count, statistics used in Mass Production Test.
- 	ULONG			MptRxCrcErrCnt;
+	// Rx OK count, statistics used in Mass Production Test.
+	ULONG			MptRxOkCnt;
+	// Rx CRC32 error count, statistics used in Mass Production Test.
+	ULONG			MptRxCrcErrCnt;
 
 	BOOLEAN			bCckContTx;	// TRUE if we are in CCK Continuous Tx test.
- 	BOOLEAN			bOfdmContTx;	// TRUE if we are in OFDM Continuous Tx test.
+	BOOLEAN			bOfdmContTx;	// TRUE if we are in OFDM Continuous Tx test.
 	BOOLEAN			bStartContTx; 	// TRUE if we have start Continuous Tx test.
 	// TRUE if we are in Single Carrier Tx test.
 	BOOLEAN			bSingleCarrier;
@@ -267,18 +264,19 @@ typedef struct _MPT_CONTEXT
 	u8		backup0xc30;
 	u8 		backup0x52_RF_A;
 	u8 		backup0x52_RF_B;
-	
-	u4Byte			backup0x58_RF_A;	
+
+	u4Byte			backup0x58_RF_A;
 	u4Byte			backup0x58_RF_B;
-	
+
 	u1Byte			h2cReqNum;
 	u1Byte			c2hBuf[32];
 
-    u1Byte          btInBuf[100];
+	u1Byte          btInBuf[100];
 	ULONG			mptOutLen;
-    u1Byte          mptOutBuf[100];
-    
-}MPT_CONTEXT, *PMPT_CONTEXT;
+	u1Byte          mptOutBuf[100];
+
+} MPT_CONTEXT, *PMPT_CONTEXT;
+#endif
 //#endif
 
 /* E-Fuse */
@@ -294,7 +292,7 @@ typedef struct _MPT_CONTEXT
 #ifdef CONFIG_RTL8188E
 #define EFUSE_MAP_SIZE		512
 #endif
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
+#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
 #define EFUSE_MAP_SIZE		512
 #endif
 #ifdef CONFIG_RTL8192E
@@ -303,11 +301,8 @@ typedef struct _MPT_CONTEXT
 #ifdef CONFIG_RTL8723B
 #define EFUSE_MAP_SIZE		512
 #endif
-#ifdef CONFIG_RTL8814A
-#define EFUSE_MAP_SIZE		512
-#endif
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
+#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
 #define EFUSE_MAX_SIZE		1024
 #elif defined(CONFIG_RTL8188E)
 #define EFUSE_MAX_SIZE		256
@@ -317,7 +312,7 @@ typedef struct _MPT_CONTEXT
 /* end of E-Fuse */
 
 //#define RTPRIV_IOCTL_MP 					( SIOCIWFIRSTPRIV + 0x17)
-enum {	  
+enum {
 	WRITE_REG = 1,
 	READ_REG,
 	WRITE_RF,
@@ -362,8 +357,7 @@ enum {
 	MP_GET_TXPOWER_INX,
 };
 
-struct mp_priv
-{
+struct mp_priv {
 	_adapter *papdater;
 
 	//Testing Flag
@@ -396,8 +390,6 @@ struct mp_priv
 	u8 prime_channel_offset;
 	u8 txpoweridx;
 	u8 txpoweridx_b;
-	u8 txpoweridx_c;
-	u8 txpoweridx_d;
 	u8 rateidx;
 	u32 preamble;
 //	u8 modem;
@@ -407,7 +399,7 @@ struct mp_priv
 	u16 antenna_tx;
 	u16 antenna_rx;
 //	u8 curr_rfpath;
-	
+
 	u8 check_mp_pkt;
 
 	u8 bSetTxPower;
@@ -415,7 +407,7 @@ struct mp_priv
 	u8 mp_dm;
 	u8 mac_filter[ETH_ALEN];
 	u8 bmac_filter;
-	
+
 	struct wlan_network mp_network;
 	NDIS_802_11_MAC_ADDRESS network_macaddr;
 
@@ -460,7 +452,7 @@ typedef struct _IOCMD_STRUCT_ {
 	u8	cmdclass;
 	u16	value;
 	u8	index;
-}IOCMD_STRUCT;
+} IOCMD_STRUCT;
 
 struct rf_reg_param {
 	u32 path;
@@ -535,8 +527,7 @@ typedef enum _MP_MODE_ {
 extern u8 mpdatarate[NumRates];
 
 /* MP set force data rate base on the definition. */
-typedef enum _MPT_RATE_INDEX
-{
+typedef enum _MPT_RATE_INDEX {
 	/* CCK rate. */
 	MPT_RATE_1M =0 ,	/* 0 */
 	MPT_RATE_2M,
@@ -598,7 +589,7 @@ typedef enum _MPT_RATE_INDEX
 	MPT_RATE_VHT1SS_MCS8,
 	MPT_RATE_VHT1SS_MCS9, //#53
 	MPT_RATE_VHT2SS_MCS0, //#54
-	MPT_RATE_VHT2SS_MCS1, 
+	MPT_RATE_VHT2SS_MCS1,
 	MPT_RATE_VHT2SS_MCS2,
 	MPT_RATE_VHT2SS_MCS3,
 	MPT_RATE_VHT2SS_MCS4,
@@ -608,7 +599,7 @@ typedef enum _MPT_RATE_INDEX
 	MPT_RATE_VHT2SS_MCS8,
 	MPT_RATE_VHT2SS_MCS9, //#63
 	MPT_RATE_VHT3SS_MCS0,
-	MPT_RATE_VHT3SS_MCS1, 
+	MPT_RATE_VHT3SS_MCS1,
 	MPT_RATE_VHT3SS_MCS2,
 	MPT_RATE_VHT3SS_MCS3,
 	MPT_RATE_VHT3SS_MCS4,
@@ -628,18 +619,18 @@ typedef enum _MPT_RATE_INDEX
 	MPT_RATE_VHT4SS_MCS8,
 	MPT_RATE_VHT4SS_MCS9,
 	MPT_RATE_LAST
-}MPT_RATE_E, *PMPT_RATE_E;
+} MPT_RATE_E, *PMPT_RATE_E;
 
 #define MAX_TX_PWR_INDEX_N_MODE 64	// 0x3F
 
 typedef enum _POWER_MODE_ {
 	POWER_LOW = 0,
 	POWER_NORMAL
-}POWER_MODE;
+} POWER_MODE;
 
 // The following enumeration is used to define the value of Reg0xD00[30:28] or JaguarReg0x914[18:16].
 typedef enum _OFDM_TX_MODE {
-	OFDM_ALL_OFF		= 0,	
+	OFDM_ALL_OFF		= 0,
 	OFDM_ContinuousTx	= 1,
 	OFDM_SingleCarrier	= 2,
 	OFDM_SingleTone 	= 4,
@@ -668,8 +659,7 @@ typedef enum _OFDM_TX_MODE {
 //	bit 11 : HT MPDU OK
 //	bit 12 : HT MPDU fail
 //	bit 15 : RX full drop
-typedef enum _RXPHY_BITMASK_
-{
+typedef enum _RXPHY_BITMASK_ {
 	OFDM_PPDU_BIT = 0,
 	OFDM_FALSE_BIT,
 	OFDM_MPDU_OK_BIT,
@@ -702,31 +692,29 @@ typedef enum _ENCRY_CTRL_STATE_ {
 	SW_CONTROL,		//sw encryption& decryption
 	HW_ENCRY_SW_DECRY,	//hw encryption & sw decryption
 	SW_ENCRY_HW_DECRY	//sw encryption & hw decryption
-}ENCRY_CTRL_STATE;
+} ENCRY_CTRL_STATE;
 
-typedef enum	_MPT_TXPWR_DEF{
+typedef enum	_MPT_TXPWR_DEF {
 	MPT_CCK,
 	MPT_OFDM, // L and HT OFDM
-	MPT_OFDM_AND_HT,
-	MPT_HT,
-	MPT_VHT
-}MPT_TXPWR_DEF;
+	MPT_VHT_OFDM
+} MPT_TXPWR_DEF;
 
 #ifdef CONFIG_RF_GAIN_OFFSET
 
 #if defined(CONFIG_RTL8723A)
-	#define 	REG_RF_BB_GAIN_OFFSET_CCK	0x0d
-	#define 	REG_RF_BB_GAIN_OFFSET_OFDM	0x0e
-	#define 	RF_GAIN_OFFSET_MASK 	0xfffff
+#define 	REG_RF_BB_GAIN_OFFSET_CCK	0x0d
+#define 	REG_RF_BB_GAIN_OFFSET_OFDM	0x0e
+#define 	RF_GAIN_OFFSET_MASK 	0xfffff
 #elif defined(CONFIG_RTL8723B)
-	#define 	REG_RF_BB_GAIN_OFFSET	0x7f
-	#define 	RF_GAIN_OFFSET_MASK 	0xfffff
+#define 	REG_RF_BB_GAIN_OFFSET	0x7f
+#define 	RF_GAIN_OFFSET_MASK 	0xfffff
 #elif defined(CONFIG_RTL8188E)
-	#define 	REG_RF_BB_GAIN_OFFSET	0x55
-	#define 	RF_GAIN_OFFSET_MASK 	0xfffff
+#define 	REG_RF_BB_GAIN_OFFSET	0x55
+#define 	RF_GAIN_OFFSET_MASK 	0xfffff
 #else
-	#define 	REG_RF_BB_GAIN_OFFSET	0x55
-	#define 	RF_GAIN_OFFSET_MASK 	0xfffff
+#define 	REG_RF_BB_GAIN_OFFSET	0x55
+#define 	RF_GAIN_OFFSET_MASK 	0xfffff
 #endif	//CONFIG_RTL8723A
 
 #endif //CONFIG_RF_GAIN_OFFSET

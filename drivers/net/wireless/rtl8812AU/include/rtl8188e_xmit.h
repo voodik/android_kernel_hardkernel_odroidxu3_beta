@@ -90,8 +90,7 @@
 #define SGI					BIT(6)
 #define USB_TXAGG_NUM_SHT	24
 
-typedef struct txdesc_88e
-{
+typedef struct txdesc_88e {
 	//Offset 0
 	u32 pktlen:16;
 	u32 offset:8;
@@ -106,7 +105,7 @@ typedef struct txdesc_88e
 
 	//Offset 4
 	u32 macid:6;
-	u32 rsvd0406:2;	
+	u32 rsvd0406:2;
 	u32 qsel:5;
 	u32 rd_nav_ext:1;
 	u32 lsig_txop_en:1;
@@ -156,7 +155,7 @@ typedef struct txdesc_88e
 	u32 cts2self:1;
 	u32 rtsen:1;
 	u32 hw_rts_en:1;
-	u32 port_id:1;	
+	u32 port_id:1;
 	u32 pwr_status:3;
 	u32 wait_dcts:1;
 	u32 cts2ap_en:1;
@@ -194,7 +193,7 @@ typedef struct txdesc_88e
 	u32 sw0:8; /* offset 30 */
 	u32 sw1:4;
 	u32 mcs15_sgi_max_len:4;
-}TXDESC_8188E, *PTXDESC_8188E;
+} TXDESC_8188E, *PTXDESC_8188E;
 
 #define txdesc_set_ccx_sw_88e(txdesc, value) \
 	do { \
@@ -242,7 +241,7 @@ struct txrpt_ccx_88e {
 #define SET_TX_DESC_SEC_TYPE_8188E(__pTxDesc, __Value) SET_BITS_TO_LE_4BYTE(__pTxDesc+4, 22, 2, __Value)
 
 void rtl8188e_fill_fake_txdesc(PADAPTER	padapter,u8*pDesc,u32 BufferLen,
-		u8 IsPsPoll,u8	IsBTQosNull, u8 bDataFrame);
+                               u8 IsPsPoll,u8	IsBTQosNull, u8 bDataFrame);
 void rtl8188e_cal_txdesc_chksum(struct tx_desc	*ptxdesc);
 
 #if defined(CONFIG_SDIO_HCI)||defined (CONFIG_GSPI_HCI)

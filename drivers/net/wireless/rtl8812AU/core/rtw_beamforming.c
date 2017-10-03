@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -28,12 +28,10 @@ struct beamforming_entry	*beamforming_get_entry_by_addr(struct mlme_priv *pmlmep
 {
 	u8	i = 0;
 	struct beamforming_info	*pBeamInfo = GET_BEAMFORM_INFO(pmlmepriv);
-	
-	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++)
-	{
-		if(	pBeamInfo->beamforming_entry[i].bUsed && 
-			(_rtw_memcmp(ra,pBeamInfo->beamforming_entry[i].mac_addr, ETH_ALEN)))
-		{
+
+	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++) {
+		if(	pBeamInfo->beamforming_entry[i].bUsed &&
+		    (_rtw_memcmp(ra,pBeamInfo->beamforming_entry[i].mac_addr, ETH_ALEN))) {
 			*idx = i;
 			return &(pBeamInfo->beamforming_entry[i]);
 		}
@@ -47,12 +45,10 @@ BEAMFORMING_CAP beamforming_get_entry_beam_cap_by_mac_id(PVOID pmlmepriv ,u8 mac
 	u8	i = 0;
 	struct beamforming_info	*pBeamInfo = GET_BEAMFORM_INFO((struct mlme_priv *)pmlmepriv);
 	BEAMFORMING_CAP		BeamformEntryCap = BEAMFORMING_CAP_NONE;
-	
-	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++)
-	{
-		if(	pBeamInfo->beamforming_entry[i].bUsed && 
-			(mac_id == pBeamInfo->beamforming_entry[i].mac_id))
-		{
+
+	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++) {
+		if(	pBeamInfo->beamforming_entry[i].bUsed &&
+		    (mac_id == pBeamInfo->beamforming_entry[i].mac_id)) {
 			BeamformEntryCap =  pBeamInfo->beamforming_entry[i].beamforming_entry_cap;
 			i = BEAMFORMING_ENTRY_NUM;
 		}
@@ -66,42 +62,34 @@ struct beamforming_entry	*beamforming_get_free_entry(struct mlme_priv *pmlmepriv
 	u8	i = 0;
 	struct beamforming_info	*pBeamInfo = GET_BEAMFORM_INFO(pmlmepriv);
 
-	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++)
-	{
-		if(pBeamInfo->beamforming_entry[i].bUsed == _FALSE)
-		{
+	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++) {
+		if(pBeamInfo->beamforming_entry[i].bUsed == _FALSE) {
 			*idx = i;
 			return &(pBeamInfo->beamforming_entry[i]);
-		}	
+		}
 	}
 	return NULL;
 }
 
 
 struct beamforming_entry	*beamforming_add_entry(PADAPTER adapter, u8* ra, u16 aid,
-	u16 mac_id, CHANNEL_WIDTH bw, BEAMFORMING_CAP beamfrom_cap, u8* idx)
+        u16 mac_id, CHANNEL_WIDTH bw, BEAMFORMING_CAP beamfrom_cap, u8* idx)
 {
 	struct mlme_priv			*pmlmepriv = &(adapter->mlmepriv);
 	struct beamforming_entry	*pEntry = beamforming_get_free_entry(pmlmepriv, idx);
 
-	if(pEntry != NULL)
-	{	
+	if(pEntry != NULL) {
 		pEntry->bUsed = _TRUE;
 		pEntry->aid = aid;
 		pEntry->mac_id = mac_id;
 		pEntry->sound_bw = bw;
-		if (check_fwstate(pmlmepriv, WIFI_AP_STATE))
-		{
-			u16	BSSID = ((*(adapter_mac_addr(adapter) + 5) & 0xf0) >> 4) ^ 
-				(*(adapter_mac_addr(adapter) + 5) & 0xf); /* BSSID[44:47] xor BSSID[40:43] */
+		if (check_fwstate(pmlmepriv, WIFI_AP_STATE)) {
+			u16	BSSID = ((adapter->eeprompriv.mac_addr[5] & 0xf0) >> 4) ^
+			            (adapter->eeprompriv.mac_addr[5] & 0xf);	// BSSID[44:47] xor BSSID[40:43]
 			pEntry->p_aid = (aid + BSSID * 32) & 0x1ff;		// (dec(A) + dec(B)*32) mod 512
-		}		
-		else if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) || check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE))
-		{
+		} else if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) || check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE)) {
 			pEntry->p_aid = 0;
-		}
-		else
-		{
+		} else {
 			pEntry->p_aid =  ra[5];						// BSSID[39:47]
 			pEntry->p_aid = (pEntry->p_aid << 1) | (ra[4] >> 7 );
 		}
@@ -113,17 +101,13 @@ struct beamforming_entry	*beamforming_add_entry(PADAPTER adapter, u8* ra, u16 ai
 		pEntry->beamforming_entry_cap = beamfrom_cap;
 		pEntry->beamforming_entry_state = BEAMFORMING_ENTRY_STATE_UNINITIALIZE;
 
-
-		pEntry->PreLogSeq = 0;	/*Modified by Jeffery @2015-04-13*/
-		pEntry->LogSeq = 0;		/*Modified by Jeffery @2014-10-29*/
-		pEntry->LogRetryCnt = 0;	/*Modified by Jeffery @2014-10-29*/
-		pEntry->LogSuccess = 0;	/*LogSuccess is NOT needed to be accumulated, so  LogSuccessCnt->LogSuccess, 2015-04-13, Jeffery*/
-		pEntry->ClockResetTimes = 0;	/*Modified by Jeffery @2015-04-13*/
+		pEntry->LogSeq = 0xff;
+		pEntry->LogRetryCnt = 0;
+		pEntry->LogSuccessCnt = 0;
 		pEntry->LogStatusFailCnt = 0;
 
 		return pEntry;
-	}
-	else
+	} else
 		return NULL;
 }
 
@@ -131,14 +115,12 @@ BOOLEAN	beamforming_remove_entry(struct mlme_priv *pmlmepriv, u8* ra, u8* idx)
 {
 	struct beamforming_entry	*pEntry = beamforming_get_entry_by_addr(pmlmepriv, ra, idx);
 
-	if(pEntry != NULL)
-	{	
+	if(pEntry != NULL) {
 		pEntry->bUsed = _FALSE;
 		pEntry->beamforming_entry_cap = BEAMFORMING_CAP_NONE;
 		pEntry->beamforming_entry_state = BEAMFORMING_ENTRY_STATE_UNINITIALIZE;
 		return _TRUE;
-	}
-	else
+	} else
 		return _FALSE;
 }
 
@@ -147,7 +129,7 @@ void	beamforming_dym_ndpa_rate(PADAPTER adapter)
 {
 	u16	NDPARate = MGN_6M;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(adapter);
-	
+
 	if(pHalData->dmpriv.MinUndecoratedPWDBForDM > 30) // link RSSI > 30%
 		NDPARate = MGN_24M;
 	else
@@ -163,46 +145,36 @@ void beamforming_dym_period(PADAPTER Adapter)
 	u8	Idx;
 	BOOLEAN	bChangePeriod = _FALSE;
 	u16	SoundPeriod_SW, SoundPeriod_FW;
-	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
+	//PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(Adapter);
 	struct beamforming_entry	*pBeamformEntry;
 	struct beamforming_info	*pBeamInfo = GET_BEAMFORM_INFO(( &Adapter->mlmepriv));
 	struct sounding_info		*pSoundInfo = &(pBeamInfo->sounding_info);
-	
+
 	//3 TODO  per-client throughput caculation.
 
-	if(pdvobjpriv->traffic_stat.cur_tx_tp + pdvobjpriv->traffic_stat.cur_rx_tp > 2)
-	{
+	if(pdvobjpriv->traffic_stat.cur_tx_tp + pdvobjpriv->traffic_stat.cur_rx_tp > 2) {
 		SoundPeriod_SW = 32*20;
 		SoundPeriod_FW = 2;
-	}	
-	else
-	{
+	} else {
 		SoundPeriod_SW = 32*2000;
 		SoundPeriod_FW = 200;
-	}	
+	}
 
-	for(Idx = 0; Idx < BEAMFORMING_ENTRY_NUM; Idx++)
-	{
+	for(Idx = 0; Idx < BEAMFORMING_ENTRY_NUM; Idx++) {
 		pBeamformEntry = pBeamInfo->beamforming_entry+Idx;
-		if(pBeamformEntry->bDefaultCSI)
-		{
+		if(pBeamformEntry->bDefaultCSI) {
 			SoundPeriod_SW = 32*2000;
 			SoundPeriod_FW = 200;
 		}
 
-		if(pBeamformEntry->beamforming_entry_cap & (BEAMFORMER_CAP_HT_EXPLICIT |BEAMFORMER_CAP_VHT_SU))
-		{
-			if(pSoundInfo->sound_mode == SOUNDING_FW_VHT_TIMER || pSoundInfo->sound_mode == SOUNDING_FW_HT_TIMER)
-			{				
-				if(pBeamformEntry->sound_period != SoundPeriod_FW)
-				{
+		if(pBeamformEntry->beamforming_entry_cap & (BEAMFORMER_CAP_HT_EXPLICIT |BEAMFORMER_CAP_VHT_SU)) {
+			if(pSoundInfo->sound_mode == SOUNDING_FW_VHT_TIMER || pSoundInfo->sound_mode == SOUNDING_FW_HT_TIMER) {
+				if(pBeamformEntry->sound_period != SoundPeriod_FW) {
 					pBeamformEntry->sound_period = SoundPeriod_FW;
-					bChangePeriod = _TRUE;	// Only FW sounding need to send H2C packet to change sound period. 
+					bChangePeriod = _TRUE;	// Only FW sounding need to send H2C packet to change sound period.
 				}
-			}
-			else if(pBeamformEntry->sound_period != SoundPeriod_SW)
-			{
+			} else if(pBeamformEntry->sound_period != SoundPeriod_SW) {
 				pBeamformEntry->sound_period = SoundPeriod_SW;
 			}
 		}
@@ -221,7 +193,7 @@ u32	beamforming_get_report_frame(PADAPTER	 Adapter, union recv_frame *precv_fram
 	u32	frame_len = precv_frame->u.hdr.len;
 	u8	*ta;
 	u8	idx, offset;
-	
+
 	//DBG_871X("beamforming_get_report_frame\n");
 
 	//Memory comparison to see if CSI report is the same with previous one
@@ -236,13 +208,10 @@ u32	beamforming_get_report_frame(PADAPTER	 Adapter, union recv_frame *precv_fram
 
 	//DBG_871X("%s MacId %d offset=%d\n", __FUNCTION__, pBeamformEntry->mac_id, offset);
 
-	if(_rtw_memcmp(pBeamformEntry->PreCsiReport + offset, pframe+offset, frame_len-offset) == _FALSE)
-	{
+	if(_rtw_memcmp(pBeamformEntry->PreCsiReport + offset, pframe+offset, frame_len-offset) == _FALSE) {
 		pBeamformEntry->DefaultCsiCnt = 0;
 		//DBG_871X("%s CSI report is NOT the same with previos one\n", __FUNCTION__);
-	}
-	else
-	{
+	} else {
 		pBeamformEntry->DefaultCsiCnt ++;
 		//DBG_871X("%s CSI report is the SAME with previos one\n", __FUNCTION__);
 	}
@@ -254,7 +223,7 @@ u32	beamforming_get_report_frame(PADAPTER	 Adapter, union recv_frame *precv_fram
 		pBeamformEntry->bDefaultCSI = _TRUE;
 	else
 		pBeamformEntry->bDefaultCSI = _FALSE;
-	
+
 	return ret;
 }
 
@@ -274,52 +243,36 @@ void	beamforming_get_ndpa_frame(PADAPTER	 Adapter, union recv_frame *precv_frame
 		return;
 
 	ta = GetAddr2Ptr(pframe);
-	// Remove signaling TA. 
-	ta[0] = ta[0] & 0xFE; 
-	
+	// Remove signaling TA.
+	ta[0] = ta[0] & 0xFE;
+
 	pBeamformEntry = beamforming_get_entry_by_addr(pmlmepriv, ta, &idx);
 
 	if(pBeamformEntry == NULL)
 		return;
 	else if(!(pBeamformEntry->beamforming_entry_cap & BEAMFORMEE_CAP_VHT_SU))
 		return;
-	/*LogSuccess: As long as 8812A receive NDPA and feedback CSI succeed once, clock reset is NO LONGER needed !2015-04-10, Jeffery*/
-	/*ClockResetTimes: While BFer entry always doesn't receive our CSI, clock will reset again and again.So ClockResetTimes is limited to 5 times.2015-04-13, Jeffery*/
-	else if ((pBeamformEntry->LogSuccess == 1) || (pBeamformEntry->ClockResetTimes == 5)) {
-		DBG_871X("[%s] LogSeq=%d, PreLogSeq=%d\n", __func__, pBeamformEntry->LogSeq, pBeamformEntry->PreLogSeq);
-        return;
-	}
+	else if(pBeamformEntry->LogSuccessCnt > 1)
+		return;
 
 	Sequence = (pframe[16]) >> 2;
-	DBG_871X("[%s] Start, Sequence=%d, LogSeq=%d, PreLogSeq=%d, LogRetryCnt=%d, ClockResetTimes=%d, LogSuccess=%d\n", 
-		__func__, Sequence, pBeamformEntry->LogSeq, pBeamformEntry->PreLogSeq, pBeamformEntry->LogRetryCnt, pBeamformEntry->ClockResetTimes, pBeamformEntry->LogSuccess);
 
-	if ((pBeamformEntry->LogSeq != 0) && (pBeamformEntry->PreLogSeq != 0)) {
-		/*Success condition*/
-		if ((pBeamformEntry->LogSeq != Sequence) && (pBeamformEntry->PreLogSeq != pBeamformEntry->LogSeq)) {
-			/* break option for clcok reset, 2015-03-30, Jeffery */
-			pBeamformEntry->LogRetryCnt = 0;
-			/*As long as 8812A receive NDPA and feedback CSI succeed once, clock reset is no longer needed.*/
-			/*That is, LogSuccess is NOT needed to be reset to zero, 2015-04-13, Jeffery*/
-			pBeamformEntry->LogSuccess = 1;
+	if(pBeamformEntry->LogSeq != Sequence) {
+		/* Previous frame doesn't retry when meet new sequence number */
+		if(pBeamformEntry->LogSeq != 0xff && pBeamformEntry->LogRetryCnt == 0)
+			pBeamformEntry->LogSuccessCnt++;
 
-		} else {/*Fail condition*/
+		pBeamformEntry->LogSeq = Sequence;
+		pBeamformEntry->LogRetryCnt = 0;
+	} else {
+		if(pBeamformEntry->LogRetryCnt == 3)
+			beamforming_wk_cmd(Adapter, BEAMFORMING_CTRL_SOUNDING_CLK, NULL, 0, 1);
 
-			if (pBeamformEntry->LogRetryCnt == 5) {
-				pBeamformEntry->ClockResetTimes++;
-				pBeamformEntry->LogRetryCnt = 0;
-
-				DBG_871X("[%s] Clock Reset!!! ClockResetTimes=%d\n",  __func__, pBeamformEntry->ClockResetTimes);
-				beamforming_wk_cmd(Adapter, BEAMFORMING_CTRL_SOUNDING_CLK, NULL, 0, 1);
-
-			} else
-				pBeamformEntry->LogRetryCnt++;
-		}
+		pBeamformEntry->LogRetryCnt++;
 	}
 
-	/*Update LogSeq & PreLogSeq*/
-	pBeamformEntry->PreLogSeq = pBeamformEntry->LogSeq;
-	pBeamformEntry->LogSeq = Sequence;
+	DBG_871X("%s LogSeq %d LogRetryCnt %d LogSuccessCnt %d\n",
+	         __FUNCTION__, pBeamformEntry->LogSeq, pBeamformEntry->LogRetryCnt, pBeamformEntry->LogSuccessCnt);
 }
 
 BOOLEAN	issue_ht_ndpa_packet(PADAPTER Adapter, u8 *ra, CHANNEL_WIDTH bw, u8 qidx)
@@ -336,8 +289,7 @@ BOOLEAN	issue_ht_ndpa_packet(PADAPTER Adapter, u8 *ra, CHANNEL_WIDTH bw, u8 qidx
 	u16	duration = 0;
 	u8	aSifsTime = 0;
 
-	if ((pmgntframe = alloc_mgtxmitframe(pxmitpriv)) == NULL)
-	{
+	if ((pmgntframe = alloc_mgtxmitframe(pxmitpriv)) == NULL) {
 		return _FALSE;
 	}
 
@@ -365,7 +317,7 @@ BOOLEAN	issue_ht_ndpa_packet(PADAPTER Adapter, u8 *ra, CHANNEL_WIDTH bw, u8 qidx
 	SetFrameSubType(pframe, WIFI_ACTION_NOACK);
 
 	_rtw_memcpy(pwlanhdr->addr1, ra, ETH_ALEN);
-	_rtw_memcpy(pwlanhdr->addr2, adapter_mac_addr(Adapter), ETH_ALEN);
+	_rtw_memcpy(pwlanhdr->addr2, myid(&(Adapter->eeprompriv)), ETH_ALEN);
 	_rtw_memcpy(pwlanhdr->addr3, get_my_bssid(&(pmlmeinfo->network)), ETH_ALEN);
 
 	if( pmlmeext->cur_wireless_mode == WIRELESS_11B)
@@ -374,10 +326,10 @@ BOOLEAN	issue_ht_ndpa_packet(PADAPTER Adapter, u8 *ra, CHANNEL_WIDTH bw, u8 qidx
 		aSifsTime = 16;
 
 	duration = 2*aSifsTime + 40;
-	
+
 	if(bw == CHANNEL_WIDTH_40)
 		duration+= 87;
-	else	
+	else
 		duration+= 180;
 
 	SetDuration(pframe, duration);
@@ -418,8 +370,7 @@ BOOLEAN	issue_vht_ndpa_packet(PADAPTER Adapter, u8 *ra, u16 aid, CHANNEL_WIDTH b
 	u16	duration = 0;
 	u8	sequence = 0, aSifsTime = 0;
 
-	if ((pmgntframe = alloc_mgtxmitframe(pxmitpriv)) == NULL)
-	{
+	if ((pmgntframe = alloc_mgtxmitframe(pxmitpriv)) == NULL) {
 		return _FALSE;
 	}
 
@@ -445,7 +396,7 @@ BOOLEAN	issue_vht_ndpa_packet(PADAPTER Adapter, u8 *ra, u16 aid, CHANNEL_WIDTH b
 	SetFrameSubType(pframe, WIFI_NDPA);
 
 	_rtw_memcpy(pwlanhdr->addr1, ra, ETH_ALEN);
-	_rtw_memcpy(pwlanhdr->addr2, adapter_mac_addr(Adapter), ETH_ALEN);
+	_rtw_memcpy(pwlanhdr->addr2, myid(&(Adapter->eeprompriv)), ETH_ALEN);
 
 	if (IsSupported5G(pmlmeext->cur_wireless_mode) || IsSupportedHT(pmlmeext->cur_wireless_mode))
 		aSifsTime = 16;
@@ -453,12 +404,12 @@ BOOLEAN	issue_vht_ndpa_packet(PADAPTER Adapter, u8 *ra, u16 aid, CHANNEL_WIDTH b
 		aSifsTime = 10;
 
 	duration = 2*aSifsTime + 44;
-	
+
 	if(bw == CHANNEL_WIDTH_80)
 		duration += 40;
 	else if(bw == CHANNEL_WIDTH_40)
 		duration+= 87;
-	else	
+	else
 		duration+= 180;
 
 	SetDuration(pframe, duration);
@@ -472,12 +423,12 @@ BOOLEAN	issue_vht_ndpa_packet(PADAPTER Adapter, u8 *ra, u16 aid, CHANNEL_WIDTH b
 	_rtw_memcpy(pframe+16, &sequence,1);
 
 	if(((pmlmeinfo->state&0x03) == WIFI_FW_ADHOC_STATE) || ((pmlmeinfo->state&0x03) == WIFI_FW_AP_STATE))
-		aid = 0;		
+		aid = 0;
 
 	sta_info.aid = aid;
 	sta_info.feedback_type = 0;
 	sta_info.nc_index= 0;
-	
+
 	_rtw_memcpy(pframe+17, (u8 *)&sta_info, 2);
 
 	pattrib->pktlen = 19;
@@ -500,7 +451,7 @@ BOOLEAN	beamfomring_bSounding(struct beamforming_info *pBeamInfo)
 
 	if(( beamforming_get_beamform_cap(pBeamInfo) & BEAMFORMER_CAP) == 0)
 		bSounding = _FALSE;
-	else 
+	else
 		bSounding = _TRUE;
 
 	return bSounding;
@@ -511,11 +462,9 @@ u8	beamforming_sounding_idx(struct beamforming_info *pBeamInfo)
 	u8	idx = 0;
 	u8	i;
 
-	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++)
-	{
+	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++) {
 		if (pBeamInfo->beamforming_entry[i].bUsed &&
-			(_FALSE == pBeamInfo->beamforming_entry[i].bSound))
-		{
+		    (_FALSE == pBeamInfo->beamforming_entry[i].bSound)) {
 			idx = i;
 			break;
 		}
@@ -529,16 +478,11 @@ SOUNDING_MODE	beamforming_sounding_mode(struct beamforming_info *pBeamInfo, u8 i
 	struct beamforming_entry	BeamEntry = pBeamInfo->beamforming_entry[idx];
 	SOUNDING_MODE	mode;
 
-	if(BeamEntry.beamforming_entry_cap & BEAMFORMER_CAP_VHT_SU)
-	{
+	if(BeamEntry.beamforming_entry_cap & BEAMFORMER_CAP_VHT_SU) {
 		mode = SOUNDING_FW_VHT_TIMER;
-	}
-	else if(BeamEntry.beamforming_entry_cap & BEAMFORMER_CAP_HT_EXPLICIT)
-	{
+	} else if(BeamEntry.beamforming_entry_cap & BEAMFORMER_CAP_HT_EXPLICIT) {
 		mode = SOUNDING_FW_HT_TIMER;
-	}
-	else
-	{
+	} else {
 		mode = SOUNDING_STOP_All_TIMER;
 	}
 
@@ -575,13 +519,10 @@ BOOLEAN	beamforming_select_beam_entry(struct beamforming_info *pBeamInfo)
 		pSoundInfo->sound_mode = beamforming_sounding_mode(pBeamInfo, pSoundInfo->sound_idx);
 	else
 		pSoundInfo->sound_mode = SOUNDING_STOP_All_TIMER;
-	
-	if(SOUNDING_STOP_All_TIMER == pSoundInfo->sound_mode)
-	{
+
+	if(SOUNDING_STOP_All_TIMER == pSoundInfo->sound_mode) {
 		return _FALSE;
-	}
-	else
-	{
+	} else {
 		pSoundInfo->sound_bw = beamforming_sounding_bw(pBeamInfo, pSoundInfo->sound_mode, pSoundInfo->sound_idx );
 		pSoundInfo->sound_period = beamforming_sounding_time(pBeamInfo, pSoundInfo->sound_mode, pSoundInfo->sound_idx );
 		return _TRUE;
@@ -590,15 +531,14 @@ BOOLEAN	beamforming_select_beam_entry(struct beamforming_info *pBeamInfo)
 
 BOOLEAN	beamforming_start_fw(PADAPTER adapter, u8 idx)
 {
-	u8						*RA = NULL;
+	//u8						*RA = NULL;
 	struct beamforming_entry	*pEntry;
-	BOOLEAN					ret = _TRUE;
+	//BOOLEAN					ret = _TRUE;
 	struct mlme_priv			*pmlmepriv = &(adapter->mlmepriv);
 	struct beamforming_info	*pBeamInfo = GET_BEAMFORM_INFO(pmlmepriv);
 
 	pEntry = &(pBeamInfo->beamforming_entry[idx]);
-	if(pEntry->bUsed == _FALSE)
-	{
+	if(pEntry->bUsed == _FALSE) {
 		DBG_871X("Skip Beamforming, no entry for Idx =%d\n", idx);
 		return _FALSE;
 	}
@@ -630,32 +570,28 @@ BOOLEAN	beamforming_start_period(PADAPTER adapter)
 
 	beamforming_select_beam_entry(pBeamInfo);
 
-	if(pSoundInfo->sound_mode == SOUNDING_FW_VHT_TIMER || pSoundInfo->sound_mode == SOUNDING_FW_HT_TIMER)
-	{
+	if(pSoundInfo->sound_mode == SOUNDING_FW_VHT_TIMER || pSoundInfo->sound_mode == SOUNDING_FW_HT_TIMER) {
 		ret = beamforming_start_fw(adapter, pSoundInfo->sound_idx);
-	}
-	else
-	{
+	} else {
 		ret = _FALSE;
 	}
 
-	DBG_871X("%s Idx %d Mode %d BW %d Period %d\n", __FUNCTION__, 
-			pSoundInfo->sound_idx, pSoundInfo->sound_mode, pSoundInfo->sound_bw, pSoundInfo->sound_period);
+	DBG_871X("%s Idx %d Mode %d BW %d Period %d\n", __FUNCTION__,
+	         pSoundInfo->sound_idx, pSoundInfo->sound_mode, pSoundInfo->sound_bw, pSoundInfo->sound_period);
 
 	return ret;
 }
 
 void	beamforming_end_period(PADAPTER adapter)
 {
-	u8						idx = 0;
-	struct beamforming_entry	*pBeamformEntry;
+	//u8						idx = 0;
+	//struct beamforming_entry	*pBeamformEntry;
 	struct mlme_priv			*pmlmepriv = &(adapter->mlmepriv);
 	struct beamforming_info	*pBeamInfo = GET_BEAMFORM_INFO(pmlmepriv);
 	struct sounding_info		*pSoundInfo = &(pBeamInfo->sounding_info);
 
 
-	if(pSoundInfo->sound_mode == SOUNDING_FW_VHT_TIMER || pSoundInfo->sound_mode == SOUNDING_FW_HT_TIMER)
-	{		
+	if(pSoundInfo->sound_mode == SOUNDING_FW_VHT_TIMER || pSoundInfo->sound_mode == SOUNDING_FW_HT_TIMER) {
 		beamforming_end_fw(adapter);
 	}
 }
@@ -666,38 +602,26 @@ void	beamforming_notify(PADAPTER adapter)
 	struct beamforming_info	*pBeamInfo = GET_BEAMFORM_INFO(&(adapter->mlmepriv));
 
 	bSounding = beamfomring_bSounding(pBeamInfo);
-	
-	if(pBeamInfo->beamforming_state == BEAMFORMING_STATE_IDLE)
-	{
-		if(bSounding)
-		{			
+
+	if(pBeamInfo->beamforming_state == BEAMFORMING_STATE_IDLE) {
+		if(bSounding) {
 			if(beamforming_start_period(adapter) == _TRUE)
 				pBeamInfo->beamforming_state = BEAMFORMING_STATE_START;
 		}
-	}
-	else if(pBeamInfo->beamforming_state == BEAMFORMING_STATE_START)
-	{
-		if(bSounding)
-		{
+	} else if(pBeamInfo->beamforming_state == BEAMFORMING_STATE_START) {
+		if(bSounding) {
 			if(beamforming_start_period(adapter) == _FALSE)
 				pBeamInfo->beamforming_state = BEAMFORMING_STATE_END;
-		}
-		else
-		{
+		} else {
 			beamforming_end_period(adapter);
 			pBeamInfo->beamforming_state = BEAMFORMING_STATE_END;
 		}
-	}
-	else if(pBeamInfo->beamforming_state == BEAMFORMING_STATE_END)
-	{
-		if(bSounding)
-		{
+	} else if(pBeamInfo->beamforming_state == BEAMFORMING_STATE_END) {
+		if(bSounding) {
 			if(beamforming_start_period(adapter) == _TRUE)
 				pBeamInfo->beamforming_state = BEAMFORMING_STATE_START;
 		}
-	}
-	else
-	{
+	} else {
 		DBG_871X("%s BeamformState %d\n", __FUNCTION__, pBeamInfo->beamforming_state);
 	}
 
@@ -708,24 +632,24 @@ BOOLEAN	beamforming_init_entry(PADAPTER	adapter, struct sta_info *psta, u8* idx)
 {
 	struct mlme_priv	*pmlmepriv = &(adapter->mlmepriv);
 	struct ht_priv		*phtpriv = &(pmlmepriv->htpriv);
-#ifdef CONFIG_80211AC_VHT	
+#ifdef CONFIG_80211AC_VHT
 	struct vht_priv		*pvhtpriv = &(pmlmepriv->vhtpriv);
 #endif
-	struct mlme_ext_priv	*pmlmeext = &(adapter->mlmeextpriv);
-	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
+	//struct mlme_ext_priv	*pmlmeext = &(adapter->mlmeextpriv);
+	//struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct beamforming_entry	*pBeamformEntry = NULL;
-	u8	*ra; 
+	u8	*ra;
 	u16	aid, mac_id;
 	u8	wireless_mode;
 	CHANNEL_WIDTH	bw = CHANNEL_WIDTH_20;
 	BEAMFORMING_CAP	beamform_cap = BEAMFORMING_CAP_NONE;
 
 	// The current setting does not support Beaforming
-	if (0 == phtpriv->beamform_cap 
+	if (0 == phtpriv->beamform_cap
 #ifdef CONFIG_80211AC_VHT
-		&& 0 == pvhtpriv->beamform_cap
+	    && 0 == pvhtpriv->beamform_cap
 #endif
-		) {
+	   ) {
 		DBG_871X("The configuration disabled Beamforming! Skip...\n");
 		return _FALSE;
 	}
@@ -765,7 +689,7 @@ BOOLEAN	beamforming_init_entry(PADAPTER	adapter, struct sta_info *psta, u8* idx)
 
 		if(beamform_cap == BEAMFORMING_CAP_NONE)
 			return _FALSE;
-		
+
 		DBG_871X("Beamforming Config Capability = 0x%02X\n", beamform_cap);
 
 		pBeamformEntry = beamforming_get_entry_by_addr(pmlmepriv, ra, idx);
@@ -777,8 +701,8 @@ BOOLEAN	beamforming_init_entry(PADAPTER	adapter, struct sta_info *psta, u8* idx)
 				pBeamformEntry->beamforming_entry_state = BEAMFORMING_ENTRY_STATE_INITIALIZEING;
 		} else {
 			// Entry has been created. If entry is initialing or progressing then errors occur.
-			if (pBeamformEntry->beamforming_entry_state != BEAMFORMING_ENTRY_STATE_INITIALIZED && 
-				pBeamformEntry->beamforming_entry_state != BEAMFORMING_ENTRY_STATE_PROGRESSED) {
+			if (pBeamformEntry->beamforming_entry_state != BEAMFORMING_ENTRY_STATE_INITIALIZED &&
+			    pBeamformEntry->beamforming_entry_state != BEAMFORMING_ENTRY_STATE_PROGRESSED) {
 				DBG_871X("Error State of Beamforming");
 				return _FALSE;
 			} else {
@@ -800,9 +724,8 @@ void	beamforming_deinit_entry(PADAPTER adapter, u8* ra)
 {
 	u8	idx = 0;
 	struct mlme_priv *pmlmepriv = &(adapter->mlmepriv);
-	
-	if(beamforming_remove_entry(pmlmepriv, ra, &idx) == _TRUE)
-	{
+
+	if(beamforming_remove_entry(pmlmepriv, ra, &idx) == _TRUE) {
 		rtw_hal_set_hwreg(adapter, HW_VAR_SOUNDING_LEAVE, (u8 *)&idx);
 	}
 
@@ -815,10 +738,8 @@ void	beamforming_reset(PADAPTER adapter)
 	struct mlme_priv			*pmlmepriv = &(adapter->mlmepriv);
 	struct beamforming_info	*pBeamInfo = GET_BEAMFORM_INFO(pmlmepriv);
 
-	for(idx = 0; idx < BEAMFORMING_ENTRY_NUM; idx++)
-	{
-		if(pBeamInfo->beamforming_entry[idx].bUsed == _TRUE)
-		{
+	for(idx = 0; idx < BEAMFORMING_ENTRY_NUM; idx++) {
+		if(pBeamInfo->beamforming_entry[idx].bUsed == _TRUE) {
 			pBeamInfo->beamforming_entry[idx].bUsed = _FALSE;
 			pBeamInfo->beamforming_entry[idx].beamforming_entry_cap = BEAMFORMING_CAP_NONE;
 			pBeamInfo->beamforming_entry[idx].beamforming_entry_state= BEAMFORMING_ENTRY_STATE_UNINITIALIZE;
@@ -846,17 +767,13 @@ void	beamforming_check_sounding_success(PADAPTER Adapter,BOOLEAN status)
 	struct beamforming_info	*pBeamInfo = GET_BEAMFORM_INFO(pmlmepriv);
 	struct beamforming_entry	*pEntry = &(pBeamInfo->beamforming_entry[pBeamInfo->beamforming_cur_idx]);
 
-	if(status == 1)
-	{
+	if(status == 1) {
 		pEntry->LogStatusFailCnt = 0;
-	}	
-	else
-	{
+	} else {
 		pEntry->LogStatusFailCnt++;
 		DBG_871X("%s LogStatusFailCnt %d\n", __FUNCTION__, pEntry->LogStatusFailCnt);
 	}
-	if(pEntry->LogStatusFailCnt > 20)
-	{
+	if(pEntry->LogStatusFailCnt > 20) {
 		DBG_871X("%s LogStatusFailCnt > 20, Stop SOUNDING\n", __FUNCTION__);
 		//pEntry->bSound = _FALSE;
 		//rtw_hal_set_hwreg(Adapter, HW_VAR_SOUNDING_FW_NDPA, (u8 *)&pBeamInfo->beamforming_cur_idx);
@@ -893,17 +810,15 @@ BEAMFORMING_CAP beamforming_get_beamform_cap(struct beamforming_info	*pBeamInfo)
 	struct beamforming_entry	beamforming_entry;
 	BEAMFORMING_CAP 		beamform_cap = BEAMFORMING_CAP_NONE;
 
-	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++)
-	{
+	for(i = 0; i < BEAMFORMING_ENTRY_NUM; i++) {
 		beamforming_entry = pBeamInfo->beamforming_entry[i];
 
-		if(beamforming_entry.bUsed)
-		{
+		if(beamforming_entry.bUsed) {
 			if( (beamforming_entry.beamforming_entry_cap & BEAMFORMEE_CAP_VHT_SU) ||
-				(beamforming_entry.beamforming_entry_cap & BEAMFORMEE_CAP_HT_EXPLICIT))
+			    (beamforming_entry.beamforming_entry_cap & BEAMFORMEE_CAP_HT_EXPLICIT))
 				bSelfBeamformee = _TRUE;
 			if( (beamforming_entry.beamforming_entry_cap & BEAMFORMER_CAP_VHT_SU) ||
-				(beamforming_entry.beamforming_entry_cap & BEAMFORMER_CAP_HT_EXPLICIT))
+			    (beamforming_entry.beamforming_entry_cap & BEAMFORMER_CAP_HT_EXPLICIT))
 				bSelfBeamformer = _TRUE;
 		}
 
@@ -932,32 +847,31 @@ void	beamforming_watchdog(PADAPTER Adapter)
 
 void	beamforming_wk_hdl(_adapter *padapter, u8 type, u8 *pbuf)
 {
-	
-_func_enter_;
 
-	switch(type)
-	{
-		case BEAMFORMING_CTRL_ENTER:
-			beamforming_enter(padapter, (PVOID)pbuf);
-			break;
+	_func_enter_;
 
-		case BEAMFORMING_CTRL_LEAVE:
-			beamforming_leave(padapter, pbuf);
-			break;
+	switch(type) {
+	case BEAMFORMING_CTRL_ENTER:
+		beamforming_enter(padapter, (PVOID)pbuf);
+		break;
 
-		case BEAMFORMING_CTRL_SOUNDING_FAIL:
-			beamforming_sounding_fail(padapter);
-			break;
+	case BEAMFORMING_CTRL_LEAVE:
+		beamforming_leave(padapter, pbuf);
+		break;
 
-		case BEAMFORMING_CTRL_SOUNDING_CLK:
-			rtw_hal_set_hwreg(padapter, HW_VAR_SOUNDING_CLK, NULL);
-			break;
-	
-		default:
-			break;
+	case BEAMFORMING_CTRL_SOUNDING_FAIL:
+		beamforming_sounding_fail(padapter);
+		break;
+
+	case BEAMFORMING_CTRL_SOUNDING_CLK:
+		rtw_hal_set_hwreg(padapter, HW_VAR_SOUNDING_CLK, NULL);
+		break;
+
+	default:
+		break;
 	}
 
-_func_exit_;
+	_func_exit_;
 }
 
 u8	beamforming_wk_cmd(_adapter*padapter, s32 type, u8 *pbuf, s32 size, u8 enqueue)
@@ -966,21 +880,20 @@ u8	beamforming_wk_cmd(_adapter*padapter, s32 type, u8 *pbuf, s32 size, u8 enqueu
 	struct drvextra_cmd_parm	*pdrvextra_cmd_parm;
 	struct cmd_priv	*pcmdpriv = &padapter->cmdpriv;
 	u8	res = _SUCCESS;
-	
-_func_enter_;
 
-	if(enqueue)
-	{
+	_func_enter_;
+
+	if(enqueue) {
 		u8	*wk_buf;
-	
-		ph2c = (struct cmd_obj*)rtw_zmalloc(sizeof(struct cmd_obj));	
-		if(ph2c==NULL){
+
+		ph2c = (struct cmd_obj*)rtw_zmalloc(sizeof(struct cmd_obj));
+		if(ph2c==NULL) {
 			res= _FAIL;
 			goto exit;
 		}
-		
-		pdrvextra_cmd_parm = (struct drvextra_cmd_parm*)rtw_zmalloc(sizeof(struct drvextra_cmd_parm)); 
-		if(pdrvextra_cmd_parm==NULL){
+
+		pdrvextra_cmd_parm = (struct drvextra_cmd_parm*)rtw_zmalloc(sizeof(struct drvextra_cmd_parm));
+		if(pdrvextra_cmd_parm==NULL) {
 			rtw_mfree((unsigned char *)ph2c, sizeof(struct cmd_obj));
 			res= _FAIL;
 			goto exit;
@@ -988,7 +901,7 @@ _func_enter_;
 
 		if (pbuf != NULL) {
 			wk_buf = rtw_zmalloc(size);
-			if(wk_buf==NULL){
+			if(wk_buf==NULL) {
 				rtw_mfree((u8 *)ph2c, sizeof(struct cmd_obj));
 				rtw_mfree((u8 *)pdrvextra_cmd_parm, sizeof(struct drvextra_cmd_parm));
 				res= _FAIL;
@@ -1009,18 +922,15 @@ _func_enter_;
 		init_h2fwcmd_w_parm_no_rsp(ph2c, pdrvextra_cmd_parm, GEN_CMD_CODE(_Set_Drv_Extra));
 
 		res = rtw_enqueue_cmd(pcmdpriv, ph2c);
-	}
-	else
-	{
+	} else {
 		beamforming_wk_hdl(padapter, type, pbuf);
 	}
-	
+
 exit:
-	
-_func_exit_;
+
+	_func_exit_;
 
 	return res;
 }
 
 #endif //CONFIG_BEAMFORMING
-
