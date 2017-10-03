@@ -78,10 +78,8 @@ static const struct hc_driver xhci_plat_xhci_driver = {
 	/* Root hub support */
 	.hub_control =		xhci_hub_control,
 	.hub_status_data =	xhci_hub_status_data,
-#if !defined(CONFIG_MACH_ODROIDXU3)
 	.bus_suspend =		xhci_bus_suspend,
 	.bus_resume =		xhci_bus_resume,
-#endif
 };
 
 static int xhci_plat_probe(struct platform_device *pdev)
