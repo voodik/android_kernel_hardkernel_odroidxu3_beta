@@ -51,7 +51,7 @@
 #include <plat/watchdog.h>
 
 #define CONFIG_S3C2410_WATCHDOG_ATBOOT		(1)
-#define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME	(15)
+#define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME	(30)
 
 static bool nowayout	= WATCHDOG_NOWAYOUT;
 static int tmr_margin	= CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME;

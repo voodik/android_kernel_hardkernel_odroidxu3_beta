@@ -99,7 +99,7 @@
 		interrupts = <0 42 0>;
 		clocks = <&clock 1508>, <&clock 1508>;
 		clock-names = "rate_watchdog", "gate_watchdog";
-		timeout-sec = <5>;
+		timeout-sec = <30>;
 		pmu_wdt_reset_type = <1>;
 	};
 
