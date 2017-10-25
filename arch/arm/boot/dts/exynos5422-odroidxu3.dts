@@ -66,6 +66,7 @@
 		samsung,dw-mshc-ddr-timing = <3 0 2 0>;
 		samsung,dw-mshc-hs200-timing = <3 0 2 0>;
 		samsung,dw-mshc-ddr200-timing = <1 1 2 0>;
+		samsung,dw-mshc-ddr200-delay-line = <150>;
 		vmmc-supply = <&buck10_reg>;
 		vqmmc-supply = <&ldo18_reg>;
 		clk_pin = "gpc0-0";
