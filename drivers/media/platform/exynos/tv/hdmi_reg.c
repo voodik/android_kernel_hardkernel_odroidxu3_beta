@@ -1787,6 +1787,64 @@ static const struct hdmi_timings hdmi_conf_480p60 = {
 	.vic = 1,
 };
 
+static const struct hdmi_timings hdmi_conf_480x320p60 = {
+	.core = {
+		.h_blank = {0x40, 0x01}, /* h_blank */
+		.v2_blank = {0x0D, 0x02}, /* v_total */
+		.v1_blank = {0xCD, 0x0}, /* v_blank */
+		.v_line = {0x0D, 0x02}, /* v_total */
+		.h_line = {0x20, 0x03}, /* h_total */
+		.hsync_pol = {0x00}, /* HSync */
+		.vsync_pol = {0x00}, /* VSync */
+		.int_pro_mode = {0x00}, /* progress 0 , interlace 1 */
+		.v_blank_f0 = {0xff, 0xff},
+		.v_blank_f1 = {0xff, 0xff},
+		.h_sync_start = {0x76, 0x00}, /* (hsyncstart - hdisp - 2)*/
+		.h_sync_end = {0xDA, 0x00}, /* (hsyncend - hdisp - 2) */
+		.v_sync_line_bef_2 = {0x0F, 0x00}, /* vsyncend - vdisp */
+		.v_sync_line_bef_1 = {0x08, 0x00}, /* vsyncstart - vdisp */
+		.v_sync_line_aft_2 = {0xff, 0xff},
+		.v_sync_line_aft_1 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_2 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_1 = {0xff, 0xff},
+		.v_blank_f2 = {0xff, 0xff},
+		.v_blank_f3 = {0xff, 0xff},
+		.v_blank_f4 = {0xff, 0xff},
+		.v_blank_f5 = {0xff, 0xff},
+		.v_sync_line_aft_3 = {0xff, 0xff},
+		.v_sync_line_aft_4 = {0xff, 0xff},
+		.v_sync_line_aft_5 = {0xff, 0xff},
+		.v_sync_line_aft_6 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_3 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_4 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_5 = {0xff, 0xff},
+		.v_sync_line_aft_pxl_6 = {0xff, 0xff},
+		/* other don't care */
+	},
+	.tg = {
+		0x00, /* cmd */
+		0x20, 0x03, /* h_fsz */ /* htotal */
+		0x40, 0x01, 0xE0, 0x01, /* hact */ /* hblank / hdisp */
+		0x0D, 0x02, /* v_fsz */ /* vtotal */
+		0x01, 0x00, 0x33, 0x02, /* vsync */
+		0xCD, 0x00, 0x40, 0x01, /* vact */ /* vblank / vdisp */
+		0x33, 0x02, /* field_chg */
+		0x48, 0x02, /* vact_st2 */
+		0x00, 0x00, /* vact_st3 */
+		0x00, 0x00, /* vact_st4 */
+		0x01, 0x00, 0x01, 0x00, /* vsync top/bot */
+		0x01, 0x00, 0x33, 0x02, /* field top/bot */
+		0x00, /* 3d FP */
+	},
+	.mbus_fmt = {
+		.width = 480,
+		.height = 320,
+		.code = V4L2_MBUS_FMT_FIXED, /* means RGB888 */
+		.field = V4L2_FIELD_NONE,
+	},
+	.vic = 0,
+};
+
 static const struct hdmi_timings hdmi_conf_480x800p60 = {
 	.core = {
 		.h_blank = {0x80, 0x00}, /* h_blank */
@@ -2825,6 +2883,7 @@ static const struct hdmi_3d_info info_3d_fp = {
 };
 
 const struct hdmi_conf hdmi_conf[] = {
+	{ V4L2_DV_BT_CEA_480X320P60,		&hdmi_conf_480x320p60,		&info_2d },
 	{ V4L2_DV_BT_DMT_640X480P60,		&hdmi_conf_480p60,		&info_2d },
 	{ V4L2_DV_BT_CEA_720X480P59_94,		&hdmi_conf_480p59_94,		&info_2d },
 	{ V4L2_DV_BT_CEA_720X576P50,		&hdmi_conf_576p50,		&info_2d },
