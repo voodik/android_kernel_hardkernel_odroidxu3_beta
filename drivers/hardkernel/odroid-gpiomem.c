@@ -203,7 +203,7 @@ static int odroid_gpiomem_remove(struct platform_device *pdev)
 
 /*---------------------------------------------------------------------------*/
 static const struct of_device_id odroid_gpiomem_dt[] = {
-	{.compatible = "odroid-gpiomem",},
+	{.compatible = "samsung,exynos-gpiomem",},
 	{ /* sentinel */ },
 };
 
