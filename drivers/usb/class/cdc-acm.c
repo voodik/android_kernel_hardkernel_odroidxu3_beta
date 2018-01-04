@@ -1325,6 +1325,14 @@ skip_countries:
 	usb_set_intfdata(data_interface, acm);
 
 	usb_get_intf(control_interface);
+
+        if (quirks == GPS_DEVICE){
+		dev_info(&intf->dev, "tty GPS VID/PID device\n");
+		acm_tty_driver->name = "ttyGPS";
+	} else {
+		acm_tty_driver->name = "ttyACM";
+	}
+
 	tty_dev = tty_port_register_device(&acm->port, acm_tty_driver, minor,
 			&control_interface->dev);
 	if (IS_ERR(tty_dev)) {
@@ -1678,6 +1686,16 @@ static const struct usb_device_id acm_ids[] = {
 	{ USB_DEVICE(0x04d8, 0x000b),
 	.driver_info = NO_DATA_INTERFACE,
 	},
+
+	/* Ublox GPS */
+        { USB_DEVICE(0x1546, 0x01a7),
+        .driver_info = GPS_DEVICE,
+        },
+
+        /* Ublox 8 GPS */
+        { USB_DEVICE(0x1546, 0x01a8),
+        .driver_info = GPS_DEVICE,
+        },
 
 #if IS_ENABLED(CONFIG_INPUT_IMS_PCU)
 	{ USB_DEVICE(0x04d8, 0x0082),	/* Application mode */
