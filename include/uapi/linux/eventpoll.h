@@ -56,10 +56,11 @@
 #define EPOLL_PACKED
 #endif
 
+#ifndef USES_HWC_SERVICES
 struct epoll_event {
 	__u32 events;
 	__u64 data;
 } EPOLL_PACKED;
-
+#endif
 
 #endif /* _UAPI_LINUX_EVENTPOLL_H */
