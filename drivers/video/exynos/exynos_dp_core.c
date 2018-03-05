@@ -28,6 +28,25 @@
 
 #include "exynos_dp_core.h"
 
+static bool disable_dp;
+
+static int __init exynos_dp_boot_para_setup(char *s)
+{
+	disable_dp = false;
+	if (!strncmp(s, "true", 4))
+		disable_dp = true;
+	else if (!strncmp(s, "false", 5))
+		disable_dp = false;
+	else {
+		pr_err("%s, -wrong disable_dp parameter", __func__);
+		disable_dp = false;
+	}
+
+	return 0;
+}
+__setup("disable_dp=", exynos_dp_boot_para_setup);
+
+
 static int exynos_dp_init_dp(struct exynos_dp_device *dp)
 {
 	exynos_dp_reset(dp);
@@ -1078,6 +1097,9 @@ void exynos_dp_poweron(void)
 {
     struct exynos_dp_device *dp = gDP;
 
+	if (disable_dp)
+		return;
+
 	clk_prepare_enable(dp->clock);
 	exynos_dp_phy_init(dp);
 	exynos_dp_init_dp(dp);
@@ -1088,6 +1110,9 @@ void exynos_dp_poweron(void)
 void exynos_dp_poweroff(void)
 {
     struct exynos_dp_device *dp = gDP;
+
+	if (disable_dp)
+		return;
 
 	disable_irq(dp->irq);
 	exynos_dp_reset(dp);
@@ -1111,6 +1136,9 @@ static int exynos_dp_probe(struct platform_device *pdev)
 #endif	
 
 	int ret = 0;
+
+	if (disable_dp)
+		return ret;
 
 	dp = devm_kzalloc(&pdev->dev, sizeof(struct exynos_dp_device),
 				GFP_KERNEL);
