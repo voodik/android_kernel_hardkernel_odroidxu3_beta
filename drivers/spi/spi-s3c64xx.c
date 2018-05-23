@@ -33,6 +33,11 @@
 #include <linux/of_gpio.h>
 
 #include <linux/platform_data/spi-s3c64xx.h>
+
+static unsigned int force32b = 0;
+module_param(force32b, uint, 0);
+MODULE_PARM_DESC(force32b, "force 32bits fb data");
+
 #include <mach/exynos-fimc-is.h>
 
 #if defined(CONFIG_S3C_DMA) || defined(CONFIG_SAMSUNG_DMADEV)
@@ -868,9 +873,15 @@ static int s3c64xx_spi_transfer_one_message(struct spi_master *master,
 
 		INIT_COMPLETION(sdd->xfer_completion);
 
-		/* Only BPW and Speed may change across transfers */
+        /* Only BPW and Speed may change across transfers */
 		bpw = xfer->bits_per_word;
 		speed = xfer->speed_hz ? : spi->max_speed_hz;
+
+        if (force32b && (xfer->len >= 64)) {
+            if ((bpw == 8) && ((xfer->len % 4) == 0)) {
+                bpw = 32;
+            }
+        }
 
 		if (xfer->len % (bpw / 8)) {
 			dev_err(&spi->dev,
@@ -1511,6 +1522,8 @@ static int s3c64xx_spi_probe(struct platform_device *pdev)
 	dev_dbg(&pdev->dev, "\tIOmem=[0x%x-0x%x]\tDMA=[Rx-%d, Tx-%d]\n",
 					mem_res->end, mem_res->start,
 					sdd->rx_dma.dmach, sdd->tx_dma.dmach);
+
+    pr_err("%s : force32b = %d\n", __func__, force32b);
 
 	return 0;
 
