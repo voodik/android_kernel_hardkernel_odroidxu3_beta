@@ -1040,19 +1040,28 @@ static struct s3c64xx_spi_csinfo *s3c64xx_get_slave_ctrldata(
 		return ERR_PTR(-ENOMEM);
 	}
 
-	if (of_get_property(data_np, "cs-gpio", NULL)) {
-		cs->line = of_get_named_gpio(data_np, "cs-gpio", 0);
-		if (!gpio_is_valid(cs->line))
-			cs->line = (unsigned)NULL;
+	if (force32b > 0) {
+                cs->line = (unsigned)NULL;
+                cs->fb_delay = 0;
+                cs->cs_mode = 0;
+                pr_err("%s : hack force32b = %d\n", __func__, force32b);
+
 	} else {
-		cs->line = (unsigned)NULL;
+
+		if (of_get_property(data_np, "cs-gpio", NULL)) {
+			cs->line = of_get_named_gpio(data_np, "cs-gpio", 0);
+			if (!gpio_is_valid(cs->line))
+				cs->line = (unsigned)NULL;
+		} else {
+			cs->line = (unsigned)NULL;
+		}
+
+		of_property_read_u32(data_np, "samsung,spi-feedback-delay", &fb_delay);
+		cs->fb_delay = fb_delay;
+
+		of_property_read_u32(data_np, "samsung,spi-chip-select-mode", &cs_mode);
+		cs->cs_mode = cs_mode;
 	}
-
-	of_property_read_u32(data_np, "samsung,spi-feedback-delay", &fb_delay);
-	cs->fb_delay = fb_delay;
-
-	of_property_read_u32(data_np, "samsung,spi-chip-select-mode", &cs_mode);
-	cs->cs_mode = cs_mode;
 
 	of_node_put(data_np);
 	return cs;
