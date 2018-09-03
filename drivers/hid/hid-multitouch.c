@@ -1791,6 +1791,12 @@ static const struct hid_device_id mt_devices[] = {
 				USB_VENDOR_ID_NHD,
 				USB_DEVICE_ID_NHD_7_0_HDMI_N_RSXN_CTU) },
 
+/* ByQDTech DISPLAY capacitive Screen */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(
+				USB_VENDOR_ID_BYQDTECH,
+				USB_DEVICE_ID_BYQDTECH_7) },
+
 	/* Generic MT device */
 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
 
