@@ -1188,4 +1188,8 @@
 #define USB_VENDOR_ID_BYQDTECH	0x0483
 #define USB_DEVICE_ID_BYQDTECH_7	0x5750
 
+/* SHARP HDMI capacitive Screen */
+#define USB_VENDOR_ID_SHARP	0x04dd
+#define USB_DEVICE_ID_SHARP_TSLV238	0x991c
+
 #endif
