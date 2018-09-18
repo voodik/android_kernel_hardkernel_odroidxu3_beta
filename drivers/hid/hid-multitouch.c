@@ -1797,6 +1797,12 @@ static const struct hid_device_id mt_devices[] = {
 				USB_VENDOR_ID_BYQDTECH,
 				USB_DEVICE_ID_BYQDTECH_7) },
 
+/* SHARP DISPLAY capacitive Screen */
+	{ .driver_data = MT_CLS_DEFAULT,
+		HID_USB_DEVICE(
+				USB_VENDOR_ID_SHARP,
+				USB_DEVICE_ID_SHARP_TSLV238) },
+
 	/* Generic MT device */
 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
 
