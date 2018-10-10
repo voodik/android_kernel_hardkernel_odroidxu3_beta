@@ -1192,4 +1192,8 @@
 #define USB_VENDOR_ID_SHARP	0x04dd
 #define USB_DEVICE_ID_SHARP_TSLV238	0x991c
 
+/* SHARP HDMI capacitive Screen */
+#define USB_VENDOR_ID_TEST	0x0
+#define USB_DEVICE_ID_TEST	0x0
+
 #endif

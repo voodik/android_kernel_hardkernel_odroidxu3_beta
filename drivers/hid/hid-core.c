@@ -1578,9 +1578,50 @@ unlock:
 }
 EXPORT_SYMBOL_GPL(hid_input_report);
 
+static long test_mt_vid;
+static int __init test_mt_vid_setup(char *str)
+{
+	int ret;
+
+	if (NULL == str) {
+		test_mt_vid = 0;
+		return -EINVAL;
+	}
+
+	ret = kstrtol(str, 16, &test_mt_vid);
+
+	pr_info("-%s test_mt_vid : 0x%lx\n", __func__, test_mt_vid);
+
+	return 0;
+}
+__setup("test_mt_vid=", test_mt_vid_setup);
+
+static long test_mt_pid;
+static int __init test_mt_pid_setup(char *str)
+{
+	int ret;
+
+	if (NULL == str) {
+		test_mt_pid = 0;
+		return -EINVAL;
+	}
+
+	ret = kstrtol(str, 16, &test_mt_pid);
+
+	pr_info("+%s test_mt_pid : 0x%lx\n", __func__, test_mt_pid);
+
+	return 0;
+}
+__setup("test_mt_pid=", test_mt_pid_setup);
+
 static bool hid_match_one_id(struct hid_device *hdev,
 		const struct hid_device_id *id)
 {
+	if (id->vendor == 0x0 && id->product == 0x0) {
+		return (test_mt_vid == hdev->vendor) &&
+		(test_mt_pid == hdev->product);
+	}
+
 	return (id->bus == HID_BUS_ANY || id->bus == hdev->bus) &&
 		(id->group == HID_GROUP_ANY || id->group == hdev->group) &&
 		(id->vendor == HID_ANY_ID || id->vendor == hdev->vendor) &&
