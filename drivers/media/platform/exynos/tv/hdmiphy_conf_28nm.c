@@ -48,6 +48,18 @@ static const u8 hdmiphy_conf27_027[32] = {
 	0x54, 0xE3, 0x24, 0x00, 0x00, 0x00, 0x01, 0x80,
 };
 
+/*
+ * To support Vu5A, pixel clock 33.9MHz is needed
+ * but we don't have the exact HDMI PHY table
+ * so as a workaround, the closest table will be used.
+ */
+static const u8 hdmiphy_conf33_9[32] = {
+	0x01, 0x51, 0x2D, 0x55, 0x40, 0x40, 0x00, 0xC8,
+	0x02, 0xC8, 0x0E, 0xD9, 0x45, 0xA0, 0xAC, 0x80,
+	0x08, 0x80, 0x09, 0x84, 0x05, 0x02, 0x24, 0x66,
+	0x54, 0xAB, 0x24, 0x00, 0x00, 0x00, 0x01, 0x80,
+};
+
 static const u8 hdmiphy_conf40[32] = {
 	0x01, 0xD1, 0x21, 0x31, 0x40, 0x3C, 0x28, 0xC8,
 	0x87, 0xE8, 0xC8, 0xD8, 0x45, 0xA0, 0xAC, 0x80,
@@ -187,7 +199,7 @@ const struct hdmiphy_conf hdmiphy_conf[] = {
 	{ V4L2_DV_BT_CEA_720X480P59_94, hdmiphy_conf27 },
 	{ V4L2_DV_BT_CEA_720X576P50, hdmiphy_conf27 },
 	{ V4L2_DV_BT_CEA_480X800P60, hdmiphy_conf32 },
-	{ V4L2_DV_BT_CEA_800X480P60, hdmiphy_conf32 },
+	{ V4L2_DV_BT_CEA_800X480P60, hdmiphy_conf33_9 },
 	{ V4L2_DV_BT_DMT_800X600P60, hdmiphy_conf40 },
 	{ V4L2_DV_BT_DMT_848X480P60, hdmiphy_conf31_49 },
 	{ V4L2_DV_BT_DMT_1024X600P60, hdmiphy_conf50_4 },
