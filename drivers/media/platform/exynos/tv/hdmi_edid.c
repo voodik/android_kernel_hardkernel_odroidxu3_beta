@@ -147,6 +147,7 @@ static struct edid_preset {
 	{ V4L2_DV_BT_CEA_1920X1080P50,	1920, 1080, 50, FB_VMODE_NONINTERLACED, "1080p@50" },
 	{ V4L2_DV_BT_CEA_1920X1080P60,	1920, 1080, 60, FB_VMODE_NONINTERLACED, "1080p@60" },
 	{ V4L2_DV_BT_DMT_1920X1200P60_RB,	1920, 1200, 60, FB_VMODE_NONINTERLACED, "1920x1200p@60" },
+	{ V4L2_DV_BT_DMT_1200X1920P60,	1200, 1920, 60, FB_VMODE_NONINTERLACED, "1200x1920p@60" },
 };
 
 static struct edid_3d_preset {
@@ -437,7 +438,9 @@ static void edid_bootarg_preset(void)
 	printk("# HDMI PHY Resolution %s #\n", HdmiPHYBootArgs);
 	printk("###########################################\n");
 
-	if (strncmp(HdmiPHYBootArgs, "1920x1200p60hz", 14) == 0)
+	if (strncmp(HdmiPHYBootArgs, "1200x1920p60hz", 14) == 0)
+		preferred_preset = hdmi_conf[33].dv_timings;
+	else if (strncmp(HdmiPHYBootArgs, "1920x1200p60hz", 14) == 0)
 		preferred_preset = hdmi_conf[32].dv_timings;
 	else if (strncmp(HdmiPHYBootArgs, "1080p60hz", 9) == 0)
 		preferred_preset = hdmi_conf[31].dv_timings;
