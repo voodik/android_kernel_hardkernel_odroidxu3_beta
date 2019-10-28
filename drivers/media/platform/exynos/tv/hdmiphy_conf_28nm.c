@@ -194,6 +194,7 @@ static const u8 hdmiphy_conf204_75[32] = {
 };
 
 const struct hdmiphy_conf hdmiphy_conf[] = {
+	{ V4L2_DV_BT_CEA_480X272P60, hdmiphy_conf25_2},
 	{ V4L2_DV_BT_CEA_480X320P60, hdmiphy_conf25_2},
 	{ V4L2_DV_BT_DMT_640X480P60, hdmiphy_conf25_2},
 	{ V4L2_DV_BT_CEA_720X480P59_94, hdmiphy_conf27 },
