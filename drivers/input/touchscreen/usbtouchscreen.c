@@ -61,9 +61,35 @@
 #define DRIVER_AUTHOR		"Daniel Ritz <daniel.ritz@gmx.ch>"
 #define DRIVER_DESC		"USB Touchscreen Driver"
 
-static bool swap_xy;
-module_param(swap_xy, bool, 0644);
-MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
+/* Defined by boot.ini */
+
+static bool invert_x; 
+module_param(invert_x, bool, 0644); 
+MODULE_PARM_DESC(invert_x, "If set X is inverted"); 
+
+static bool invert_y; 
+module_param(invert_y, bool, 0644); 
+MODULE_PARM_DESC(invert_y, "If set Y is inverted"); 
+
+static int max_x = -1; 
+module_param(max_x, int, 0644); 
+MODULE_PARM_DESC(max_x, "Set max X"); 
+
+static int max_y = -1; 
+module_param(max_y, int, 0644); 
+MODULE_PARM_DESC(max_y, "Set max Y"); 
+
+static int min_x = -1; 
+module_param(min_x, int, 0644); 
+MODULE_PARM_DESC(min_x, "Set min X"); 
+
+static int min_y = -1; 
+module_param(min_y, int, 0644); 
+MODULE_PARM_DESC(min_y, "Set min Y"); 
+
+static bool swap_xy; 
+module_param(swap_xy, bool, 0644); 
+MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped."); 
 
 static bool hwcalib_xy;
 module_param(hwcalib_xy, bool, 0644);
@@ -146,19 +172,8 @@ enum {
 	DEVTYPE_ETOUCH,
 };
 
-#define USB_DEVICE_HID_CLASS(vend, prod) \
-	.match_flags = USB_DEVICE_ID_MATCH_INT_CLASS \
-		| USB_DEVICE_ID_MATCH_DEVICE, \
-	.idVendor = (vend), \
-	.idProduct = (prod), \
-	.bInterfaceClass = USB_INTERFACE_CLASS_HID
-
 static const struct usb_device_id usbtouch_devices[] = {
 #ifdef CONFIG_TOUCHSCREEN_USB_EGALAX
-	/* ignore the HID capable devices, handled by usbhid */
-	{USB_DEVICE_HID_CLASS(0x0eef, 0x0001), .driver_info = DEVTYPE_IGNORE},
-	{USB_DEVICE_HID_CLASS(0x0eef, 0x0002), .driver_info = DEVTYPE_IGNORE},
-
 	/* normal device IDs */
 	{USB_DEVICE(0x3823, 0x0001), .driver_info = DEVTYPE_EGALAX},
 	{USB_DEVICE(0x3823, 0x0002), .driver_info = DEVTYPE_EGALAX},
@@ -1307,19 +1322,26 @@ static void usbtouch_process_pkt(struct usbtouch_usb *usbtouch,
                                  unsigned char *pkt, int len)
 {
 	struct usbtouch_device_info *type = usbtouch->type;
+	int x, y;
 
 	if (!type->read_data(usbtouch, pkt))
 			return;
 
 	input_report_key(usbtouch->input, BTN_TOUCH, usbtouch->touch);
 
-	if (swap_xy) {
-		input_report_abs(usbtouch->input, ABS_X, usbtouch->y);
-		input_report_abs(usbtouch->input, ABS_Y, usbtouch->x);
-	} else {
-		input_report_abs(usbtouch->input, ABS_X, usbtouch->x);
-		input_report_abs(usbtouch->input, ABS_Y, usbtouch->y);
-	}
+	// Swap XY?
+	x = swap_xy ? usbtouch->y : usbtouch->x;
+	y = swap_xy ? usbtouch->x : usbtouch->y;
+	
+	if (invert_x)
+		x = type->max_xc - x + type->min_xc;
+
+	if (invert_y)
+		y = type->max_yc - y + type->min_yc;
+
+	input_report_abs(usbtouch->input, ABS_X, x);
+	input_report_abs(usbtouch->input, ABS_Y, y);
+
 	if (type->max_press)
 		input_report_abs(usbtouch->input, ABS_PRESSURE, usbtouch->press);
 	input_sync(usbtouch->input);
@@ -1553,6 +1575,7 @@ usbtouch_get_input_endpoint(struct usb_host_interface *interface)
 	return NULL;
 }
 
+#define checkMinMax(defined, user)  if (user != -1) {defined = user;} else {user = defined;} 
 static int usbtouch_probe(struct usb_interface *intf,
 			  const struct usb_device_id *id)
 {
@@ -1577,6 +1600,11 @@ static int usbtouch_probe(struct usb_interface *intf,
 		goto out_free;
 
 	type = &usbtouch_dev_info[id->driver_info];
+	// Redefine min/max?
+	checkMinMax(type->min_xc, min_x)
+	checkMinMax(type->max_xc, max_x)
+	checkMinMax(type->min_yc, min_y)
+	checkMinMax(type->max_yc, max_y)
 	usbtouch->type = type;
 	if (!type->process_pkt)
 		type->process_pkt = usbtouch_process_pkt;
